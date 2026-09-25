@@ -71,7 +71,8 @@ window.addEventListener('pointerdown', () => audio.unlock(), { capture: true });
 window.addEventListener('keydown', () => audio.unlock(), { capture: true });
 document.addEventListener('visibilitychange', () => { if (document.hidden) audio.stop(); });
 
-document.body.style.setProperty('--lx-scene', `url("${asset('background-classroom').src}")`);
+// URL เต็ม: url() แบบสัมพัทธ์ในตัวแปร CSS จะอิงโฟลเดอร์ของไฟล์ CSS (บน Pages กลายเป็น assets/assets/...)
+document.body.style.setProperty('--lx-scene', `url("${new URL(asset('background-classroom').src, document.baseURI).href}")`);
 applySettings();
 mount();
 

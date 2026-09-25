@@ -7,6 +7,8 @@ const secrets = set.items.flatMap((item) => [item.review.summary, ...item.review
   .filter((text) => !set.items.some((item) => item.options.some((o) => o.text === text)));
 
 test('full session 5 + 5 + 2: review each block, skip break, reward once, other game data untouched', async ({ page }) => {
+  const missing = [];
+  page.on('response', (r) => { if (r.status() >= 400) missing.push(`${r.status()} ${r.url()}`); });
   await freshStart(page, { others: { 'lilly-world-v1': '{"stars":7}' } });
   await startSet(page);
   for (let block = 1; block <= 3; block++) {
@@ -31,6 +33,7 @@ test('full session 5 + 5 + 2: review each block, skip break, reward once, other 
   expect(stored.rewards.stickers).toEqual(['sticker-bow']);
   expect(stored.history).toHaveLength(1);
   expect(await page.evaluate(() => localStorage.getItem('lilly-world-v1'))).toBe('{"stars":7}');
+  expect(missing).toEqual([]);
 });
 
 test('exam view has no answer, hint or review data in DOM, aria or data attributes', async ({ page }) => {
