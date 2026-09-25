@@ -1,6 +1,7 @@
 /* พักระหว่างช่วง (ข้ามได้) และรับรางวัลเมื่อจบชุด (ให้จากการทำครบ ไม่ขึ้นกับคะแนน) */
 import { SAY } from '../content/copy.js';
 import { STICKERS } from '../core/assets.js';
+import { summarize } from '../core/summary.js';
 import { $, buddyHTML, esc, on, picture } from '../ui.js';
 
 export function mountBreak(root, ctx) {
@@ -56,7 +57,8 @@ export function mountReward(root, ctx) {
     const pick = event.target.closest('[data-sticker]');
     if (pick) {
       audio.tap(880);
-      store.dispatch({ type: 'claim', sticker: pick.dataset.sticker, now: Date.now() });
+      const t = summarize(store.state.session, ctx.set).totals;
+      store.dispatch({ type: 'claim', sticker: pick.dataset.sticker, result: { correct: t.correct, total: t.questions }, now: Date.now() });
       return;
     }
     if (event.target.closest('#lx-home')) ctx.go('home');

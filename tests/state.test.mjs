@@ -123,6 +123,36 @@ test('reward is granted once per session regardless of score, even when claimed 
   assert.equal(claimed.history[0].id, s.session.id);
 });
 
+test('finishing a set records per-set progress (completions, last and best first-answer score)', () => {
+  const finish = (state, correct) => {
+    let s = reduce(state, { type: 'start', session: createSession(set, { now: correct + 10, random: () => correct / 100 }) });
+    for (let block = 0; block < 3; block++) {
+      s = submitBlock(s);
+      s = reduce(s, { type: 'finishReview' });
+      if (block < 2) s = reduce(s, { type: 'endBreak' });
+    }
+    return reduce(s, { type: 'claim', sticker: null, result: { correct, total: 12 }, now: 99 });
+  };
+  let s = finish(initialState(), 9);
+  assert.deepEqual(s.progress['set-01'], { completed: 1, last: { correct: 9, total: 12 }, best: { correct: 9, total: 12 }, version: 1, at: 99 });
+  s = finish(s, 6);
+  assert.equal(s.progress['set-01'].completed, 2);
+  assert.deepEqual(s.progress['set-01'].last, { correct: 6, total: 12 });
+  assert.deepEqual(s.progress['set-01'].best, { correct: 9, total: 12 });
+  // ข้อมูลผลเสียไม่ทำให้พัง แค่ไม่บันทึกคะแนน
+  const odd = finish(initialState(), 20);
+  assert.equal(odd.progress['set-01'].last, null);
+  assert.equal(odd.progress['set-01'].completed, 1);
+});
+
+test('set cards: next set, in-progress set and finished set', async () => {
+  const { setCards } = await import('../src/screens/home.js');
+  const sets = [{ id: 'a', order: ['x'] }, { id: 'b', order: ['y'] }, { id: 'c', order: ['z'] }];
+  const state = { ...initialState(), progress: { a: { completed: 2, last: { correct: 1, total: 1 } } } };
+  const cards = setCards(state, sets);
+  assert.deepEqual(cards.map((c) => [c.set.id, !!c.progress, c.next, c.active]), [['a', true, false, false], ['b', false, true, false], ['c', false, false, false]]);
+});
+
 test('exposure: a later item with a skill already taught is flagged and left out of the baseline', () => {
   let s = started();
   const skill = s.session.skills[s.session.blocks[1][0]][0];

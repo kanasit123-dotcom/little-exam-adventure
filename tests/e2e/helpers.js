@@ -21,8 +21,9 @@ export async function freshStart(page, { sound = false, others = {} } = {}) {
   await page.reload();
 }
 
-export async function startSet(page) {
-  await page.locator('[data-start]').first().click();
+export async function startSet(page, setId = 'set-01') {
+  await page.locator('#lx-sets').click();
+  await page.locator(`[data-set="${setId}"]`).click();
   await page.locator('#lx-go').click();
   await page.locator('.lx-pick').first().waitFor();
 }

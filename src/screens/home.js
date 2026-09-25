@@ -1,4 +1,4 @@
-/* หน้าแรก เลือกเพื่อน และสมุดสติกเกอร์ */
+/* หน้าแรก เลือกชุดข้อสอบ เลือกเพื่อน และสมุดสติกเกอร์ */
 import { SETS, getSet } from '../content/sets/index.js';
 import { SAY } from '../content/copy.js';
 import { FRIENDS, STICKERS } from '../core/assets.js';
@@ -33,7 +33,7 @@ export function mountHome(root, ctx) {
         ${active && !usable ? '<p class="lx-warn">ชุดที่ทำค้างไว้เป็นเนื้อหารุ่นเก่า เริ่มชุดใหม่ได้เลย (ผลเดิมเก็บไว้ในหน้าผู้ปกครอง)</p>' : ''}
         <div class="lx-home-actions">
           ${usable ? `<button class="lx-btn lx-btn-go lx-btn-big" id="lx-resume" type="button">ทำต่อ ${esc(getSet(s.setId).title)} ▶<small>ตอบแล้ว ${answered} จาก ${s.questionIds.length} ข้อ</small></button>` : ''}
-          ${SETS.map((set) => `<button class="lx-btn ${usable ? 'lx-btn-soft' : 'lx-btn-go'} lx-btn-big" data-start="${esc(set.id)}" type="button">เริ่ม${esc(set.title)} <small>${set.order.length} ข้อ</small></button>`).join('')}
+          <button class="lx-btn ${usable ? 'lx-btn-soft' : 'lx-btn-go'} lx-btn-big" id="lx-sets" type="button">เลือกชุดข้อสอบ ▶<small>มี ${SETS.length} ชุด</small></button>
         </div>
         <div class="lx-row lx-home-links">
           <button class="lx-btn lx-btn-soft" id="lx-album" type="button">⭐ ${state.rewards.stars} · สติกเกอร์ของหนู</button>
@@ -43,18 +43,72 @@ export function mountHome(root, ctx) {
     </div>`;
 
   on($(root, '#lx-resume') || document.createElement('i'), 'click', () => ctx.go('play'), signal);
-  on(root, 'click', async (event) => {
-    const start = event.target.closest('[data-start]');
-    if (!start) return;
-    if (active && usable) {
-      const ok = await confirmBox(root, { text: 'เริ่มชุดใหม่ใช่ไหม ชุดที่ทำค้างไว้จะเก็บผลไว้ในหน้าผู้ปกครอง', yes: 'เริ่มใหม่', no: 'ไม่ใช่' }, signal);
-      if (!ok) return;
-    }
-    ctx.go('buddy', { setId: start.dataset.start });
-  }, signal);
+  on($(root, '#lx-sets'), 'click', () => ctx.go('sets'), signal);
   on($(root, '#lx-album'), 'click', () => ctx.go('album'), signal);
   on($(root, '#lx-parent'), 'click', () => ctx.go('parent'), signal);
   audio.play({ text: SAY.welcome, role: 'ui' }, { signal });
+}
+
+/** สถานะของแต่ละชุดสำหรับการ์ด: กำลังทำ / ทำครบแล้ว / ยังไม่เคยทำ และชุดที่แนะนำให้ทำต่อไป */
+export function setCards(state, sets = SETS) {
+  const s = state.session;
+  const activeId = s && s.phase !== 'done' && sessionUsable(s) ? s.setId : null;
+  const nextId = sets.find((set) => !state.progress?.[set.id] && set.id !== activeId)?.id || null;
+  return sets.map((set, index) => {
+    const progress = state.progress?.[set.id] || null;
+    const active = set.id === activeId;
+    return {
+      set,
+      number: index + 1,
+      active,
+      answered: active ? s.questionIds.filter((id) => s.drafts[id] != null).length : 0,
+      progress,
+      next: set.id === nextId,
+    };
+  });
+}
+
+export function mountSets(root, ctx) {
+  const { store, signal } = ctx;
+  const state = store.state;
+  const cards = setCards(state);
+  const activeCard = cards.find((c) => c.active);
+  root.innerHTML = `
+    <div class="lx-screen lx-sets">
+      <header class="lx-bar">
+        <button class="lx-btn lx-btn-small lx-btn-ghost" id="lx-back" type="button">◀ หน้าแรก</button>
+        <div class="lx-bar-title">เลือกชุดข้อสอบ</div>
+      </header>
+      <main class="lx-paper">
+        <div class="lx-set-grid">${cards.map((c) => {
+          const status = c.active
+            ? `<span class="lx-set-status lx-set-doing">กำลังทำ · ตอบแล้ว ${c.answered}/${c.set.order.length}</span>`
+            : c.progress
+              ? `<span class="lx-set-status lx-set-done">⭐ ทำครบแล้ว ${c.progress.completed} ครั้ง</span>${c.progress.last ? `<span class="lx-set-score">ครั้งล่าสุดตอบถูก ${c.progress.last.correct}/${c.progress.last.total}</span>` : ''}`
+              : '<span class="lx-set-status">ยังไม่เคยทำ</span>';
+          return `<button class="lx-set-card${c.active ? ' lx-set-active' : ''}${c.progress ? ' lx-set-finished' : ''}${c.next ? ' lx-set-next' : ''}" data-set="${esc(c.set.id)}" type="button">
+            ${c.next ? '<span class="lx-set-badge">ชุดต่อไป</span>' : ''}
+            <b class="lx-set-title">${esc(c.set.title)}</b>
+            <span class="lx-set-count">${c.set.order.length} ข้อ</span>
+            ${c.set.note ? `<span class="lx-set-note">${esc(c.set.note)}</span>` : ''}
+            ${status}
+            <span class="lx-set-go">${c.active ? 'ทำต่อ ▶' : c.progress ? 'ทำอีกครั้ง ▶' : 'เริ่ม ▶'}</span>
+          </button>`;
+        }).join('')}</div>
+      </main>
+    </div>`;
+  on($(root, '#lx-back'), 'click', () => ctx.go('home'), signal);
+  on(root, 'click', async (event) => {
+    const card = event.target.closest('[data-set]');
+    if (!card) return;
+    const setId = card.dataset.set;
+    if (activeCard?.set.id === setId) { ctx.go('play'); return; }
+    if (activeCard) {
+      const ok = await confirmBox(root, { text: `เริ่ม${getSet(setId).title}ใช่ไหม ${activeCard.set.title}ที่ทำค้างไว้จะเก็บผลไว้ในหน้าผู้ปกครอง`, yes: 'เริ่มชุดนี้', no: 'ไม่ใช่' }, signal);
+      if (!ok) return;
+    }
+    ctx.go('buddy', { setId });
+  }, signal);
 }
 
 export function mountBuddy(root, ctx) {
@@ -89,7 +143,7 @@ export function mountBuddy(root, ctx) {
       render();
       return;
     }
-    if (event.target.closest('#lx-back')) { ctx.go('home'); return; }
+    if (event.target.closest('#lx-back')) { ctx.go('sets'); return; }
     if (event.target.closest('#lx-go')) {
       store.dispatch({ type: 'settings', patch: { buddy: chosen } });
       store.dispatch({ type: 'start', session: createSession(set) });

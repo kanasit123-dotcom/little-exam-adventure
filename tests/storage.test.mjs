@@ -59,6 +59,17 @@ test('a broken session is dropped but rewards and settings survive', () => {
   assert.equal(result.state.settings.rate, 'slow');
 });
 
+test('per-set progress survives reload; broken entries are dropped', () => {
+  const raw = { ...initialState(), progress: { 'set-01': { completed: 2, last: { correct: 8, total: 12 } }, bad: { completed: 'x' }, worse: null } };
+  const result = load(memory({ [STORAGE_KEY]: JSON.stringify(raw) }));
+  assert.deepEqual(Object.keys(result.state.progress), ['set-01']);
+  assert.equal(result.state.progress['set-01'].completed, 2);
+  // บันทึกเก่าที่ยังไม่มี progress ก็โหลดได้
+  const old = { ...initialState() };
+  delete old.progress;
+  assert.deepEqual(load(memory({ [STORAGE_KEY]: JSON.stringify(old) })).state.progress, {});
+});
+
 test('storage failures are reported instead of throwing', () => {
   const broken = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('full'); } };
   assert.equal(load(broken).problem, 'storage');

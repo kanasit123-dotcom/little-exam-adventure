@@ -34,6 +34,26 @@ test('full session 5 + 5 + 2: review each block, skip break, reward once, other 
   expect(stored.history).toHaveLength(1);
   expect(await page.evaluate(() => localStorage.getItem('lilly-world-v1'))).toBe('{"stars":7}');
   expect(missing).toEqual([]);
+  // หน้าเลือกชุดจำผลของชุดนี้ไว้
+  await page.goto('/');
+  await page.locator('#lx-sets').click();
+  const card = page.locator('[data-set="set-01"]');
+  await expect(card).toContainText('ทำครบแล้ว 1 ครั้ง');
+  await expect(card).toContainText(`ครั้งล่าสุดตอบถูก ${stored.progress['set-01'].last.correct}/12`);
+  await expect(card).toContainText('ทำอีกครั้ง');
+});
+
+test('set picker: a set in progress shows its answered count and resumes where it stopped', async ({ page }) => {
+  await freshStart(page);
+  await startSet(page);
+  await page.locator('.lx-pick').first().click();
+  await page.locator('#lx-next').click();
+  await page.goto('/');
+  await page.locator('#lx-sets').click();
+  const card = page.locator('[data-set="set-01"]');
+  await expect(card).toContainText('กำลังทำ · ตอบแล้ว 1/12');
+  await card.click();
+  await expect(page.locator('.lx-qnum')).toHaveText('2.');
 });
 
 test('exam view has no answer, hint or review data in DOM, aria or data attributes', async ({ page }) => {
@@ -157,8 +177,8 @@ test('parent page shows first-answer results and settings persist', async ({ pag
   await answerAndSubmitBlock(page, (n) => (n === 2 ? 'unsure' : 1));
   await page.goto('/');
   await page.locator('#lx-parent').click();
-  await expect(page.locator('.lx-table tbody tr')).toHaveCount(12);
-  await expect(page.locator('.lx-table')).toContainText('ยังไม่แน่ใจ');
+  await expect(page.locator('.lx-table-questions tbody tr')).toHaveCount(12);
+  await expect(page.locator('.lx-table-questions')).toContainText('ยังไม่แน่ใจ');
   await page.locator('[data-key="rate"] [data-v="slow"]').click();
   await page.locator('[data-key="mode"] [data-v="plain"]').click();
   await page.reload();

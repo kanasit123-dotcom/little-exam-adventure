@@ -1,5 +1,5 @@
 /* หน้าผู้ปกครอง: ตั้งค่า + สรุปผลแบบย่อ (แยกก่อนสอน/หลังสอน ฟังซ้ำ คำใบ้) — ไม่จัดอันดับ ไม่ส่งข้อมูลออก */
-import { getSet } from '../content/sets/index.js';
+import { SETS, getSet } from '../content/sets/index.js';
 import { summarize } from '../core/summary.js';
 import { $, esc, on, confirmBox } from '../ui.js';
 import { sessionUsable } from './home.js';
@@ -15,7 +15,7 @@ function sessionReport(session) {
   return `
     <p class="lx-lead">ส่งแล้ว ${t.submitted}/${t.questions} ข้อ · ถูก ${t.correct} · ยังไม่ถูก ${t.incorrect} · ยังไม่แน่ใจ ${t.unsure}</p>
     <p class="lx-small">คะแนนก่อนได้เรียนเฉลย: ${t.baselineCorrect}/${t.baselineTotal} (ไม่นับข้อที่ได้เรียนทักษะเดียวกันในเฉลยช่วงก่อน)</p>
-    <div class="lx-table-wrap"><table class="lx-table">
+    <div class="lx-table-wrap"><table class="lx-table lx-table-questions">
       <thead><tr><th>ข้อ</th><th>หมวด</th><th>ตอบครั้งแรก</th><th>ฟังโจทย์ซ้ำ</th><th>ฟังตัวเลือก</th><th>ดูเฉลย</th><th>ลองข้อใหม่</th></tr></thead>
       <tbody>${sum.rows.map((row) => `
         <tr class="lx-row-${row.status}">
@@ -53,6 +53,15 @@ export function mountParent(root, ctx) {
           </section>
           <h2 class="lx-h2">ผลล่าสุด ${latest ? `· ${esc(getSet(latest.setId)?.title || latest.setId)} · เริ่ม ${date(latest.startedAt)}${latest.abandoned ? ' (เลิกกลางคัน)' : latest.phase === 'done' ? ' (ทำครบ)' : ' (กำลังทำ)'}` : ''}</h2>
           ${latest ? sessionReport(latest) : '<p class="lx-small">ยังไม่มีผล</p>'}
+          <h2 class="lx-h2">ผลรายชุด</h2>
+          <div class="lx-table-wrap"><table class="lx-table lx-table-sets">
+            <thead><tr><th>ชุด</th><th>ทำครบ</th><th>ครั้งล่าสุด ตอบถูก</th><th>ดีที่สุด</th></tr></thead>
+            <tbody>${SETS.map((set) => {
+              const p = state.progress?.[set.id];
+              const score = (r) => (r ? `${r.correct}/${r.total}` : '-');
+              return `<tr><td>${esc(set.title)}</td><td>${p ? `${p.completed} ครั้ง` : 'ยังไม่เคย'}</td><td>${score(p?.last)}${p ? ` <small>(${date(p.at)})</small>` : ''}</td><td>${score(p?.best)}</td></tr>`;
+            }).join('')}</tbody>
+          </table></div>
           ${state.history.length ? `<h2 class="lx-h2">ประวัติ</h2><ul class="lx-history">${state.history.map((h) => {
             const set = getSet(h.setId);
             const ok = set && sessionUsable(h) ? summarize(h, set).totals : null;

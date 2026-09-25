@@ -15,6 +15,8 @@ export function initialState() {
     session: null,
     rewards: { stars: 0, stickers: [], claimed: {} },
     history: [],
+    // ผลรายชุด (ไม่จำกัดจำนวนชุด ต่างจาก history ที่เก็บแค่ 10 ครั้งล่าสุด)
+    progress: {},
   };
 }
 
@@ -181,12 +183,21 @@ export function reduce(state, action) {
         session: done,
         rewards: { stars: state.rewards.stars + 1, stickers, claimed: { ...state.rewards.claimed, [s.id]: { sticker, at } } },
         history: keepHistory(state.history, done),
+        progress: { ...state.progress, [s.setId]: nextProgress(state.progress?.[s.setId], action.result, s.setVersion, at) },
       };
     }
 
     default:
       return state;
   }
+}
+
+/** ผลรายชุดหลังทำครบ: result = { correct, total } คำตอบครั้งแรกที่ถูก (ผู้เรียกคำนวณจากเนื้อหา) */
+function nextProgress(prev, result, version, at) {
+  const ok = result && Number.isInteger(result.correct) && Number.isInteger(result.total) && result.correct >= 0 && result.correct <= result.total;
+  const last = ok ? { correct: result.correct, total: result.total } : null;
+  const best = last && (!prev?.best || last.correct / last.total > prev.best.correct / prev.best.total) ? last : prev?.best || null;
+  return { completed: (prev?.completed || 0) + 1, last, best, version, at };
 }
 
 function keepHistory(history, session) {

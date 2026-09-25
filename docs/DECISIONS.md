@@ -65,3 +65,4 @@ Agreed with the user or chosen during implementation; see PROJECT-PLAN.md for sc
 - The buddy sits in the top bar during the exam, so it can never cover options or controls. Plain mode hides it.
 - Parent page is a plain button (no press-and-hold), with sound on/off, speed and plain/buddy mode, plus the minimal summary.
 - Hosting: public GitHub repository and GitHub Pages; `base: './'` and BASE_URL-relative asset paths.
+- Set picker (user request, 2026-09-26): home → "เลือกชุดข้อสอบ" → cards per set showing not started / in progress (answered count, tap resumes) / completed (times, last and best first-answer score). Per-set results live in `state.progress` (unbounded, separate from the 10-entry session history) and are written by the same idempotent `claim` update. Starting another set while one is in progress asks first and keeps the old one in history.

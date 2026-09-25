@@ -73,7 +73,7 @@ Create docs/RESEARCH.md with source ID, issuer, title, URL, year, checked date, 
 
 ## Implemented Schema (2026-09-26)
 
-A set file exports `{ id, version, title, order, stimuli, items }`:
+A set file exports `{ id, version, title, note?, order, stimuli, items }` (`note`: up to 60 characters shown on the set card):
 - `order`: main item ids in play order. Items sharing a stimulus must be adjacent.
 - `stimuli[id]`: `{ section, text, speech?, visual? }`, a story, chart or map used by several items.
 - Item: `id, type ('main'|'transfer'), subject, skillIds, familyId, difficulty (1-3), sourceId, provenance, rights, reviewStatus, narration`, then `stimulus?` or `section?`, `prompt { text, speech? }` (a line break inside a riddle is read as one sentence), `visual?`, `options[{ id, text?, image?, speech? }]` (3 options, labelled 1 2 3), `correctOptionId`, `review { summary, hints[], steps[], column?, transferIds? }`.

@@ -38,7 +38,11 @@ export function normalize(raw) {
   const history = Array.isArray(raw.history) ? raw.history.map(validSession).filter(Boolean).slice(0, HISTORY_LIMIT) : [];
   const session = raw.session == null ? null : validSession(raw.session);
   const problem = raw.session != null && !session ? 'session' : null;
-  return { state: { version: STATE_VERSION, settings, session, rewards, history }, problem };
+  const progress = {};
+  if (isObj(raw.progress)) {
+    for (const [setId, p] of Object.entries(raw.progress)) if (isObj(p) && Number.isInteger(p.completed) && p.completed > 0) progress[setId] = p;
+  }
+  return { state: { version: STATE_VERSION, settings, session, rewards, history, progress }, problem };
 }
 
 export function load(storage) {

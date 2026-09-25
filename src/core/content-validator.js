@@ -80,6 +80,7 @@ export function validateVisual(visual, assetIds) {
 export function validateSet(set, options = {}) {
   const errors = [];
   if (!set?.id || !Number.isInteger(set?.version) || !set?.title) errors.push('set needs id, version and title');
+  if (set?.note != null && (typeof set.note !== 'string' || set.note.length > 60)) errors.push('set note must be a short text');
   const items = set?.items || [];
   const byId = new Map();
   for (const item of items) {

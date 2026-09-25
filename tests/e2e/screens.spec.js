@@ -20,6 +20,9 @@ for (const [width, height] of SIZES) {
     };
     await freshStart(page);
     await shot('home');
+    await page.locator('#lx-sets').click();
+    await shot('sets');
+    await page.locator('#lx-back').click();
     await startSet(page);
     await shot('q1-story');
     for (let i = 0; i < 2; i++) { await page.locator('.lx-pick').first().click(); await page.locator('#lx-next').click(); }
