@@ -1,0 +1,49 @@
+# Asset Migration
+
+Source repository: game-lilly at commit 61c97c1a8b0519a17849fccf985a706a6bd36a26.
+Original files remain read-only. Existing copies are scaffold assets, not proof all task visuals are ready.
+
+## Existing Initial Copies
+
+| Registry ID | Source | Destination | Intended use |
+| --- | --- | --- | --- |
+| friend-cat | assets/friends/cat.png | public/assets/friends/cat.png | Optional buddy |
+| friend-seal | assets/friends/seal.png | public/assets/friends/seal.png | Optional buddy |
+| friend-rabbit | assets/friends/rabbit.png | public/assets/friends/rabbit.png | Optional buddy |
+| sticker-star | assets/stickers/star.png | public/assets/stickers/star.png | Reward; task visual only if authored |
+| sticker-rainbow | assets/stickers/rainbow.png | public/assets/stickers/rainbow.png | Reward |
+| background-rainbow | assets/worlds/rainbow.jpg | public/assets/backgrounds/rainbow.jpg | Candidate home/reward scene |
+
+## Visual Rules
+
+- Copy binaries into this repository, never reference sibling paths from browser code.
+- Record source commit, SHA-256, license/provenance and purpose in the asset manifest.
+- Use clear neutral alt text in the registry; no answer leakage.
+- Calm classroom/garden imagery may surround a plain question area. Do not put busy backgrounds behind text.
+- Buddy is still/silent during thinking and listening, never signals correctness before block submission.
+- Decorative scene and buddy are optional; plain mode and reduced motion must work.
+- Essential spatial/science diagrams may require new original artwork. A review teacher may also require a new asset; don't claim those already exist.
+- Keep teacher/celebration animations mainly in review, breaks and rewards.
+- Never add an otherwise unnecessary counting picture or clue for decoration.
+- Preserve aspect ratio, transparency and task-critical details; verify all viewports.
+- Do not copy old PWA branding icons or the branded source strip.
+
+## Voice Migration
+
+Do not copy the entire original voice tree.
+1. Extract main prompts, individual option narration, hints, explanation steps and UI phrases.
+2. Copy exact suitable clips or generate new original recordings with provenance.
+3. Build a manifest mapping role/text/version to clips and review status.
+4. Use math speech normalization and validate composed phrases carefully.
+5. Require human listening review for child-facing core question/option recordings.
+6. Validate global stop/replay, speed and unlock/resume on real iPad.
+
+Reuse the original audio lifecycle approach, but separate recorded playback from speechSynthesis availability. TTS fallback must not silently stand in for reviewed recordings in a release claim.
+
+## Rights and Release
+
+No root artwork license was found in the source audit. Reuse provenance must be recorded and redistribution rights confirmed before publication. A proposed private GitHub remote is not currently configured; package private:true only concerns package publishing. Include the Lucide license if copying that library.
+
+## Verification
+
+Compare copied hashes and load each asset without the original repo running. Check 404s, audio coverage, transparency/framing and question fairness. Source files must remain unchanged.

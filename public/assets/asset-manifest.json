@@ -1,0 +1,13 @@
+{
+  "sourceRepository": "game-lilly",
+  "sourceCommit": "61c97c1a8b0519a17849fccf985a706a6bd36a26",
+  "files": {
+    "backgrounds/rainbow.jpg": "010c2c3f6aab600d2d688a6392ce14361945553b5c10cc2d503cd6d6d43a562b",
+    "friends/cat.png": "4f76aff805bc4ba0ebf6cdb42357d594ac5cd51a24ee4f0e51a66b43cff54f7e",
+    "friends/rabbit.png": "7f13de437a9bbf049016b738b52d6af6534235c392064c7a20229fdd875771ce",
+    "friends/seal.png": "8cfe0fd3dd5d53eeb5621ea126c37cbae43e1d4ed4cfdc04bef7ac2a0e2f0416",
+    "stickers/rainbow.png": "f65253558a0353e1095d5457344917b45a14a3c820f82438fda940d361223b5b",
+    "stickers/star.png": "976126586efbeee49dbdba917c4aa9120e34658d0276cba1c73f344f743765c7"
+  }
+}
+
