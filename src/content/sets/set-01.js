@@ -9,7 +9,8 @@
  * stimuli = เรื่อง/แผนภูมิ/แผนที่ที่ใช้ร่วมกันหลายข้อ (ข้อที่ใช้ร่วมกันต้องอยู่ติดกันใน order และไม่ถูกแบ่งคนละช่วง)
  * section = หัวข้อตอนแบบในข้อสอบ (ไม่ใส่ = "ตอบคำถามต่อไปนี้ให้ถูกต้อง")
  */
-const R = { provenance: 'original', rights: 'แต่งใหม่ทั้งหมด (ข้อความ ตัวเลข ภาพ) เผยแพร่ใน repo นี้ได้', reviewStatus: 'draft' };
+// reviewStatus: ผู้ปกครองเล่นชุดนี้บน iPhone แล้วบอกว่าโอเค (2026-09-26)
+const R = { provenance: 'original', rights: 'แต่งใหม่ทั้งหมด (ข้อความ ตัวเลข ภาพ) เผยแพร่ใน repo นี้ได้', reviewStatus: 'parent-approved' };
 const SRC = 'src-a24-compilation';
 
 export default {
