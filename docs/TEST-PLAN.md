@@ -77,3 +77,11 @@ Offline/PWA tests are not slice claims before these features exist.
 Capture original git status before/after; preserve any pre-existing user changes. Never reset to make status clean. Run relevant original regression only if reuse investigation requires it, without altering source code.
 
 Report exact commands/results for npm run check and npm run test:e2e, screenshots, manual listening/content signoff, remaining defects and gates not run. Mocked audio success does not prove audible playback.
+
+## Results: First Slice (2026-09-26)
+
+Run on Windows 11, Node 22, Chromium from Playwright 1.63:
+- `npm run check`: 52 unit tests pass (content/validator, partition, reducer guards, storage and corruption, exam-projection leak scan, column fixtures incl. all 0–99 problems, audio fakes, voice coverage 221 phrases × 2 speeds, asset hashes/provenance), then the build succeeds.
+- `npm run test:e2e`: 23 passed, 5 skipped (screen captures run only in the mobile project). Covered: full 5+5+2 session with reward once and `lilly-world-v1` untouched, DOM/aria/data leak scan during the exam, listen-doesn't-select, incomplete-block guard, resume after reload with frozen submissions, review with steps/column carry+borrow/transfer, speech-gated Next with sound on, parent summary/settings persistence, corrupt-save notice.
+- Screens at 320×568, 390×664, 768×1024, 1024×768 and 1280×900 (home, story, pictograph, map, review, break, dice, column helper, reward, parent): no horizontal overflow, no broken images, every visible button at least 44 px.
+- **Not run:** real iPad Safari (audio unlock/resume, rotation, touch ergonomics), parent listening review of clips, human content signoff. Mocked audio success does not prove audible playback on iPad.

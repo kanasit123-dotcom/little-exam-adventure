@@ -70,3 +70,13 @@ Create docs/RESEARCH.md with source ID, issuer, title, URL, year, checked date, 
 - Correct answer belongs to options; asset/audio IDs exist.
 - Detect stale English content in the MVP pack.
 - Human signoff covers accuracy, speech, visual fairness, age suitability and source classification.
+
+## Implemented Schema (2026-09-26)
+
+A set file exports `{ id, version, title, order, stimuli, items }`:
+- `order`: main item ids in play order. Items sharing a stimulus must be adjacent.
+- `stimuli[id]`: `{ section, text, speech?, visual? }`, a story, chart or map used by several items.
+- Item: `id, type ('main'|'transfer'), subject, skillIds, familyId, difficulty (1-3), sourceId, provenance, rights, reviewStatus, narration`, then `stimulus?` or `section?`, `prompt { text, speech? }` (a line break inside a riddle is read as one sentence), `visual?`, `options[{ id, text?, image?, speech? }]` (3 options, labelled 1 2 3), `correctOptionId`, `review { summary, hints[], steps[], column?, transferIds? }`.
+- Visual types: `image`, `pictograph`, `compass-map`, `dice`, `polygon` (drawn in `src/visuals/visuals.js`).
+- Audio ids are derived: every sentence from `src/content/speeches.js` is recorded by `npm run voice` and looked up by exact text in `public/voice/th/manifest.json`. `tests/voice.test.mjs` fails if any sentence lacks a clip.
+- `promptAudioId` / per-item version from the draft schema are replaced by this text→clip manifest and the set `version`.

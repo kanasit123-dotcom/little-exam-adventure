@@ -38,7 +38,7 @@ These are practical defaults, not claims about school exam rules:
 - Artwork redistribution rights, new teacher art and reviewed main-question recordings.
 - Suitability of carry/borrow in the first child-facing set versus advanced content; fixtures remain mandatory.
 - Real iPad Safari audio/touch results.
-- Remote repository destination, visibility and deployment. Local repo currently has no commit or remote.
+- Remote repository: the user chose a public GitHub repository with GitHub Pages (2026-09-26).
 
 These checks must be reported honestly. The unavailable old handoff attachment does not block work from the latest approved specification.
 
@@ -51,3 +51,17 @@ These checks must be reported honestly. The unavailable old handoff attachment d
 - Treating an iPad-shaped Chromium viewport as real iPad verification.
 
 The documentation update intentionally leaves the old source scaffold unchanged for the next implementation task.
+
+## Implementation Decisions (2026-09-26, first slice)
+
+Agreed with the user or chosen during implementation; see PROJECT-PLAN.md for scope.
+- Content follows the format of the third-party "old exam" compilation the user supplied (docs/RESEARCH.md): section banners, one story/chart/map feeding several questions, options numbered **1 2 3** (not ก ข ค). All wording, numbers and pictures are newly authored; nothing is copied.
+- Content is organised in sets (`src/content/sets/set-XX.js`, registered in `sets/index.js`). A new set needs no engine change. Each main item links one transfer item.
+- Blocks hold at most five questions and never split a shared story (`partition()` keeps stimulus groups together).
+- Option order is the authored order and is saved in the session. Explanations say "ตอบข้อ 2", so options are not shuffled.
+- Voice: Microsoft `th-TH-PremwadeeNeural` via edge-tts counts as a reviewed recording once the parent has listened and approved (docs/VOICE-REVIEW.md, still pending). Normal and slower speeds are separate recordings, played with Web Audio; device TTS is only a fallback for a missing clip.
+- Review has two layers: the answer/explanation, and the "ตัวช่วยคิด" column helper with the look and flow of Lilly's column game (blocks and bundling, carry, borrow strike, keypad, recap), driven by the kitchen's fixed-problem `buildSteps` (no 08/07 leading zero).
+- Section banners and shared stories are read aloud once when a new section starts, then the question. "Next" is enabled when that reading ends (or the child uses a listen button); selecting never advances.
+- The buddy sits in the top bar during the exam, so it can never cover options or controls. Plain mode hides it.
+- Parent page is a plain button (no press-and-hold), with sound on/off, speed and plain/buddy mode, plus the minimal summary.
+- Hosting: public GitHub repository and GitHub Pages; `base: './'` and BASE_URL-relative asset paths.

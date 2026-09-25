@@ -6,3 +6,6 @@ playwright-report/
 Thumbs.db
 *.log
 
+design/incoming/*
+!design/incoming/.gitkeep
+design/cut/

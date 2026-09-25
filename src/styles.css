@@ -1,52 +1,446 @@
+/* Lily Exam Adventure — ทุก class ขึ้นต้นด้วย lx- (ไม่ชนกับ CSS อื่น) สีตามโลกของลิลลี่ */
 :root {
-  font-family: "Noto Sans Thai", Tahoma, sans-serif;
-  color: #283f3d;
-  background: #eef8f5;
-  font-synthesis: none;
+  --pink: #ff8fc0;
+  --pink-dark: #d9598f;
+  --yellow: #ffc94d;
+  --yellow-dark: #d99d1c;
+  --blue: #6ec6ff;
+  --blue-dark: #2f96de;
+  --green: #7ed957;
+  --green-dark: #4da62c;
+  --purple: #b08cff;
+  --purple-dark: #7e57e0;
+  --orange: #ffa45c;
+  --orange-dark: #dd7726;
+  --ink: #4a3b52;
+  --ink-soft: #7a6a83;
+  --card-edge: #f0e2ec;
+  --paper: #fffefb;
+  --cream: #fdf6ea;
+  --r-lg: 28px;
+  --r-md: 20px;
+  --r-sm: 14px;
+  --font-th: 'Itim', 'Noto Sans Thai', 'Leelawadee UI', system-ui, sans-serif;
+  --font-num: 'Fredoka', 'Itim', system-ui, sans-serif;
 }
 
-* { box-sizing: border-box; }
-
-html, body { min-height: 100%; margin: 0; }
-
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
 body {
-  min-height: 100vh;
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-th);
+  color: var(--ink);
+  background: var(--cream) var(--lx-scene, none) center / cover fixed no-repeat;
+  line-height: 1.6;
+}
+body.lx-plain { background: #f7f3ec; }
+img { -webkit-user-drag: none; user-select: none; }
+button { font: inherit; color: inherit; }
+button, .lx-pick, .lx-dot { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+[hidden] { display: none !important; }
+
+.lx-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(8px, 2vw, 20px) clamp(8px, 2.5vw, 24px) 0;
+  gap: 10px;
+}
+
+/* ---------------------------------------------------------------- กระดาษข้อสอบ (พื้นเรียบ ตัวหนังสือชัด) */
+.lx-paper {
+  width: min(100%, 880px);
+  background: var(--paper);
+  border-radius: var(--r-lg);
+  box-shadow: 0 6px 0 var(--card-edge), 0 14px 30px rgba(74, 59, 82, .14);
+  padding: clamp(14px, 3vw, 30px);
+  margin-bottom: 12px;
+  flex: 1 0 auto;
+}
+.lx-paper-narrow { width: min(100%, 640px); }
+.lx-center { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.lx-title { font-family: var(--font-num); font-weight: 700; font-size: clamp(2rem, 7vw, 3.2rem); margin: 0; color: var(--purple-dark); line-height: 1.2; }
+.lx-kicker { margin: 0; color: var(--pink-dark); font-size: 1.1rem; }
+.lx-h1 { font-size: clamp(1.5rem, 4.6vw, 2.1rem); margin: 0; line-height: 1.35; }
+.lx-h2 { font-size: 1.3rem; margin: 22px 0 6px; }
+.lx-h3 { font-size: 1.2rem; margin: 0 0 6px; color: var(--purple-dark); }
+.lx-lead { font-size: clamp(1.1rem, 3.2vw, 1.3rem); margin: 0; }
+.lx-small { font-size: 1rem; color: var(--ink-soft); margin: 6px 0; }
+.lx-warn { background: #fff1dc; border: 2px solid var(--orange); border-radius: var(--r-sm); padding: 8px 12px; margin: 4px 0; }
+.lx-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; margin-top: 10px; }
+
+/* ---------------------------------------------------------------- ปุ่ม */
+.lx-btn {
+  min-height: 52px;
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 999px;
+  font-size: clamp(1.05rem, 3vw, 1.25rem);
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.25;
+  transition: transform .08s, box-shadow .08s;
+}
+.lx-btn small { font-size: .85rem; opacity: .9; }
+.lx-btn:active { transform: translateY(3px); }
+.lx-btn-go { background: var(--green-dark); color: #fff; box-shadow: 0 5px 0 #3a8121; }
+.lx-btn-send { background: var(--purple-dark); color: #fff; box-shadow: 0 5px 0 #5b3bb3; }
+.lx-btn-warn { background: var(--orange-dark); color: #fff; box-shadow: 0 5px 0 #a8551a; }
+.lx-btn-soft { background: #fff3c9; color: var(--ink); box-shadow: 0 5px 0 var(--yellow-dark); }
+.lx-btn-ghost { background: #fff; color: var(--ink); box-shadow: 0 0 0 3px var(--card-edge) inset, 0 4px 0 var(--card-edge); }
+.lx-btn-tool { background: #eef6ff; color: var(--ink); box-shadow: 0 0 0 3px var(--blue) inset, 0 4px 0 var(--blue-dark); }
+.lx-btn-tool.lx-on { background: var(--blue); color: #fff; }
+.lx-btn-column { background: #fff6d8; box-shadow: 0 0 0 3px var(--yellow) inset, 0 4px 0 var(--yellow-dark); }
+.lx-btn-small { min-height: 48px; padding: 6px 14px; font-size: 1rem; }
+.lx-btn-big { min-height: 64px; padding: 10px 28px; font-size: clamp(1.2rem, 3.6vw, 1.45rem); width: min(100%, 420px); }
+.lx-btn.lx-wait { opacity: .55; }
+
+/* ---------------------------------------------------------------- แถบบนและปุ่มล่าง */
+.lx-bar {
+  width: min(100%, 880px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  background: rgba(255, 254, 251, .92);
+  border-radius: var(--r-md);
+  padding: 6px 10px;
+  box-shadow: 0 3px 0 var(--card-edge);
+}
+.lx-bar-title { font-size: 1.15rem; flex: 1 1 auto; }
+.lx-buddy { width: 56px; height: 56px; flex: 0 0 auto; }
+.lx-buddy img { width: 100%; height: 100%; object-fit: contain; }
+.lx-dots { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; justify-content: center; }
+.lx-dot {
+  position: relative;
+  min-width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 3px solid var(--card-edge);
+  background: #fff;
+  font-family: var(--font-num); font-weight: 600; font-size: 1.1rem;
+  cursor: pointer;
+}
+.lx-dot.lx-done { background: #efe7ff; border-color: var(--purple); }
+.lx-dot.lx-here { border-color: var(--purple-dark); box-shadow: 0 0 0 3px rgba(126, 87, 224, .25); }
+.lx-dot i { position: absolute; right: -4px; top: -6px; font-style: normal; font-size: .8rem; background: var(--green-dark); color: #fff; border-radius: 50%; width: 20px; height: 20px; line-height: 20px; }
+.lx-dot.lx-r-incorrect, .lx-dot.lx-r-unsure { background: #fff3e2; border-color: var(--orange); }
+
+.lx-nav {
+  position: sticky;
+  bottom: 0;
+  width: min(100%, 880px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px calc(10px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(253, 246, 234, .97) 70%, rgba(253, 246, 234, 0));
+  z-index: 5;
+}
+.lx-nav .lx-btn-go, .lx-nav .lx-btn-send { margin-left: auto; }
+.lx-nav-note { flex: 1 1 0; margin: 0; font-size: .98rem; color: var(--orange-dark); text-align: center; min-width: 0; }
+
+/* ---------------------------------------------------------------- โจทย์ */
+.lx-section-banner {
+  background: var(--ink);
+  color: #fff;
+  border-radius: var(--r-sm);
+  padding: 6px 14px;
+  text-align: center;
+  font-size: clamp(1.05rem, 3.2vw, 1.3rem);
+  margin-bottom: 12px;
+}
+.lx-stimulus {
+  background: #fff8e3;
+  border: 3px solid #f5e2b0;
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.lx-stim-text { margin: 0 0 8px; font-size: clamp(1.15rem, 3.4vw, 1.4rem); line-height: 1.75; }
+.lx-question { display: flex; gap: 8px; align-items: flex-start; }
+.lx-qnum { font-family: var(--font-num); font-weight: 700; font-size: clamp(1.3rem, 4vw, 1.6rem); color: var(--purple-dark); line-height: 1.6; }
+.lx-qtext { margin: 0; font-size: clamp(1.25rem, 3.8vw, 1.6rem); line-height: 1.7; }
+.lx-listen {
+  min-height: 48px;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 16px;
+  background: #e8f5ff;
+  box-shadow: 0 0 0 3px var(--blue) inset;
+  font-size: 1.05rem;
+  cursor: pointer;
+  margin: 8px 0;
+}
+.lx-listen-main { display: block; margin: 8px 0 12px; }
+.lx-speaking { background: var(--blue) !important; color: #fff; animation: lx-glow 1s ease-in-out infinite alternate; }
+@keyframes lx-glow { to { box-shadow: 0 0 0 5px rgba(110, 198, 255, .45); } }
+
+/* ตัวเลือก: กล่อง 1 2 3 แบบกระดาษข้อสอบ + ปุ่มฟังแยก (ฟังแล้วไม่เลือก) */
+.lx-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0 10px; }
+.lx-opt { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.lx-pick {
+  position: relative;
+  width: 100%;
+  min-height: 84px;
+  border: 3px solid var(--card-edge);
+  border-radius: var(--r-md);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 26px 6px 10px;
+  cursor: pointer;
+  font-size: clamp(1.15rem, 3.4vw, 1.4rem);
+  line-height: 1.45;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.lx-pick .lx-num {
+  position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-num); font-weight: 600; font-size: 1rem; color: var(--ink-soft);
+}
+.lx-opt-pic { width: min(100%, 120px); aspect-ratio: 1; object-fit: contain; }
+.lx-options-pics .lx-pick { min-height: 150px; }
+.lx-pick.lx-picked { border-color: var(--purple-dark); background: #f3ecff; box-shadow: 0 0 0 3px rgba(126, 87, 224, .3); }
+.lx-pick.lx-picked .lx-num { color: var(--purple-dark); }
+.lx-say {
+  width: 48px; height: 48px; flex: 0 0 auto;
+  border-radius: 50%; border: 0;
+  background: #e8f5ff; box-shadow: 0 0 0 3px var(--blue) inset;
+  font-size: 1.1rem; cursor: pointer;
+}
+.lx-unsure {
+  display: block;
+  margin: 6px auto 0;
+  min-height: 52px;
+  padding: 6px 24px;
+  border-radius: 999px;
+  border: 3px dashed #c9b8d6;
+  background: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.lx-unsure.lx-picked { border-style: solid; border-color: var(--purple-dark); background: #f3ecff; }
+
+@media (max-width: 380px) {
+  .lx-options:not(.lx-options-pics) { grid-template-columns: 1fr; }
+  .lx-options:not(.lx-options-pics) .lx-opt { flex-direction: row; }
+  .lx-options:not(.lx-options-pics) .lx-pick { min-height: 60px; padding: 8px 8px 8px 40px; }
+  .lx-options:not(.lx-options-pics) .lx-pick .lx-num { left: 16px; top: 50%; transform: translateY(-50%); }
+  .lx-options-pics .lx-pick { min-height: 120px; padding-top: 24px; }
+}
+
+/* ---------------------------------------------------------------- ภาพประกอบโจทย์ */
+.lx-visual { margin: 10px auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.lx-visual figcaption { font-size: 1rem; color: var(--ink-soft); }
+.lx-image-pic { width: min(60%, 200px); }
+
+.lx-pictograph { width: min(100%, 560px); background: #fff; border: 3px solid var(--card-edge); border-radius: var(--r-md); padding: 8px 10px; gap: 4px; }
+.lx-pg-row { width: 100%; display: flex; align-items: center; gap: 8px; border-bottom: 2px dashed var(--card-edge); padding: 4px 0; }
+.lx-pg-who { width: 84px; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; font-size: .95rem; line-height: 1.2; }
+.lx-pg-face { width: 44px; height: 44px; object-fit: contain; }
+.lx-pg-icons { display: flex; flex-wrap: wrap; gap: 4px; }
+.lx-pg-icon { width: clamp(30px, 8vw, 44px); height: clamp(30px, 8vw, 44px); object-fit: contain; }
+.lx-pg-key { display: flex; align-items: center; gap: 6px; font-size: 1.15rem !important; color: var(--ink) !important; }
+
+.lx-map { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.lx-map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(70px, 110px));
+  grid-template-rows: auto auto auto;
+  grid-template-areas: ". n ." "w c e" ". s .";
+  gap: 6px;
+  align-items: center;
+  justify-items: center;
+}
+.lx-map-place { background: #eef8e8; border: 3px solid #bfe3a9; border-radius: var(--r-sm); padding: 6px 8px; font-size: 1.1rem; min-width: 64px; text-align: center; }
+.lx-map-north { grid-area: n; } .lx-map-south { grid-area: s; } .lx-map-east { grid-area: e; } .lx-map-west { grid-area: w; }
+.lx-map-center { grid-area: c; display: flex; flex-direction: column; align-items: center; font-size: 1.05rem; line-height: 1.1; }
+.lx-map-house { width: 64px; height: 64px; object-fit: contain; }
+.lx-rose { width: 250px; max-width: 100%; height: auto; }
+
+.lx-dice svg { width: 150px; height: auto; }
+.lx-polygon svg { width: min(70%, 240px); height: auto; }
+
+/* ---------------------------------------------------------------- หน้าเฉลย */
+.lx-filter { display: flex; gap: 6px; }
+.lx-chip { min-height: 44px; padding: 4px 12px; border-radius: 999px; border: 2px solid var(--card-edge); background: #fff; cursor: pointer; font-size: .98rem; }
+.lx-chip[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.lx-pick.lx-static { cursor: default; padding-bottom: 30px; }
+.lx-pick.lx-is-correct { border-color: var(--green-dark); background: #effbe6; }
+.lx-pick.lx-is-chosen:not(.lx-is-correct) { border-color: var(--orange); background: #fff6ea; }
+.lx-tag { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: .8rem; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.lx-tag-right { background: var(--green-dark); color: #fff; }
+.lx-tag-mine { background: var(--orange); color: #fff; bottom: auto; top: -12px; }
+.lx-status { font-size: 1.2rem; margin: 8px 0; padding: 8px 12px; border-radius: var(--r-sm); text-align: center; }
+.lx-status-correct { background: #effbe6; color: #2f6b18; }
+.lx-status-incorrect, .lx-status-unsure { background: #fff3e2; color: #8a4a12; }
+.lx-summary { display: flex; align-items: center; gap: 10px; justify-content: center; background: #f6f0ff; border-radius: var(--r-md); padding: 8px 12px; }
+.lx-summary p { margin: 0; font-size: 1.2rem; }
+.lx-tools { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 14px 0 6px; }
+.lx-tool-panel { border: 3px dashed var(--card-edge); border-radius: var(--r-md); padding: 12px; margin-top: 8px; }
+.lx-hint { font-size: 1.15rem; display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.lx-steps { margin: 0; padding-left: 1.6em; display: flex; flex-direction: column; gap: 8px; }
+.lx-step { font-size: 1.15rem; animation: lx-in .35s ease-out; }
+.lx-step > span { margin-right: 8px; }
+.lx-step .lx-say { width: 44px; height: 44px; vertical-align: middle; }
+.lx-step-more { list-style: none; }
+@keyframes lx-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------------------------------------------------------------- ตัวช่วยคิด ตั้งเลข (หน้าตาแบบโลกของลิลลี่) */
+.lx-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.lx-col-prompt { margin: 0; font-size: clamp(1.1rem, 3.4vw, 1.35rem); text-align: center; min-height: 2em; }
+.lx-col-area { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.5vw, 28px); flex-wrap: wrap; }
+.lx-col-sum {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 4px clamp(6px, 1.4vw, 14px);
+  align-items: center;
+  justify-items: center;
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 10px clamp(16px, 3.5vw, 30px);
+  box-shadow: 0 6px 0 var(--card-edge), 0 10px 20px rgba(0, 0, 0, .08);
+  font-family: var(--font-num);
+  font-weight: 700;
+}
+.lx-cell {
+  position: relative;
   display: grid;
   place-items: center;
-  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  background: #eef8f5;
+  width: clamp(48px, 9vw, 70px);
+  height: clamp(52px, 9vw, 72px);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  transition: background .2s, color .2s;
 }
+.lx-cell.lx-spacer { width: clamp(30px, 5vw, 44px); }
+.lx-cell.lx-op { color: var(--ink-soft); }
+.lx-cell.lx-carry { height: clamp(34px, 5vw, 42px); font-size: clamp(1.1rem, 3vw, 1.5rem); color: var(--pink-dark); }
+.lx-cell.lx-pulse { cursor: pointer; background: rgba(255, 201, 77, .35); box-shadow: 0 0 0 4px var(--yellow); animation: lx-ready 1s ease-in-out infinite; }
+.lx-cell.lx-digit.lx-active { background: rgba(110, 198, 255, .22); }
+.lx-cell.lx-digit.lx-struck { color: var(--ink-soft); }
+.lx-cell.lx-digit.lx-struck::after { content: ''; position: absolute; left: 10%; right: 10%; top: 50%; height: 5px; border-radius: 3px; background: var(--pink-dark); transform: rotate(-12deg); }
+.lx-cell.lx-slot { border: 4px dashed var(--card-edge); color: var(--purple-dark); }
+.lx-cell.lx-slot.lx-filled { border-style: solid; border-color: var(--green); background: #f0ffe8; }
+.lx-cell.lx-slot.lx-active { border-color: var(--blue); }
+.lx-cell.lx-pop { animation: lx-pop .45s cubic-bezier(.2, .9, .3, 1.6); }
+.lx-cell.lx-nope { animation: lx-wiggle .45s; }
+.lx-col-rule { grid-column: 1 / -1; width: 100%; height: 6px; border-radius: 3px; background: var(--ink); margin: 4px 0; }
 
-button, a { touch-action: manipulation; }
-
-.scaffold {
-  width: min(720px, 100%);
-  padding: clamp(24px, 5vw, 44px);
-  background: white;
-  border: 2px solid #dce7e2;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(40, 63, 61, 0.1);
+.lx-col-aid {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: #fffbe8; border: 3px dashed var(--yellow); border-radius: var(--r-md);
+  padding: 10px 14px; max-width: min(90vw, 360px);
+  animation: lx-pop .4s cubic-bezier(.2, .9, .3, 1.5);
 }
-
-.eyebrow { margin: 0 0 8px; color: #2f9a80; font-weight: 800; }
-h1 { margin: 0; font-size: clamp(2rem, 8vw, 3.4rem); line-height: 1.1; }
-.lead { margin: 16px 0 24px; color: #637872; font-size: 1.15rem; }
-.summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
-.summary div { padding: 14px; background: #f7fbfa; border-left: 4px solid #4a95c4; }
-.summary dt { color: #637872; font-size: 0.85rem; }
-.summary dd { margin: 6px 0 0; font-weight: 800; }
-.ready { color: #1f6f5b; }
-.blocked { color: #a8476a; }
-.next-work { margin-top: 24px; padding-top: 20px; border-top: 1px solid #dce7e2; }
-.next-work h2 { margin: 0 0 8px; font-size: 1.1rem; }
-.next-work p { margin: 0; }
-code { padding: 2px 5px; background: #edf3f1; border-radius: 4px; }
-
-@media (max-width: 560px) {
-  .summary { grid-template-columns: 1fr; }
+.lx-aid-title { font-family: var(--font-num); font-weight: 700; font-size: clamp(1.1rem, 2.8vw, 1.5rem); color: var(--purple-dark); }
+.lx-aid-note { font-size: 1rem; color: var(--ink-soft); text-align: center; }
+.lx-blocks { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.lx-rods { display: flex; gap: 6px; min-height: 10px; align-items: flex-end; }
+.lx-rod {
+  width: clamp(16px, 2.4vw, 22px); height: clamp(64px, 11vh, 96px); border-radius: 7px;
+  background: repeating-linear-gradient(to bottom, var(--blue) 0, var(--blue) calc(10% - 1.5px), rgba(255, 255, 255, .75) calc(10% - 1.5px), rgba(255, 255, 255, .75) 10%);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .12), 0 3px 0 var(--blue-dark);
 }
+.lx-rod.lx-new-rod { animation: lx-rod-drop .55s cubic-bezier(.2, .9, .3, 1.6); }
+.lx-units { display: grid; justify-content: center; gap: 5px; padding: 6px; border-radius: var(--r-sm); background: rgba(0, 0, 0, .04); }
+.lx-units.lx-empty { display: none; }
+.lx-unit { width: clamp(16px, 2.6vw, 24px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 32% 30%, #ffd89a, var(--orange)); box-shadow: 0 2px 0 var(--orange-dark); }
+.lx-unit.lx-ready { background: radial-gradient(circle at 32% 30%, #fff3b0, var(--yellow)); box-shadow: 0 0 0 3px rgba(255, 201, 77, .55), 0 2px 0 var(--yellow-dark); animation: lx-ready .9s ease-in-out infinite; }
+.lx-unit.lx-bundling { animation: lx-bundle-away .45s ease-in forwards; }
 
+.lx-col-pad { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.lx-entry { display: flex; justify-content: center; }
+.lx-entry-box {
+  display: grid; place-items: center;
+  min-width: clamp(70px, 12vw, 104px); height: clamp(48px, 7vw, 60px); padding: 0 14px;
+  border-radius: var(--r-sm); border: 4px dashed var(--blue); background: #fff;
+  font-family: var(--font-num); font-weight: 700; font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--purple-dark);
+}
+.lx-entry-box.lx-correct { border-style: solid; border-color: var(--green); background: #f0ffe8; }
+.lx-entry-box.lx-nope { border-color: var(--pink-dark); animation: lx-wiggle .45s; }
+.lx-keypad { display: grid; grid-template-columns: repeat(6, auto); gap: clamp(6px, 1.2vw, 10px); justify-content: center; }
+.lx-key {
+  font-family: var(--font-num); font-weight: 700; font-size: clamp(1.4rem, 3.4vw, 1.9rem);
+  color: #fff; background: var(--purple); border: none; border-radius: var(--r-sm);
+  width: clamp(48px, 8vw, 66px); height: clamp(52px, 7vw, 60px);
+  cursor: pointer; box-shadow: 0 5px 0 var(--purple-dark);
+}
+.lx-key:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--purple-dark); }
+.lx-key.lx-del { background: var(--orange); box-shadow: 0 5px 0 var(--orange-dark); }
+.lx-key.lx-glow { background: var(--yellow); box-shadow: 0 0 0 4px #fff3b0, 0 5px 0 var(--yellow-dark); animation: lx-ready .9s ease-in-out infinite; }
+@media (max-width: 560px) { .lx-keypad { grid-template-columns: repeat(5, auto); } }
+.lx-col-summary { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #fff; border-radius: var(--r-md); padding: 12px 20px; box-shadow: 0 6px 0 var(--card-edge); }
+.lx-col-eq { display: flex; align-items: center; gap: clamp(8px, 2vw, 16px); font-family: var(--font-num); font-weight: 700; font-size: clamp(1.9rem, 5.5vw, 2.8rem); line-height: 1.2; }
+.lx-col-eq span { color: var(--ink-soft); }
+.lx-col-eq .lx-ans { color: var(--green-dark); background: #f0ffe8; border-radius: var(--r-sm); padding: 0 14px; }
+.lx-col-steps { display: flex; flex-direction: column; gap: 2px; font-size: 1.05rem; color: var(--ink-soft); text-align: center; }
+
+@keyframes lx-ready { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes lx-pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes lx-wiggle { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes lx-bundle-away { to { transform: scale(.2) translateY(-40px); opacity: 0; } }
+@keyframes lx-rod-drop { 0% { transform: translateY(60px) scale(.4) rotate(-20deg); opacity: 0; } 60% { transform: translateY(-8px) scale(1.12); opacity: 1; } 100% { transform: none; } }
+
+/* ---------------------------------------------------------------- หน้าแรก เพื่อน สติกเกอร์ พัก รางวัล */
+.lx-home-friend { width: clamp(120px, 30vw, 180px); height: auto; }
+.lx-home-actions { display: flex; flex-direction: column; gap: 14px; align-items: center; width: 100%; }
+.lx-home-links { margin-top: 18px; }
+.lx-friends { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.lx-friend { border: 3px solid var(--card-edge); border-radius: var(--r-md); background: #fff; padding: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 1.05rem; }
+.lx-friend img { width: min(100%, 110px); aspect-ratio: 1; object-fit: contain; }
+.lx-friend.lx-picked { border-color: var(--pink-dark); background: #fff0f7; box-shadow: 0 0 0 3px rgba(217, 89, 143, .25); }
+.lx-sticker-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; width: 100%; }
+.lx-sticker { position: relative; border: 3px solid var(--card-edge); border-radius: var(--r-md); background: #fff; padding: 8px; display: flex; flex-direction: column; align-items: center; font-size: 1rem; cursor: pointer; }
+.lx-sticker img { width: 72px; height: 72px; object-fit: contain; }
+.lx-sticker i { position: absolute; top: 4px; right: 6px; font-style: normal; font-size: .8rem; color: var(--ink-soft); }
+.lx-sticker.lx-locked img { filter: grayscale(1) opacity(.35); }
+.lx-reward-sticker { width: 140px; height: 140px; object-fit: contain; }
+.lx-big-star { font-size: 4rem; animation: lx-pop .6s cubic-bezier(.2, .9, .3, 1.6); }
+.lx-stretch .lx-buddy { width: 140px; height: 140px; }
+.lx-buddy-stretch img { animation: lx-stretch 2.4s ease-in-out infinite; transform-origin: bottom center; }
+.lx-buddy-cheer img { animation: lx-hop 1.6s ease-in-out infinite; }
+@keyframes lx-stretch { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.12) rotate(-3deg); } }
+@keyframes lx-hop { 0%, 100% { transform: none; } 50% { transform: translateY(-6px); } }
+.lx-break-list { text-align: left; font-size: 1.2rem; margin: 0; }
+.lx-check-list { list-style: none; padding: 0; margin: 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.lx-check { width: 100%; min-height: 52px; display: flex; gap: 12px; align-items: center; border: 3px solid var(--card-edge); border-radius: var(--r-md); background: #fff; padding: 6px 14px; cursor: pointer; font-size: 1.1rem; }
+.lx-check em { margin-left: auto; font-style: normal; color: var(--blue-dark); }
+.lx-confirm .lx-buddy, .lx-review .lx-buddy { width: 56px; height: 56px; }
+.lx-paper > .lx-buddy { margin: 0 auto; }
+
+/* ---------------------------------------------------------------- หน้าผู้ปกครอง */
+.lx-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }
+.lx-field { display: flex; flex-direction: column; gap: 4px; }
+.lx-field label { font-size: 1rem; color: var(--ink-soft); }
+.lx-seg { display: flex; border-radius: 999px; overflow: hidden; box-shadow: 0 0 0 3px var(--card-edge) inset; }
+.lx-seg button { flex: 1; min-height: 48px; border: 0; background: transparent; cursor: pointer; font-size: 1rem; padding: 4px 8px; }
+.lx-seg button[aria-pressed="true"] { background: var(--purple-dark); color: #fff; }
+.lx-table-wrap { overflow-x: auto; }
+.lx-table { border-collapse: collapse; width: 100%; font-size: .98rem; min-width: 560px; }
+.lx-table th, .lx-table td { border-bottom: 1px solid var(--card-edge); padding: 6px; text-align: left; }
+.lx-table em { font-style: normal; color: var(--blue-dark); font-size: .85rem; }
+.lx-row-incorrect td, .lx-row-unsure td { background: #fffaf2; }
+.lx-subjects { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.lx-subject-chip { background: #f3ecff; border-radius: 999px; padding: 2px 12px; }
+.lx-history { padding-left: 1.2em; }
+.lx-note-box { background: #f7f7f2; border-radius: var(--r-sm); padding: 8px 14px; margin-top: 16px; font-size: .98rem; }
+
+.lx-modal { position: fixed; inset: 0; background: rgba(74, 59, 82, .45); display: grid; place-items: center; z-index: 20; padding: 16px; }
+.lx-modal-card { background: #fff; border-radius: var(--r-lg); padding: 20px; max-width: 420px; text-align: center; font-size: 1.15rem; }
+
+/* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
+body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }
-

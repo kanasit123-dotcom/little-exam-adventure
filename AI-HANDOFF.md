@@ -9,15 +9,16 @@
 
 The user's latest pasted specification and approved plan supersede the earlier draft. The missing attachment named Lily_Exam_Game_Work_Handoff.md is NOT a blocker.
 
-## Current State, Not a Completion Claim
+## Current State (2026-09-26)
 
-- New working directory: C:\Users\KANASIT\Documents\Codex\little-exam-adventure
-- Product name: Lily Exam Adventure. Keep folder/package name unless necessary.
-- Local Git initialized on main, no commits or remote as checked 2026-09-25.
-- Existing Vite/ES Modules scaffold includes provisional content, validator, tests, CI and six copied assets.
-- Code/content still implement an OLD prototype specification: Thai 4, English 4, math 4. This is NOT the approved content distribution.
-- Existing tests only prove scaffold behavior, not a working exam/review game.
-- This handoff update changes Markdown only. Do not assume audio, full exam, review, dashboard or rewards are implemented.
+- Working directory: C:\Users\KANASIT\Documents\Codex\little-exam-adventure. Public repo `kanasit123-dotcom/little-exam-adventure`, GitHub Pages from `main` via `.github/workflows/pages.yml`.
+- The first slice is implemented: set 1 (12 main + 12 transfer items, six subjects, 5+5+2 blocks), exam/confirm/review/break/reward/parent screens, pure reducer + versioned storage, allow-list exam projection, one-owner Web Audio voice engine with recorded Premwadee clips at two speeds, Lilly-style column helper on the kitchen's fixed-problem steps.
+- Content follows the format of the third-party compilation in docs/RESEARCH.md: section banners, shared stories, options 1 2 3. Everything is newly authored.
+- Pending gates: real iPad Safari audio, parent voice listening (docs/VOICE-REVIEW.md), content review of every item (`reviewStatus: 'draft'`).
+- Not built yet: offline/PWA, 36-item library with adaptive selection, full dashboard, garden.
+- Where to change things: new set → `src/content/sets/`; new visual type → `src/visuals/visuals.js` + validator; spoken UI phrases → `src/content/copy.js`, then `npm run voice`.
+
+The assignment below was the brief for that slice. Keep its constraints for later work.
 
 ## Next AI Assignment
 
