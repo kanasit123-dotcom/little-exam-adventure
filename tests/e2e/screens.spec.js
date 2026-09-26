@@ -27,6 +27,13 @@ for (const [width, height] of SIZES) {
     await shot('q1-story');
     for (let i = 0; i < 2; i++) { await page.locator('.lx-pick').first().click(); await page.locator('#lx-next').click(); }
     await shot('q3-pictograph');
+    // แผนภูมิรูปภาพ: รูปทุกแถวขนาดเท่ากันและไม่ตกบรรทัด (ไม่อย่างนั้นความยาวแถวจะหลอกตา)
+    const rows = await page.evaluate(() => [...document.querySelectorAll('.lx-pg-row')].map((row) => {
+      const icons = [...row.querySelectorAll('.lx-pg-icon')].map((i) => i.getBoundingClientRect());
+      return { lines: new Set(icons.map((r) => Math.round(r.top))).size, width: Math.round(icons[0].width) };
+    }));
+    expect(rows.every((r) => r.lines === 1), JSON.stringify(rows)).toBe(true);
+    expect(new Set(rows.map((r) => r.width)).size, JSON.stringify(rows)).toBe(1);
     await page.locator('.lx-pick').first().click(); await page.locator('#lx-next').click();
     await shot('q4-map');
     await answerAndSubmitBlock(page, () => 1);
