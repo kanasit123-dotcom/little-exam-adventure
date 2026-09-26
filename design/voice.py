@@ -17,9 +17,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'public' / 'voice' / 'th'
+STATE = ROOT / 'design' / '.voice-state'
 VOICE = 'th-TH-PremwadeeNeural'
 PITCH = '+10Hz'
-RATES = {'normal': '-10%', 'slow': '-30%'}
+# ผู้ปกครองขอให้อ่านช้าลง (2026-09-26): ปกติ -10% -> -20%, ช้าลง -30% -> -35%
+RATES = {'normal': '-20%', 'slow': '-35%'}
 
 
 def spoken(text):
@@ -33,7 +35,26 @@ async def main():
     import edge_tts
     texts = json.loads((ROOT / 'design' / 'voice-texts.json').read_text(encoding='utf-8'))
     clips = {text: hashlib.md5(text.encode('utf-8')).hexdigest()[:12] for text in texts}
-    todo = [(text, h, speed) for speed in RATES for text, h in clips.items() if not (OUT / speed / f'{h}.mp3').exists()]
+    # เปลี่ยนความเร็ว -> อัดใหม่ทั้งความเร็วนั้น (ไฟล์ตั้งชื่อตามข้อความ ไม่ได้ตามความเร็ว)
+    # งานอัดใหม่จดไว้ใน design/.voice-state/ ทีละไฟล์ (ไม่ขึ้น git) จะได้หยุดกลางคันแล้วรันต่อได้
+    old = json.loads((OUT / 'manifest.json').read_text(encoding='utf-8')).get('rates', {}) if (OUT / 'manifest.json').exists() else {}
+    STATE.mkdir(parents=True, exist_ok=True)
+    fresh = {}
+    for speed, rate in RATES.items():
+        mark = STATE / f'rate-{speed}.txt'
+        done_rate = mark.read_text(encoding='utf-8').strip() if mark.exists() else old.get(speed)
+        if done_rate != rate:
+            (STATE / f'redo-{speed}.txt').write_text(rate, encoding='utf-8')
+        redo = (STATE / f'redo-{speed}.txt')
+        progress = STATE / f'redone-{speed}.txt'
+        if redo.exists():
+            fresh[speed] = set(progress.read_text(encoding='utf-8').split()) if progress.exists() else set()
+        mark.write_text(rate, encoding='utf-8')
+    def needed(text, h, speed):
+        if speed in fresh:
+            return h not in fresh[speed]
+        return not (OUT / speed / f'{h}.mp3').exists()
+    todo = [(text, h, speed) for speed in RATES for text, h in clips.items() if needed(text, h, speed)]
     print(f'{len(clips)} phrases x {len(RATES)} speeds, {len(todo)} files to generate')
     failed = set()
     for text, h, speed in todo:
@@ -45,6 +66,9 @@ async def main():
             try:
                 await edge_tts.Communicate(spoken(text), VOICE, rate=RATES[speed], pitch=PITCH).save(str(path))
                 print(' ', speed, h, text[:40], flush=True)
+                if speed in fresh:
+                    with open(STATE / f'redone-{speed}.txt', 'a', encoding='utf-8') as f:
+                        f.write(h + chr(10))
                 break
             except Exception as error:
                 print('  retry', speed, h, type(error).__name__, flush=True)
@@ -68,6 +92,13 @@ async def main():
             if f.name not in keep:
                 f.unlink()
                 print('  removed', speed, f.name)
+    for speed in fresh:
+        left = [h for h in clips.values() if h not in set((STATE / f'redone-{speed}.txt').read_text(encoding='utf-8').split() if (STATE / f'redone-{speed}.txt').exists() else [])]
+        if not left:
+            (STATE / f'redo-{speed}.txt').unlink(missing_ok=True)
+            (STATE / f'redone-{speed}.txt').unlink(missing_ok=True)
+        else:
+            print('  still to re-record at the new speed:', speed, len(left))
     print('done', len(clips), 'phrases')
 
 

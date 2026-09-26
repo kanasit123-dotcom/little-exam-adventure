@@ -135,7 +135,11 @@ export function mountReview(root, ctx) {
   }
 
   async function playSeq(texts, role, qid, sig, key = 'summary') {
-    for (const text of texts) {
+    for (const [i, text] of texts.entries()) {
+      if (i > 0) {
+        await sleep(500, sig);
+        if (sig.aborted || audio.playing) return 'cancelled';
+      }
       const result = await audio.play({ text, role, qid, key }, { signal: sig });
       if (result.status !== 'done' && result.status !== 'muted') return result.status;
     }

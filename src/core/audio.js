@@ -155,7 +155,7 @@ export function createAudio({
           via = 'tts';
           const utterance = new Utterance(request.text);
           utterance.lang = 'th-TH';
-          utterance.rate = rate === 'slow' ? 0.7 : 0.9;
+          utterance.rate = rate === 'slow' ? 0.65 : 0.8;
           utterance.onend = () => { if (generation === gen) finish('done'); };
           utterance.onerror = () => { if (generation === gen) finish('error'); };
           try { speech.speak(utterance); } catch { return finish('error'); }

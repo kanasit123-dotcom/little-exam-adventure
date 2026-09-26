@@ -8,7 +8,10 @@ import { SAY, blockStart } from '../content/copy.js';
 import { toExamQuestion } from '../core/exam-question.js';
 import { UNSURE, blockComplete, currentBlockIds } from '../core/state.js';
 import { renderVisual } from '../visuals/visuals.js';
-import { $, $$, buddyHTML, esc, on, picture, markSpeaking } from '../ui.js';
+import { $, $$, buddyHTML, esc, on, picture, markSpeaking, sleep } from '../ui.js';
+
+// ช่วงเงียบระหว่างหัวข้อตอน เรื่อง และคำถาม
+export const PAUSE_MS = 800;
 
 // จำว่าได้ยินอะไรไปแล้วในการเปิดแอปครั้งนี้ (หัวข้อตอน/เรื่อง) จะได้ไม่อ่านซ้ำทุกข้อ
 const heard = new Set();
@@ -136,7 +139,12 @@ export function mountExam(root, ctx) {
     if (newSection && !heard.has(sectionKey)) { seq.push(q.section); heard.add(sectionKey); }
     if (q.stimulus && !heard.has(`${s.id}:stim:${q.stimulus.id}`)) { seq.push(q.stimulus.speech); heard.add(`${s.id}:stim:${q.stimulus.id}`); }
     seq.push(q.promptSpeech);
-    for (const text of seq) {
+    for (const [i, text] of seq.entries()) {
+      if (i > 0) {
+        // เว้นจังหวะให้เด็กตามทัน (ผู้ปกครองขอ 2026-09-26) — ถ้าเด็กกดฟังเองระหว่างนี้ ไม่อ่านต่อทับ
+        await sleep(PAUSE_MS, qSignal);
+        if (qSignal.aborted || audio.playing) break;
+      }
       const result = await audio.play({ text, role: 'prompt', qid: q.id, key: text === q.promptSpeech ? 'prompt' : text === q.stimulus?.speech ? 'stimulus' : 'intro' }, { signal: qSignal });
       if (result.status === 'cancelled' || result.status === 'error') {
         if (result.status === 'error' && !qSignal.aborted) $(root, '#lx-note').textContent = 'เปิดเสียงไม่ได้ แตะ 🔊 เพื่อลองอีกครั้ง';

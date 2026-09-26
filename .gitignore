@@ -10,3 +10,4 @@ design/incoming/*
 !design/incoming/.gitkeep
 design/cut/
 __pycache__/
+design/.voice-state/
