@@ -119,6 +119,51 @@ function clock(v) {
   </figure>`;
 }
 
+function table(v) {
+  return `<figure class="lx-visual lx-table-visual" aria-label="ตาราง">
+    <table class="lx-data-table"><thead><tr><th>ชื่อ</th><th>จำนวน (${esc(v.unit)})</th></tr></thead>
+      <tbody>${v.rows.map((r) => `<tr><td>${esc(r.name)}</td><td>${r.count}</td></tr>`).join('')}</tbody></table>
+  </figure>`;
+}
+
+function numberRow(v) {
+  return `<figure class="lx-visual lx-numrow" aria-label="แถวตัวเลข">
+    <div class="lx-numrow-items">${v.items.map((x) => `<span class="lx-num-box${x === '?' ? ' lx-num-ask' : ''}">${x === '?' ? '?' : x}</span>`).join('')}</div>
+  </figure>`;
+}
+
+// รูปทรงกระจายในกรอบ ตำแหน่ง/ขนาด/การหมุนคงที่ตามลำดับ (ไม่สุ่ม) ทุกเครื่องเห็นเหมือนกัน
+const SCENE_SLOTS = [[60, 60, 34, 0], [165, 70, 30, 0], [275, 55, 32, 15], [80, 160, 28, -12], [185, 165, 36, 0], [295, 155, 30, 0], [120, 245, 30, 20], [240, 245, 28, 0], [330, 240, 24, -8]];
+function shapeSvg(kind, x, y, r, rot) {
+  const style = 'fill="#fff6d8" stroke="#4a3b52" stroke-width="4" stroke-linejoin="round"';
+  if (kind === 'circle') return `<circle cx="${x}" cy="${y}" r="${r}" ${style}/>`;
+  if (kind === 'square') return `<rect x="${x - r}" y="${y - r}" width="${r * 2}" height="${r * 2}" transform="rotate(${rot} ${x} ${y})" ${style}/>`;
+  const h = r * 1.15;
+  return `<polygon points="${x},${y - h} ${x + r * 1.1},${y + h * 0.7} ${x - r * 1.1},${y + h * 0.7}" transform="rotate(${rot} ${x} ${y})" ${style}/>`;
+}
+function shapeCount(v) {
+  return `<figure class="lx-visual lx-shapes" aria-label="ภาพรูปทรง">
+    <svg viewBox="0 0 380 300"><rect x="4" y="4" width="372" height="292" rx="18" fill="#fff" stroke="#f0e2ec" stroke-width="4"/>
+      ${v.shapes.map((kind, i) => shapeSvg(kind, ...SCENE_SLOTS[i])).join('')}</svg>
+  </figure>`;
+}
+
+// รูปสำหรับโจทย์พับครึ่ง: มีเส้นประแนวตั้งกลางรูปเสมอ
+const FOLDS = {
+  heart: '<path d="M50 84 C20 62 12 44 20 30 C28 16 44 18 50 32 C56 18 72 16 80 30 C88 44 80 62 50 84 Z"/>',
+  crescent: '<path d="M62 15 A36 36 0 1 0 62 85 A26 36 0 0 1 62 15 Z"/>',
+  lshape: '<path d="M26 16 H48 V64 H78 V86 H26 Z"/>',
+  star: '<polygon points="50,10 61,38 90,38 66,56 75,86 50,68 25,86 34,56 10,38 39,38"/>',
+  circle: '<circle cx="50" cy="50" r="36"/>',
+  flag: '<path d="M40 10 V92" stroke-width="6"/><path d="M43 12 L90 31 L43 50 Z"/>',
+};
+export function renderFold(fold) {
+  return `<svg class="lx-fold" viewBox="0 0 100 100" aria-hidden="true">
+    <g fill="#ffd9e8" stroke="#4a3b52" stroke-width="4" stroke-linejoin="round">${FOLDS[fold] || ''}</g>
+    <line x1="50" y1="4" x2="50" y2="96" stroke="#2f96de" stroke-width="3" stroke-dasharray="6 5"/>
+  </svg>`;
+}
+
 export function renderVisual(visual) {
   if (!visual) return '';
   switch (visual.type) {
@@ -129,6 +174,9 @@ export function renderVisual(visual) {
     case 'polygon': return polygon(visual);
     case 'row': return row(visual);
     case 'clock': return clock(visual);
+    case 'table': return table(visual);
+    case 'number-row': return numberRow(visual);
+    case 'shape-count': return shapeCount(visual);
     default: return '';
   }
 }

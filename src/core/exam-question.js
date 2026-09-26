@@ -19,6 +19,9 @@ export function copyVisual(visual) {
     case 'polygon': return { type: 'polygon', sides: visual.sides };
     case 'row': return { type: 'row', items: visual.items.slice() };
     case 'clock': return { type: 'clock', hour: visual.hour, minute: visual.minute };
+    case 'table': return { type: 'table', unit: visual.unit, rows: visual.rows.map((r) => ({ name: r.name, count: r.count })) };
+    case 'number-row': return { type: 'number-row', items: visual.items.slice() };
+    case 'shape-count': return { type: 'shape-count', shapes: visual.shapes.slice() };
     default: return null;
   }
 }
@@ -36,6 +39,7 @@ export function toExamQuestion(set, item, order = item.options.map((option) => o
       label: OPTION_LABELS[index],
       text: option.text || null,
       image: option.image || null,
+      svg: option.svg?.fold ? { fold: option.svg.fold } : null,
       speech: optionSpeech(option, index),
     };
   });

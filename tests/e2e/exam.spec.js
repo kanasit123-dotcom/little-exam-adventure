@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getSet } from '../../src/content/sets/index.js';
+import { getSet, SETS } from '../../src/content/sets/index.js';
 import { KEY, freshStart, startSet, answerAndSubmitBlock, noHorizontalOverflow } from './helpers.js';
 
 const set = getSet('set-01');
@@ -67,6 +67,35 @@ test('set 2 plays through 5 + 5 + 2 with its clock, row and sequence questions; 
   await expect(page.locator('[data-set="set-01"]')).toContainText('ยังไม่เคยทำ');
   await expect(page.locator('[data-set="set-01"]')).toContainText('ชุดต่อไป');
 });
+
+for (const s of SETS) {
+  test(`${s.id} plays through without errors, broken pictures or console errors`, async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('response', (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
+    await freshStart(page);
+    await startSet(page, s.id);
+    for (let guard = 0; guard < 40 && !(await page.locator('.lx-reward').isVisible().catch(() => false)); guard++) {
+      if (await page.locator('#lx-continue').isVisible().catch(() => false)) { await page.locator('#lx-continue').click(); continue; }
+      if (await page.locator('#lx-rdone').isVisible().catch(() => false)) {
+        // เปิดตัวช่วยทุกอย่างของข้อแรกในหน้าเฉลย
+        for (const tool of ['hint', 'steps', 'column', 'transfer']) {
+          const button = page.locator(`[data-tool="${tool}"]`);
+          if (await button.count()) await button.click();
+        }
+        await page.locator('#lx-rdone').click();
+        continue;
+      }
+      if (await page.locator('#lx-send').isVisible().catch(() => false)) { await page.locator('#lx-send').click(); continue; }
+      const broken = await page.evaluate(() => [...document.images].filter((img) => img.complete && img.naturalWidth === 0).length);
+      expect(broken).toBe(0);
+      await page.locator('.lx-pick').last().click();
+      await page.locator('#lx-next').click();
+    }
+    await expect(page.locator('.lx-reward')).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+}
 
 test('set picker: a set in progress shows its answered count and resumes where it stopped', async ({ page }) => {
   await freshStart(page);

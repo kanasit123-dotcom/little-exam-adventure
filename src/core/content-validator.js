@@ -2,7 +2,9 @@ import { SUBJECTS } from '../content/sets/index.js';
 
 const TYPES = new Set(['main', 'transfer']);
 const PROVENANCE = new Set(['original', 'official', 'third-party-practice']);
-const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock']);
+const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count']);
+export const FOLD_SHAPES = new Set(['heart', 'crescent', 'lshape', 'star', 'circle', 'flag']);
+const COUNT_SHAPES = new Set(['triangle', 'circle', 'square']);
 const DIRECTIONS = ['north', 'east', 'south', 'west'];
 const EXAM_FORBIDDEN = ['hint', 'hints', 'feedback', 'explanation', 'answer', 'solution'];
 
@@ -57,6 +59,7 @@ export function validateItem(item, { assetIds } = {}) {
 
 function validSvg(svg) {
   if (svg.swatch) return /^#[0-9a-f]{6}$/i.test(svg.swatch);
+  if (svg.fold) return FOLD_SHAPES.has(svg.fold);
   return false;
 }
 
@@ -75,6 +78,9 @@ export function validateVisual(visual, assetIds) {
   if (visual.type === 'polygon' && !(Number.isInteger(visual.sides) && visual.sides >= 3 && visual.sides <= 8)) errors.push('polygon sides must be 3-8');
   if (visual.type === 'row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 6 && visual.items.every(known) && new Set(visual.items).size === visual.items.length)) errors.push('row needs 3-6 different known pictures');
   if (visual.type === 'clock' && !(Number.isInteger(visual.hour) && visual.hour >= 1 && visual.hour <= 12 && [0, 30].includes(visual.minute))) errors.push('clock needs hour 1-12 and minute 0 or 30');
+  if (visual.type === 'table' && !(visual.unit && Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 5 && visual.rows.every((r) => r.name && Number.isInteger(r.count) && r.count >= 0 && r.count <= 99))) errors.push('table needs a unit and 2-5 rows of name and count 0-99');
+  if (visual.type === 'number-row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 7 && visual.items.filter((x) => x === '?').length === 1 && visual.items.every((x) => x === '?' || Number.isInteger(x)))) errors.push('number-row needs 3-7 numbers with exactly one ?');
+  if (visual.type === 'shape-count' && !(Array.isArray(visual.shapes) && visual.shapes.length >= 3 && visual.shapes.length <= 9 && visual.shapes.every((s) => COUNT_SHAPES.has(s)))) errors.push('shape-count needs 3-9 triangle/circle/square');
   return errors;
 }
 

@@ -4,7 +4,7 @@ import { SETS } from '../src/content/sets/index.js';
 import { toExamQuestion } from '../src/core/exam-question.js';
 
 const ALLOWED = ['id', 'subject', 'subjectName', 'section', 'stimulus', 'promptText', 'promptSpeech', 'visual', 'options'].sort();
-const OPTION_KEYS = ['key', 'label', 'text', 'image', 'speech'].sort();
+const OPTION_KEYS = ['key', 'label', 'text', 'image', 'svg', 'speech'].sort();
 
 test('exam question is an allow-list projection', () => {
   for (const set of SETS) {

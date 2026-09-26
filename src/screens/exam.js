@@ -7,7 +7,7 @@ import { getItem, sectionOf } from '../content/sets/index.js';
 import { SAY, blockStart } from '../content/copy.js';
 import { toExamQuestion } from '../core/exam-question.js';
 import { UNSURE, blockComplete, currentBlockIds } from '../core/state.js';
-import { renderVisual } from '../visuals/visuals.js';
+import { renderVisual, renderFold } from '../visuals/visuals.js';
 import { $, $$, buddyHTML, esc, on, picture, markSpeaking, sleep } from '../ui.js';
 
 // ช่วงเงียบระหว่างหัวข้อตอน เรื่อง และคำถาม
@@ -87,7 +87,7 @@ export function mountExam(root, ctx) {
     const q = question();
     shownQid = q.id;
     const number = s.questionIds.indexOf(q.id) + 1;
-    const hasImages = q.options.some((option) => option.image);
+    const hasImages = q.options.some((option) => option.image || option.svg);
     paper.innerHTML = `
       <div class="lx-section-banner">${esc(q.section)}</div>
       ${q.stimulus ? `
@@ -108,6 +108,7 @@ export function mountExam(root, ctx) {
             <button class="lx-pick" data-i="${i}" type="button" aria-pressed="false">
               <span class="lx-num">${esc(option.label)}</span>
               ${option.image ? picture(option.image, 'lx-opt-pic') : ''}
+              ${option.svg ? renderFold(option.svg.fold) : ''}
               ${option.text ? `<span class="lx-opt-text">${esc(option.text)}</span>` : ''}
             </button>
             <button class="lx-say" data-say="opt-${i}" data-i="${i}" type="button" aria-label="ฟังข้อ ${esc(option.label)}">🔊</button>

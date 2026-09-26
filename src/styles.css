@@ -273,6 +273,14 @@ button, .lx-pick, .lx-dot { -webkit-user-select: none; user-select: none; -webki
 .lx-row-pic { width: 22%; max-width: 110px; aspect-ratio: 1; object-fit: contain; }
 .lx-row-sides { display: flex; justify-content: space-between; width: 100%; padding: 0 6px; }
 .lx-clock svg { width: min(60vw, 220px); height: auto; }
+.lx-data-table { border-collapse: collapse; background: #fff; font-size: 1.25rem; min-width: 220px; border: 3px solid var(--ink); }
+.lx-data-table th, .lx-data-table td { border: 2px solid var(--ink); padding: 6px 18px; text-align: center; }
+.lx-data-table th { background: #f3ecff; font-size: 1.05rem; }
+.lx-numrow-items { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.lx-num-box { min-width: 58px; height: 58px; display: grid; place-items: center; border: 3px solid var(--ink); border-radius: var(--r-sm); background: #fff; font-family: var(--font-num); font-weight: 700; font-size: 1.7rem; }
+.lx-num-box.lx-num-ask { border-style: dashed; color: var(--purple-dark); background: #f3ecff; }
+.lx-shapes svg { width: min(100%, 380px); height: auto; }
+.lx-fold { width: min(100%, 110px); aspect-ratio: 1; }
 .lx-polygon svg { width: min(70%, 240px); height: auto; }
 
 /* ---------------------------------------------------------------- หน้าเฉลย */

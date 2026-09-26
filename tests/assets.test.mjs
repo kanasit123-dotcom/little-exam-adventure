@@ -30,7 +30,7 @@ test('every picture used by content is in the registry', () => {
     if (!visual) return;
     if (visual.asset) used.add(visual.asset);
     if (visual.icon) used.add(visual.icon);
-    for (const row of visual.rows || []) used.add(row.asset);
+    for (const row of visual.rows || []) if (row.asset) used.add(row.asset);
     if (visual.type === 'row') for (const id of visual.items) used.add(id);
   };
   for (const set of SETS) {
