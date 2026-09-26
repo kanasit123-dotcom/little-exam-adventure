@@ -49,3 +49,14 @@ test('shared story is projected with the question but without answers', () => {
   assert.equal(q.stimulus.text, set.stimuli[item.stimulus].text);
   assert.equal(q.section, set.stimuli[item.stimulus].section);
 });
+
+test('every table is read aloud (in the story or in the question speech)', () => {
+  for (const set of SETS) {
+    for (const item of set.items) {
+      const q = toExamQuestion(set, item);
+      const tables = [q.stimulus?.visual, q.visual].filter((v) => v?.type === 'table');
+      const heard = `${q.stimulus?.speech || ''} ${q.promptSpeech}`;
+      for (const table of tables) for (const row of table.rows) assert.ok(heard.includes(`${row.name} ${row.count} ${table.unit}`), `${item.id}: ${row.name}`);
+    }
+  }
+});

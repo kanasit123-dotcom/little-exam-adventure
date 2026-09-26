@@ -33,7 +33,7 @@ export default {
       prompt: { text: 'ใครเก็บส้มได้มากที่สุด' },
       options: [{ id: 'a', text: 'เปา' }, { id: 'b', text: 'ปิ่น' }, { id: 'c', text: 'ปอ' }],
       correctOptionId: 'c',
-      narration: 'อ่านชื่อได้ เสียงอ่านเรื่องไม่บอกตัวเลขในตาราง เด็กต้องดูตารางเอง',
+      narration: 'อ่านเรื่องและข้อมูลในตารางออกเสียงให้ฟัง (ผู้ปกครองขอ) วัดการเปรียบเทียบจำนวนจากข้อมูล',
       review: {
         summary: 'ปอเก็บส้มได้มากที่สุด 8 ผล',
         hints: ['ดูตัวเลขในตาราง เลขไหนมากที่สุด'],
@@ -213,7 +213,10 @@ export default {
     {
       id: 'r-table-least-t', type: 'transfer', subject: 'reasoning', skillIds: ['read-table'], familyId: 'table-compare', difficulty: 1,
       sourceId: SRC, ...R, section: TABLE,
-      prompt: { text: 'ตารางนี้บอกจำนวนไข่ที่เด็กแต่ละคนเก็บได้ ใครเก็บไข่ได้น้อยที่สุด' },
+      prompt: {
+        text: 'ตารางนี้บอกจำนวนไข่ที่เด็กแต่ละคนเก็บได้ ใครเก็บไข่ได้น้อยที่สุด',
+        speech: 'ตารางนี้บอกจำนวนไข่ที่เด็กแต่ละคนเก็บได้ ต้น 4 ฟอง ตาล 7 ฟอง บัว 5 ฟอง ใครเก็บไข่ได้น้อยที่สุด',
+      },
       visual: { type: 'table', unit: 'ฟอง', rows: [{ name: 'ต้น', count: 4 }, { name: 'ตาล', count: 7 }, { name: 'บัว', count: 5 }] },
       options: [{ id: 'a', text: 'ต้น' }, { id: 'b', text: 'ตาล' }, { id: 'c', text: 'บัว' }],
       correctOptionId: 'a',
