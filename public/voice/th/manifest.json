@@ -1,8 +1,8 @@
 {
 "voice": "th-TH-PremwadeeNeural",
 "rates": {
-"normal": "-10%",
-"slow": "-30%"
+"normal": "-20%",
+"slow": "-35%"
 },
 "reviewStatus": "ผู้ปกครองต้องฟังตรวจก่อนให้เด็กใช้ (ดู docs/VOICE-REVIEW.md)",
 "clips": {
