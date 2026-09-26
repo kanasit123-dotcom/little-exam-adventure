@@ -12,6 +12,11 @@ const PICTURES = {
   'plant-seed': 'กระถางมีเมล็ด', 'plant-sprout': 'ต้นอ่อน', 'plant-flower': 'ต้นไม้มีดอก', chick: 'ลูกเจี๊ยบ', leaf: 'ใบไม้', stone: 'ก้อนหิน',
   ball: 'ลูกบอล', coin: 'เหรียญ', duck: 'เป็ด', mouse: 'หนู', banana: 'กล้วย', grapes: 'องุ่น', carrot: 'แครอท', car: 'รถ',
   watermelon: 'แตงโม', toothbrush: 'แปรงสีฟัน',
+  // แผ่น C (design/PROMPTS-gemini-3.md) — ภาพล้างมือและภาพฤดูอยู่ในกรอบ ไม่ตัดพื้นในกรอบ
+  'wash-1': 'ภาพที่ 1', 'wash-2': 'ภาพที่ 2', 'wash-3': 'ภาพที่ 3', 'wash-4': 'ภาพที่ 4',
+  'bfly-egg': 'ไข่ผีเสื้อ', caterpillar: 'หนอน', chrysalis: 'ดักแด้', 'bfly-adult': 'ผีเสื้อ',
+  'season-rain': 'ภาพทุ่งนา', 'season-hot': 'ภาพทุ่งนา', 'season-cool': 'ภาพทุ่งนา',
+  ant: 'มด', jug: 'เหยือก', bottle: 'ขวด', glass: 'แก้ว', bat: 'ค้างคาว',
 };
 export const FRIENDS = { cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น' };
 export const STICKERS = {

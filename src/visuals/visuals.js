@@ -4,6 +4,8 @@
  */
 import { asset } from '../core/assets.js';
 
+const asset_src = (id) => asset(id).src;
+
 export const esc = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const img = (id, cls = '') => {
@@ -85,10 +87,13 @@ function polygon(v) {
 }
 
 // ภาพเรียงแถวจากซ้ายไปขวา (โจทย์ซ้าย-ขวา) มีป้ายบอกฝั่งซ้าย/ขวาใต้แถว
+const ROW_LABELS = ['ก', 'ข', 'ค', 'ง', 'จ', 'ฉ'];
 function row(v) {
   return `<figure class="lx-visual lx-row-visual" aria-label="ภาพเรียงจากซ้ายไปขวา">
-    <div class="lx-row-items">${v.items.map((id) => img(id, 'lx-row-pic')).join('')}</div>
-    <figcaption class="lx-row-sides"><span>◀ ซ้าย</span><span>ขวา ▶</span></figcaption>
+    <div class="lx-row-items${v.labels ? ' lx-row-labeled' : ''}">${v.items.map((id, i) => (v.labels
+      ? `<span class="lx-row-cell">${img(id, 'lx-row-pic')}<b class="lx-row-label">${ROW_LABELS[i]}</b></span>`
+      : img(id, 'lx-row-pic'))).join('')}</div>
+    ${v.sides ? '<figcaption class="lx-row-sides"><span>◀ ซ้าย</span><span>ขวา ▶</span></figcaption>' : ''}
   </figure>`;
 }
 
@@ -165,6 +170,56 @@ export function renderFold(fold) {
   </svg>`;
 }
 
+// เทียบปริมาตร: [ภาพซ้าย] = [ภาพขวา x จำนวน] ทีละแถว
+function equivalence(v) {
+  return `<figure class="lx-visual lx-equiv" aria-label="ภาพเทียบปริมาณ">
+    ${v.rows.map((row) => `<div class="lx-equiv-row">${img(row.left, 'lx-equiv-pic lx-equiv-left')}<span class="lx-equiv-eq">=</span><span class="lx-equiv-right">${img(row.right, 'lx-equiv-pic').repeat(row.count)}</span></div>`).join('')}
+  </figure>`;
+}
+
+// ของหลายชนิดวางปนกันให้นับ: ตำแหน่งคงที่จากลำดับ (สลับชนิดแบบกำหนดตายตัว ไม่สุ่ม)
+const SCATTER_SLOTS = [
+  [13, 14], [35, 11], [59, 15], [84, 12], [22, 37], [46, 33], [69, 39], [87, 35],
+  [12, 62], [35, 58], [58, 64], [81, 60], [20, 85], [44, 84], [66, 87], [87, 84],
+];
+const SCATTER_TURN = [-12, 8, 0, 15, -6, 10, -15, 4, 12, -8, 6, -10, 0, 14, -4, 9];
+function scatter(v) {
+  // แจกของทีละชนิดสลับกันไป เพื่อไม่ให้ของชนิดเดียวกันจับกลุ่มอยู่มุมเดียว
+  const queue = v.items.map((item) => ({ asset: item.asset, left: item.count }));
+  const order = [];
+  while (queue.some((q) => q.left > 0)) for (const q of queue) if (q.left > 0) { order.push(q.asset); q.left--; }
+  const place = [0, 5, 10, 15, 2, 7, 8, 13, 1, 4, 11, 14, 3, 6, 9, 12];
+  return `<figure class="lx-visual lx-scatter" aria-label="ภาพสิ่งของหลายชนิด">
+    <div class="lx-scatter-box">${order.map((asset, i) => {
+      const [x, y] = SCATTER_SLOTS[place[i]];
+      return `<img class="lx-scatter-pic" src="${esc(asset_src(asset))}" alt="" draggable="false" style="left:${x}%;top:${y}%;transform:translate(-50%,-50%) rotate(${SCATTER_TURN[i]}deg)">`;
+    }).join('')}</div>
+  </figure>`;
+}
+
+// เค้กตัดแบ่ง (ตัวเลือกโจทย์แบ่งเท่าๆ กัน): มองจากด้านบน มีรอยตัด
+const CUTS = {
+  halves: '<line x1="50" y1="12" x2="50" y2="88"/>',
+  'uneven-halves': '<line x1="30" y1="15" x2="30" y2="85"/>',
+  quarters: '<line x1="50" y1="12" x2="50" y2="88"/><line x1="12" y1="50" x2="88" y2="50"/>',
+  'uneven-quarters': '<line x1="36" y1="13" x2="36" y2="87"/><line x1="36" y1="64" x2="87" y2="64"/><line x1="36" y1="34" x2="84" y2="34"/>',
+};
+export function renderCake(cut) {
+  return `<svg class="lx-cake" viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="38" fill="#ffe3b3" stroke="#4a3b52" stroke-width="4"/>
+    <circle cx="50" cy="50" r="30" fill="none" stroke="#f2a7c3" stroke-width="3" stroke-dasharray="4 5"/>
+    <g stroke="#4a3b52" stroke-width="3.5" stroke-linecap="round">${CUTS[cut] || ''}</g>
+  </svg>`;
+}
+
+/** ตัวเลือกที่วาดด้วยโค้ด (รูปพับครึ่ง หรือเค้กตัดแบ่ง) */
+export function renderOptionSvg(svg) {
+  if (!svg) return '';
+  if (svg.fold) return renderFold(svg.fold);
+  if (svg.cut) return renderCake(svg.cut);
+  return '';
+}
+
 export function renderVisual(visual) {
   if (!visual) return '';
   switch (visual.type) {
@@ -178,6 +233,8 @@ export function renderVisual(visual) {
     case 'table': return table(visual);
     case 'number-row': return numberRow(visual);
     case 'shape-count': return shapeCount(visual);
+    case 'equivalence': return equivalence(visual);
+    case 'scatter': return scatter(visual);
     default: return '';
   }
 }

@@ -17,11 +17,13 @@ export function copyVisual(visual) {
     case 'compass-map': return { type: 'compass-map', center: visual.center, places: { ...visual.places } };
     case 'dice': return { type: 'dice', face: visual.face };
     case 'polygon': return { type: 'polygon', sides: visual.sides };
-    case 'row': return { type: 'row', items: visual.items.slice() };
+    case 'row': return { type: 'row', items: visual.items.slice(), labels: !!visual.labels, sides: !!visual.sides };
     case 'clock': return { type: 'clock', hour: visual.hour, minute: visual.minute };
     case 'table': return { type: 'table', unit: visual.unit, rows: visual.rows.map((r) => ({ name: r.name, count: r.count })) };
     case 'number-row': return { type: 'number-row', items: visual.items.slice() };
     case 'shape-count': return { type: 'shape-count', shapes: visual.shapes.slice() };
+    case 'equivalence': return { type: 'equivalence', rows: visual.rows.map((r) => ({ left: r.left, right: r.right, count: r.count })) };
+    case 'scatter': return { type: 'scatter', items: visual.items.map((i) => ({ asset: i.asset, count: i.count })) };
     default: return null;
   }
 }
@@ -39,7 +41,7 @@ export function toExamQuestion(set, item, order = item.options.map((option) => o
       label: OPTION_LABELS[index],
       text: option.text || null,
       image: option.image || null,
-      svg: option.svg?.fold ? { fold: option.svg.fold } : null,
+      svg: option.svg?.fold ? { fold: option.svg.fold } : option.svg?.cut ? { cut: option.svg.cut } : null,
       speech: optionSpeech(option, index),
     };
   });

@@ -8,7 +8,10 @@ const LILLY = 'game-lilly@61c97c1a8b0519a17849fccf985a706a6bd36a26 (ภาพจ
 const GEMINI_1 = 'Gemini โดยผู้ปกครอง 2026-09-26 ตาม design/PROMPTS-gemini-1.md แล้วตัดพื้นด้วย design/blobs.py + cutout.py';
 const GEMINI_2 = 'Gemini โดยผู้ปกครอง 2026-09-26 ตาม design/PROMPTS-gemini-2.md (แผ่น B) แล้วตัดพื้นด้วย design/blobs.py + cutout.py';
 const SHEET_B = /^pictures\/(plant-seed|plant-sprout|plant-flower|chick|leaf|stone|ball|coin|duck|mouse|banana|grapes|carrot|car|watermelon|toothbrush)\.png$/;
+const GEMINI_3 = 'Gemini โดยผู้ปกครอง 2026-09-27 ตาม design/PROMPTS-gemini-3.md (แผ่น C) แล้วตัดพื้นด้วย design/blobs.py + cutout.py';
+const SHEET_C = /^pictures\/(wash-[1-4]|bfly-egg|caterpillar|chrysalis|bfly-adult|season-(rain|hot|cool)|ant|jug|bottle|glass|bat)\.png$/;
 const SOURCES = [
+  [SHEET_C, GEMINI_3],
   [SHEET_B, GEMINI_2],
   [/^pictures\//, GEMINI_1],
   [/^backgrounds\/classroom\.jpg$/, GEMINI_1],
