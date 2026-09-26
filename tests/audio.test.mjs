@@ -58,6 +58,21 @@ test('recorded clip plays through Web Audio without speechSynthesis and reports 
   assert.deepEqual(await done, { status: 'done', via: 'clip' });
 });
 
+test('clip URLs carry the recorded rate so a re-recorded speed is not served from cache', async () => {
+  const { ctx, sources } = fakeContext();
+  const fetched = [];
+  const audio = createAudio({
+    base: '/x/', loadManifest: async () => ({ rates: { normal: '-20%', slow: '-35%' }, clips: { 'สวัสดี': 'aaa' } }),
+    fetchArrayBuffer: async (url) => { fetched.push(url); return new ArrayBuffer(8); }, createContext: () => ctx, timers,
+  });
+  audio.unlock();
+  const done = audio.play({ text: 'สวัสดี', role: 'prompt' });
+  await waitForSource(sources, 2);
+  assert.equal(fetched[0], '/x/voice/th/normal/aaa.mp3?r=-20%25');
+  sources.at(-1).onended();
+  await done;
+});
+
 test('slow speed uses the slow recordings', async () => {
   const { audio, sources, fetched } = setup();
   audio.setRate('slow');

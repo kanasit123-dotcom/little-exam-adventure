@@ -55,7 +55,10 @@ export function createAudio({
 
   function clipUrl(m, text) {
     const hash = m?.clips?.[text];
-    return hash ? `${base}voice/th/${rate}/${hash}.mp3` : null;
+    if (!hash) return null;
+    // ต่อท้ายด้วยความเร็วที่อัด: เปลี่ยนความเร็วแล้วเครื่องจะไม่ใช้ไฟล์เก่าที่แคชไว้
+    const version = m.rates?.[rate] ? `?r=${encodeURIComponent(m.rates[rate])}` : '';
+    return `${base}voice/th/${rate}/${hash}.mp3${version}`;
   }
 
   /** เรียกจาก event ที่ผู้ใช้แตะ (pointerdown/click) — iPad ต้องปลดล็อกเสียงจาก gesture */
