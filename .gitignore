@@ -9,3 +9,4 @@ Thumbs.db
 design/incoming/*
 !design/incoming/.gitkeep
 design/cut/
+__pycache__/
