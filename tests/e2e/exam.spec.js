@@ -4,7 +4,7 @@ import { KEY, freshStart, startSet, answerAndSubmitBlock, noHorizontalOverflow }
 
 const set = getSet('set-01');
 const secrets = set.items.flatMap((item) => [item.review.summary, ...item.review.hints, ...item.review.steps])
-  .filter((text) => !set.items.some((item) => item.options.some((o) => o.text === text)));
+  .filter((text) => !set.items.some((item) => item.options.some((o) => o.text === text) || item.prompt.text.includes(text)));
 
 test('full session 5 + 5 + 2: review each block, skip break, reward once, other game data untouched', async ({ page }) => {
   const missing = [];
@@ -41,6 +41,31 @@ test('full session 5 + 5 + 2: review each block, skip break, reward once, other 
   await expect(card).toContainText('ทำครบแล้ว 1 ครั้ง');
   await expect(card).toContainText(`ครั้งล่าสุดตอบถูก ${stored.progress['set-01'].last.correct}/12`);
   await expect(card).toContainText('ทำอีกครั้ง');
+});
+
+test('set 2 plays through 5 + 5 + 2 with its clock, row and sequence questions; both sets keep their own results', async ({ page }) => {
+  await freshStart(page);
+  await startSet(page, 'set-02');
+  const seen = [];
+  for (let block = 1; block <= 3; block++) {
+    for (let guard = 0; guard < 6; guard++) {
+      seen.push(await page.locator('.lx-paper figure').evaluateAll((els) => els.map((el) => el.className).join(' ')));
+      await page.locator('.lx-pick').first().click();
+      await page.locator('#lx-next').click();
+      if (await page.locator('#lx-send').isVisible().catch(() => false)) break;
+    }
+    await page.locator('#lx-send').click();
+    await page.locator('#lx-rdone').click();
+    if (block < 3) await page.locator('#lx-continue').click();
+  }
+  expect(seen.join(' ')).toContain('lx-clock');
+  expect(seen.join(' ')).toContain('lx-row-visual');
+  await page.locator('[data-sticker]').first().click();
+  await page.locator('#lx-home').click();
+  await page.locator('#lx-sets').click();
+  await expect(page.locator('[data-set="set-02"]')).toContainText('ทำครบแล้ว 1 ครั้ง');
+  await expect(page.locator('[data-set="set-01"]')).toContainText('ยังไม่เคยทำ');
+  await expect(page.locator('[data-set="set-01"]')).toContainText('ชุดต่อไป');
 });
 
 test('set picker: a set in progress shows its answered count and resumes where it stopped', async ({ page }) => {

@@ -83,6 +83,42 @@ function polygon(v) {
   </figure>`;
 }
 
+// ภาพเรียงแถวจากซ้ายไปขวา (โจทย์ซ้าย-ขวา) มีป้ายบอกฝั่งซ้าย/ขวาใต้แถว
+function row(v) {
+  return `<figure class="lx-visual lx-row-visual" aria-label="ภาพเรียงจากซ้ายไปขวา">
+    <div class="lx-row-items">${v.items.map((id) => img(id, 'lx-row-pic')).join('')}</div>
+    <figcaption class="lx-row-sides"><span>◀ ซ้าย</span><span>ขวา ▶</span></figcaption>
+  </figure>`;
+}
+
+// นาฬิกาเข็ม: ตัวเลข 1-12 เข็มสั้นหนา เข็มยาวบาง (เข็มสั้นเลื่อนตามนาทีแบบนาฬิกาจริง)
+function clock(v) {
+  const rad = (deg) => ((deg - 90) * Math.PI) / 180;
+  const hand = (deg, len) => `${(100 + len * Math.cos(rad(deg))).toFixed(1)},${(100 + len * Math.sin(rad(deg))).toFixed(1)}`;
+  const numbers = Array.from({ length: 12 }, (_, i) => {
+    const n = i + 1;
+    return `<text x="${(100 + 74 * Math.cos(rad(n * 30))).toFixed(1)}" y="${(100 + 74 * Math.sin(rad(n * 30)) + 7).toFixed(1)}">${n}</text>`;
+  }).join('');
+  const ticks = Array.from({ length: 60 }, (_, i) => {
+    const long = i % 5 === 0;
+    const a = rad(i * 6);
+    const r1 = long ? 86 : 89;
+    return `<line x1="${(100 + r1 * Math.cos(a)).toFixed(1)}" y1="${(100 + r1 * Math.sin(a)).toFixed(1)}" x2="${(100 + 93 * Math.cos(a)).toFixed(1)}" y2="${(100 + 93 * Math.sin(a)).toFixed(1)}" stroke-width="${long ? 3 : 1.5}"/>`;
+  }).join('');
+  const hourDeg = (v.hour % 12) * 30 + v.minute * 0.5;
+  const minuteDeg = v.minute * 6;
+  return `<figure class="lx-visual lx-clock" aria-label="นาฬิกา">
+    <svg viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="96" fill="#fff" stroke="#4a3b52" stroke-width="5"/>
+      <g stroke="#4a3b52">${ticks}</g>
+      <g font-size="20" text-anchor="middle" fill="#4a3b52" font-family="inherit" font-weight="700">${numbers}</g>
+      <line x1="100" y1="100" x2="${hand(minuteDeg, 60).split(',')[0]}" y2="${hand(minuteDeg, 60).split(',')[1]}" stroke="#2f96de" stroke-width="5" stroke-linecap="round"/>
+      <line x1="100" y1="100" x2="${hand(hourDeg, 40).split(',')[0]}" y2="${hand(hourDeg, 40).split(',')[1]}" stroke="#d9598f" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="7" fill="#4a3b52"/>
+    </svg>
+  </figure>`;
+}
+
 export function renderVisual(visual) {
   if (!visual) return '';
   switch (visual.type) {
@@ -91,6 +127,8 @@ export function renderVisual(visual) {
     case 'compass-map': return compassMap(visual);
     case 'dice': return dice(visual);
     case 'polygon': return polygon(visual);
+    case 'row': return row(visual);
+    case 'clock': return clock(visual);
     default: return '';
   }
 }

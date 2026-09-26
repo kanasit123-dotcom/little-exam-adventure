@@ -31,6 +31,7 @@ test('every picture used by content is in the registry', () => {
     if (visual.asset) used.add(visual.asset);
     if (visual.icon) used.add(visual.icon);
     for (const row of visual.rows || []) used.add(row.asset);
+    if (visual.type === 'row') for (const id of visual.items) used.add(id);
   };
   for (const set of SETS) {
     for (const s of Object.values(set.stimuli || {})) visit(s.visual);

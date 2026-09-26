@@ -23,8 +23,10 @@ test('no correctness, review text, hints, steps or column problem reaches the ex
       assert.equal(json.includes('correct'), false, item.id);
       assert.equal(json.includes('review'), false, item.id);
       // ข้อความเฉลยที่บังเอิญเหมือนข้อความตัวเลือก (ซึ่งเห็นอยู่แล้ว) ไม่นับ
+      // และข้อความที่ยกมาจากโจทย์หรือเรื่อง (เห็นอยู่แล้วในหน้าข้อสอบ)
       const shown = new Set(item.options.map((o) => o.text));
-      const secrets = [item.review.summary, ...item.review.hints, ...item.review.steps].filter((text) => !shown.has(text));
+      const visible = `${item.prompt.text} ${set.stimuli?.[item.stimulus]?.text || ''}`;
+      const secrets = [item.review.summary, ...item.review.hints, ...item.review.steps].filter((text) => !shown.has(text) && !visible.includes(text));
       for (const text of secrets) assert.equal(json.includes(text), false, `${item.id}: "${text}"`);
       if (item.review.column) assert.equal(json.includes('"column"'), false);
     }

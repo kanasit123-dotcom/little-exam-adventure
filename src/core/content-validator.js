@@ -2,7 +2,7 @@ import { SUBJECTS } from '../content/sets/index.js';
 
 const TYPES = new Set(['main', 'transfer']);
 const PROVENANCE = new Set(['original', 'official', 'third-party-practice']);
-const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon']);
+const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock']);
 const DIRECTIONS = ['north', 'east', 'south', 'west'];
 const EXAM_FORBIDDEN = ['hint', 'hints', 'feedback', 'explanation', 'answer', 'solution'];
 
@@ -73,6 +73,8 @@ export function validateVisual(visual, assetIds) {
   if (visual.type === 'compass-map' && (!visual.center || !DIRECTIONS.every((d) => visual.places?.[d]))) errors.push('compass-map needs center and 4 places');
   if (visual.type === 'dice' && !(Number.isInteger(visual.face) && visual.face >= 1 && visual.face <= 6)) errors.push('dice face must be 1-6');
   if (visual.type === 'polygon' && !(Number.isInteger(visual.sides) && visual.sides >= 3 && visual.sides <= 8)) errors.push('polygon sides must be 3-8');
+  if (visual.type === 'row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 6 && visual.items.every(known) && new Set(visual.items).size === visual.items.length)) errors.push('row needs 3-6 different known pictures');
+  if (visual.type === 'clock' && !(Number.isInteger(visual.hour) && visual.hour >= 1 && visual.hour <= 12 && [0, 30].includes(visual.minute))) errors.push('clock needs hour 1-12 and minute 0 or 30');
   return errors;
 }
 
@@ -119,7 +121,7 @@ export function validateSet(set, options = {}) {
       if (!transfer) errors.push(`${item.id}: transfer ${tid} is missing`);
       else if (transfer.type !== 'transfer') errors.push(`${item.id}: ${tid} is not a transfer item`);
       else if (!transfer.skillIds.some((skill) => item.skillIds.includes(skill))) errors.push(`${item.id}: transfer ${tid} teaches a different skill`);
-      else if (transfer.prompt.text === item.prompt.text && JSON.stringify(transfer.visual) === JSON.stringify(item.visual)) errors.push(`${item.id}: transfer ${tid} repeats the same problem`);
+      else if (transfer.prompt.text === item.prompt.text && JSON.stringify(transfer.visual) === JSON.stringify(item.visual) && JSON.stringify(transfer.options) === JSON.stringify(item.options)) errors.push(`${item.id}: transfer ${tid} repeats the same problem`);
       transferUse.add(tid);
     }
   }

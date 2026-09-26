@@ -17,6 +17,8 @@ export function copyVisual(visual) {
     case 'compass-map': return { type: 'compass-map', center: visual.center, places: { ...visual.places } };
     case 'dice': return { type: 'dice', face: visual.face };
     case 'polygon': return { type: 'polygon', sides: visual.sides };
+    case 'row': return { type: 'row', items: visual.items.slice() };
+    case 'clock': return { type: 'clock', hour: visual.hour, minute: visual.minute };
     default: return null;
   }
 }

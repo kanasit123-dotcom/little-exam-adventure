@@ -39,15 +39,16 @@ async def main():
     for text, h, speed in todo:
         path = OUT / speed / f'{h}.mp3'
         path.parent.mkdir(parents=True, exist_ok=True)
-        # เน็ตสะดุด -> ลองใหม่ 3 ครั้ง; ข้อความที่ TTS ไม่ยอมอ่านเลย -> ตัดออกจาก manifest
-        for _ in range(3):
+        await asyncio.sleep(0.4)   # ไม่ยิงถี่เกินไป
+        # เน็ตสะดุด/บริการจำกัดความถี่ -> ลองใหม่สูงสุด 6 ครั้ง เว้นนานขึ้นเรื่อยๆ; ข้อความที่ TTS ไม่ยอมอ่านเลย -> ตัดออกจาก manifest
+        for attempt in range(6):
             try:
                 await edge_tts.Communicate(spoken(text), VOICE, rate=RATES[speed], pitch=PITCH).save(str(path))
-                print(' ', speed, h, text[:40])
+                print(' ', speed, h, text[:40], flush=True)
                 break
             except Exception as error:
-                print('  retry', speed, h, type(error).__name__)
-                await asyncio.sleep(2)
+                print('  retry', speed, h, type(error).__name__, flush=True)
+                await asyncio.sleep(3 + attempt * 5)
         else:
             path.unlink(missing_ok=True)
             failed.add(text)

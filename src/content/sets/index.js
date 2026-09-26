@@ -3,8 +3,9 @@
  * ตัวเกม หน้าเฉลย เสียง และ test อ่านจากที่นี่ทั้งหมด ไม่ต้องแก้โค้ดส่วนอื่น
  */
 import set01 from './set-01.js';
+import set02 from './set-02.js';
 
-export const SETS = [set01];
+export const SETS = [set01, set02];
 
 // ตัวเลือกในข้อสอบจริงใช้หมายเลข 1 2 3 (ไม่ใช่ ก ข ค)
 export const OPTION_LABELS = ['1', '2', '3', '4'];

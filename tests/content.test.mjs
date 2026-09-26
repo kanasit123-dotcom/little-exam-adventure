@@ -56,13 +56,28 @@ test('options use exam labels 1 2 3 and each main item has three options', () =>
   for (const set of SETS) for (const item of set.items) assert.equal(item.options.length, 3, item.id);
 });
 
-test('answers are spread over positions (not always the same number)', () => {
-  const set = getSet('set-01');
-  const positions = set.order.map((id) => {
-    const item = set.items.find((i) => i.id === id);
-    return item.options.findIndex((o) => o.id === item.correctOptionId);
-  });
-  for (const p of [0, 1, 2]) assert.ok(positions.filter((x) => x === p).length >= 3, `position ${p + 1}`);
+test('every set: answers are spread over positions, blocks of at most five, all six subjects', () => {
+  for (const set of SETS) {
+    const positions = set.order.map((id) => {
+      const item = set.items.find((i) => i.id === id);
+      return item.options.findIndex((o) => o.id === item.correctOptionId);
+    });
+    for (const p of [0, 1, 2]) assert.ok(positions.filter((x) => x === p).length >= 3, `${set.id} position ${p + 1}`);
+    const session = createSession(set, { now: 1, random: () => 0.5 });
+    assert.ok(session.blocks.every((b) => b.length <= 5), set.id);
+    const subjects = new Set(set.order.map((id) => set.items.find((i) => i.id === id).subject));
+    assert.equal(subjects.size, 6, set.id);
+  }
+});
+
+test('set 2 has 12 questions in 5 + 5 + 2 and its arithmetic answers match the column problems', () => {
+  const set = getSet('set-02');
+  assert.deepEqual(createSession(set, { now: 1 }).blocks.map((b) => b.length), [5, 5, 2]);
+  for (const item of set.items.filter((i) => i.review.column)) {
+    const { a, op, b } = item.review.column;
+    const result = op === '+' ? a + b : a - b;
+    assert.match(item.options.find((o) => o.id === item.correctOptionId).text, new RegExp(`^${result} `), item.id);
+  }
 });
 
 test('explanation steps that name the answer point at the correct option number', () => {
