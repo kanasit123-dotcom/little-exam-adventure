@@ -8,6 +8,10 @@ const BASE = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) |
 const PICTURES = {
   fish: 'ปลา', crab: 'ปู', chicken: 'ไก่', horse: 'ม้า', cat: 'แมว', owl: 'นกฮูก', butterfly: 'ผีเสื้อ', frog: 'กบ',
   elephant: 'ช้าง', umbrella: 'ร่ม', orange: 'ส้ม', spoon: 'ช้อน', chair: 'เก้าอี้', egg: 'ไข่', bicycle: 'จักรยาน', house: 'บ้าน',
+  // แผ่น B (design/PROMPTS-gemini-2.md) — ต้นไม้ 3 ขั้นใช้กรอบเดียวกัน กระถางจึงขนาดเท่ากัน
+  'plant-seed': 'กระถางมีเมล็ด', 'plant-sprout': 'ต้นอ่อน', 'plant-flower': 'ต้นไม้มีดอก', chick: 'ลูกเจี๊ยบ', leaf: 'ใบไม้', stone: 'ก้อนหิน',
+  ball: 'ลูกบอล', coin: 'เหรียญ', duck: 'เป็ด', mouse: 'หนู', banana: 'กล้วย', grapes: 'องุ่น', carrot: 'แครอท', car: 'รถ',
+  watermelon: 'แตงโม', toothbrush: 'แปรงสีฟัน',
 };
 export const FRIENDS = { cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น' };
 export const STICKERS = {
