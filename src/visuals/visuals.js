@@ -17,7 +17,8 @@ function pictograph(v) {
       <div class="lx-pg-who">${img(row.asset, 'lx-pg-face')}<span>${esc(row.label)}</span></div>
       <div class="lx-pg-icons">${img(v.icon, 'lx-pg-icon').repeat(row.count)}</div>
     </div>`).join('');
-  return `<figure class="lx-visual lx-pictograph" aria-label="แผนภูมิรูปภาพ">
+  const max = Math.max(...v.rows.map((row) => row.count));
+  return `<figure class="lx-visual lx-pictograph" aria-label="แผนภูมิรูปภาพ" style="--pg-max:${max}">
     ${rows}
     <figcaption class="lx-pg-key">${img(v.icon, 'lx-pg-icon')}<span>= ${v.unit} ${esc(v.unitWord)}</span></figcaption>
   </figure>`;
