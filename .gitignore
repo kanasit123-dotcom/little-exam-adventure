@@ -11,3 +11,7 @@ design/incoming/*
 design/cut/
 __pycache__/
 design/.voice-state/
+design/incoming-voice/*
+!design/incoming-voice/.gitkeep
+design/VOICE-REQUEST.md
+design/voice-request.csv
