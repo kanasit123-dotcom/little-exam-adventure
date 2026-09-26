@@ -147,11 +147,12 @@ export function mountExam(root, ctx) {
       }
       const result = await audio.play({ text, role: 'prompt', qid: q.id, key: text === q.promptSpeech ? 'prompt' : text === q.stimulus?.speech ? 'stimulus' : 'intro' }, { signal: qSignal });
       if (result.status === 'cancelled' || result.status === 'error') {
-        if (result.status === 'error' && !qSignal.aborted) $(root, '#lx-note').textContent = 'เปิดเสียงไม่ได้ แตะ 🔊 เพื่อลองอีกครั้ง';
+        if (result.status === 'error' && !qSignal.aborted && !signal.aborted) $(root, '#lx-note').textContent = 'เปิดเสียงไม่ได้ แตะ 🔊 เพื่อลองอีกครั้ง';
         break;
       }
     }
-    if (qSignal.aborted && shownQid !== q.id) return;
+    // ออกจากหน้านี้แล้ว (กดพัก/ส่ง) หรือเปลี่ยนไปข้ออื่นแล้ว: ไม่แตะหน้าจอเก่า
+    if (signal.aborted || (qSignal.aborted && shownQid !== q.id)) return;
     nextReady = true;
     renderBar();
   }

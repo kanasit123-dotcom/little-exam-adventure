@@ -196,6 +196,21 @@ test('with sound on, "next" waits for the question to be read (or the child to u
   await expect(page.locator('#lx-next')).toHaveAttribute('aria-disabled', 'false');
 });
 
+test('leaving the exam while it is reading aloud (or pausing between parts) raises no errors', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await freshStart(page, { sound: true });
+  await startSet(page);
+  await page.waitForTimeout(1700);            // ระหว่างอ่านหัวข้อ/เว้นจังหวะ
+  await page.locator('#lx-pause').click();
+  await page.waitForTimeout(2500);
+  await page.locator('#lx-resume').click();
+  await page.waitForTimeout(1200);
+  await page.reload();
+  await page.waitForTimeout(500);
+  expect(errors).toEqual([]);
+});
+
 test('parent page shows first-answer results and settings persist', async ({ page }) => {
   await freshStart(page);
   await startSet(page);
