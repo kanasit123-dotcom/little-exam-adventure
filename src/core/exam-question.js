@@ -26,6 +26,8 @@ export function copyVisual(visual) {
     case 'scatter': return { type: 'scatter', items: visual.items.map((i) => ({ asset: i.asset, count: i.count })) };
     case 'stack': return { type: 'stack', columns: visual.columns.slice() };
     case 'grid': return { type: 'grid', rows: visual.rows.map((r) => r.slice()) };
+    case 'board': return { type: 'board', items: visual.items.slice() };
+    case 'figure-row': return { type: 'figure-row', items: visual.items.map((x) => (x === '?' ? '?' : { ...x })) };
     default: return null;
   }
 }
@@ -43,7 +45,7 @@ export function toExamQuestion(set, item, order = item.options.map((option) => o
       label: OPTION_LABELS[index],
       text: option.text || null,
       image: option.image || null,
-      svg: option.svg?.fold ? { fold: option.svg.fold } : option.svg?.cut ? { cut: option.svg.cut } : null,
+      svg: option.svg?.fold ? { fold: option.svg.fold } : option.svg?.cut ? { cut: option.svg.cut } : option.svg?.figure ? { figure: { ...option.svg.figure } } : null,
       speech: optionSpeech(option, index),
     };
   });

@@ -104,7 +104,7 @@ export function mountExam(root, ctx) {
       </div>
       <button class="lx-listen lx-listen-main" data-say="prompt" type="button">🔊 ฟังโจทย์อีกครั้ง</button>
       ${renderVisual(q.visual)}
-      <div class="lx-options${hasImages ? ' lx-options-pics' : ''}" role="group" aria-label="ตัวเลือก">
+      <div class="lx-options${hasImages ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}" role="group" aria-label="ตัวเลือก">
         ${q.options.map((option, i) => `
           <div class="lx-opt">
             <button class="lx-pick" data-i="${i}" type="button" aria-pressed="false">

@@ -220,11 +220,49 @@ export function renderCake(cut) {
   </svg>`;
 }
 
-/** ตัวเลือกที่วาดด้วยโค้ด (รูปพับครึ่ง หรือเค้กตัดแบ่ง) */
+// รูปเรขาคณิตสำหรับโจทย์ภาพต่อเนื่อง (แนวข้อสอบเชาวน์): วงแปดเหลี่ยมแบ่ง 8 ช่องระบาย 1 ช่อง (0 = ด้านบน, 2 = ขวา, 4 = ล่าง, 6 = ซ้าย เวียนตามเข็มนาฬิกา), ลูกศร, จุด
+const OCT = Array.from({ length: 8 }, (_, i) => {
+  const a = ((i * 45 - 90 - 22.5) * Math.PI) / 180;
+  return [50 + 40 * Math.cos(a), 50 + 40 * Math.sin(a)];
+});
+const ARROW_TURN = { up: 0, right: 90, down: 180, left: 270 };
+const DOT_SPOTS = [[50, 50], [30, 30], [70, 70], [70, 30], [30, 70], [30, 50], [70, 50], [50, 30], [50, 70]];
+const DOT_SETS = { 1: [0], 2: [1, 2], 3: [1, 0, 2], 4: [1, 3, 4, 2], 5: [1, 3, 0, 4, 2], 6: [1, 3, 5, 6, 4, 2], 7: [1, 3, 5, 0, 6, 4, 2], 8: [1, 3, 5, 6, 4, 2, 7, 8], 9: [0, 1, 2, 3, 4, 5, 6, 7, 8] };
+export function renderFigure(f) {
+  let body = '';
+  if (f && 'wheel' in f) {
+    const pt = (p) => p.map((n) => n.toFixed(1)).join(',');
+    const slices = OCT.map((p, i) => `<polygon points="50,50 ${pt(p)} ${pt(OCT[(i + 1) % 8])}" fill="${i === f.wheel ? '#4a3b52' : '#fff'}"/>`).join('');
+    body = `<g stroke="#4a3b52" stroke-width="2.5" stroke-linejoin="round">${slices}<polygon points="${OCT.map(pt).join(' ')}" fill="none"/></g>`;
+  } else if (f && 'arrow' in f) {
+    body = `<g transform="rotate(${ARROW_TURN[f.arrow]} 50 50)"><path d="M50 12 L78 44 H60 V86 H40 V44 H22 Z" fill="#ffd9e8" stroke="#4a3b52" stroke-width="4" stroke-linejoin="round"/></g>`;
+  } else if (f && 'dots' in f) {
+    body = (DOT_SETS[f.dots] || []).map((k) => `<circle cx="${DOT_SPOTS[k][0]}" cy="${DOT_SPOTS[k][1]}" r="8" fill="#4a3b52"/>`).join('')
+      + '<rect x="12" y="12" width="76" height="76" rx="10" fill="none" stroke="#4a3b52" stroke-width="3"/>';
+  }
+  return `<svg class="lx-figure" viewBox="0 0 100 100" aria-hidden="true">${body}</svg>`;
+}
+
+// ภาพต่อเนื่อง มีช่อง ? หนึ่งช่อง (ภาพที่หายไปควรเป็นภาพใด)
+function figureRow(v) {
+  return `<figure class="lx-visual lx-figrow" aria-label="ภาพต่อเนื่อง">
+    <div class="lx-figrow-items">${v.items.map((x) => (x === '?' ? '<span class="lx-figrow-cell lx-figrow-blank">?</span>' : `<span class="lx-figrow-cell">${renderFigure(x)}</span>`)).join('')}</div>
+  </figure>`;
+}
+
+// แผ่นรูปของหลายอย่าง (ใช้ถามหลายข้อต่อกัน) — ไม่มีป้ายชื่อ เนื้อเรื่องอ่านชื่อให้ฟัง
+function board(v) {
+  return `<figure class="lx-visual lx-board" aria-label="ภาพของ ${v.items.length} อย่าง">
+    <div class="lx-board-items">${v.items.map((id) => `<span class="lx-board-cell">${img(id, 'lx-board-pic')}</span>`).join('')}</div>
+  </figure>`;
+}
+
+/** ตัวเลือกที่วาดด้วยโค้ด (รูปพับครึ่ง เค้กตัดแบ่ง หรือรูปเรขาคณิต) */
 export function renderOptionSvg(svg) {
   if (!svg) return '';
   if (svg.fold) return renderFold(svg.fold);
   if (svg.cut) return renderCake(svg.cut);
+  if (svg.figure) return renderFigure(svg.figure);
   return '';
 }
 
@@ -255,6 +293,8 @@ export function renderVisual(visual) {
     case 'polygon': return polygon(visual);
     case 'row': return row(visual);
     case 'grid': return grid(visual);
+    case 'board': return board(visual);
+    case 'figure-row': return figureRow(visual);
     case 'clock': return clock(visual);
     case 'table': return table(visual);
     case 'number-row': return numberRow(visual);

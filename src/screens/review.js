@@ -72,7 +72,7 @@ export function mountReview(root, ctx) {
   }
 
   function optionsHTML(q, qid, chosen, correctId) {
-    return `<div class="lx-options lx-options-review${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}">
+    return `<div class="lx-options lx-options-review${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}">
       ${q.options.map((option) => {
         const isCorrect = option.key === correctId;
         const isChosen = option.key === chosen;
@@ -222,7 +222,7 @@ export function mountReview(root, ctx) {
       <div class="lx-question"><p class="lx-qtext">${esc(t.prompt.text).replace(/\n/g, '<br>')}</p></div>
       <button class="lx-listen lx-listen-main" data-say="tprompt" type="button">🔊 ฟังโจทย์</button>
       ${renderVisual(t.visual)}
-      <div class="lx-options${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}" id="lx-topts">
+      <div class="lx-options${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}" id="lx-topts">
         ${q.options.map((option, i) => `<div class="lx-opt">
           <button class="lx-pick" data-ti="${i}" type="button"><span class="lx-num">${esc(option.label)}</span>${option.image ? picture(option.image, 'lx-opt-pic') : ''}${option.svg ? renderOptionSvg(option.svg) : ''}${option.text ? `<span class="lx-opt-text">${esc(option.text)}</span>` : ''}</button>
           <button class="lx-say" data-say="topt-${i}" type="button" aria-label="ฟังข้อ ${esc(option.label)}">🔊</button></div>`).join('')}

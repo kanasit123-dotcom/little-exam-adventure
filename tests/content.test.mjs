@@ -51,9 +51,16 @@ test('set 1 splits into 5 + 5 + 2 without breaking a shared story', () => {
   }
 });
 
-test('options use exam labels 1 2 3 and each main item has three options', () => {
-  assert.deepEqual(OPTION_LABELS.slice(0, 3), ['1', '2', '3']);
-  for (const set of SETS) for (const item of set.items) assert.equal(item.options.length, 3, item.id);
+test('options use exam labels 1 2 3; three options, or four when every option is a picture (set 12 on, like the real exam)', () => {
+  assert.deepEqual(OPTION_LABELS.slice(0, 4), ['1', '2', '3', '4']);
+  for (const set of SETS) {
+    const newFormat = Number(set.id.slice(4)) >= 12;
+    for (const item of set.items) {
+      const pictures = item.options.every((o) => (o.image || o.svg) && !o.text);
+      const ok = item.options.length === 3 || (newFormat && pictures && item.options.length === 4);
+      assert.ok(ok, `${item.id}: ${item.options.length} options`);
+    }
+  }
 });
 
 test('every set: answers are spread over positions, blocks of at most five, all six subjects', () => {

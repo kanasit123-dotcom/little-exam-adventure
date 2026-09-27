@@ -533,3 +533,19 @@ body.lx-plain .lx-buddy { display: none; }
 .lx-grid-cell { display: flex; align-items: center; justify-content: center; padding: 6px; background: #fff; }
 .lx-grid-pic { width: 100%; max-width: 100px; aspect-ratio: 1; object-fit: contain; }
 
+/* ชุด 12 ขึ้นไป: ตัวเลือกภาพ 4 ช่อง (ก ข ค ง แบบข้อสอบจริง) — จอแคบเป็น 2x2 */
+.lx-options-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 640px) { .lx-options-4.lx-options-pics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 381px) and (max-width: 640px) { .lx-options-4:not(.lx-options-pics) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lx-figure { width: min(100%, 96px); aspect-ratio: 1; }
+.lx-figrow { width: min(100%, 560px); }
+.lx-figrow-items { display: flex; justify-content: space-between; gap: 8px; width: 100%; background: #fff; border: 3px solid var(--card-edge); border-radius: var(--r-md); padding: 10px; }
+.lx-figrow-cell { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.lx-figrow-cell .lx-figure { width: 100%; max-width: 110px; }
+.lx-figrow-blank { aspect-ratio: 1; max-width: 110px; border: 3px dashed var(--purple-dark); border-radius: var(--r-md); font-size: 2.2rem; font-weight: 700; color: var(--purple-dark); background: #fbf7ff; }
+.lx-board { width: min(100%, 560px); }
+.lx-board-items { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; width: 100%; background: #fff; border: 3px solid var(--card-edge); border-radius: var(--r-md); padding: 8px; }
+.lx-board-cell { display: flex; align-items: center; justify-content: center; }
+.lx-board-pic { width: 100%; max-width: 110px; aspect-ratio: 1; object-fit: contain; }
+@media (max-width: 420px) { .lx-board-items { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
