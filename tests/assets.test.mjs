@@ -46,3 +46,15 @@ test('every picture used by content is in the registry', () => {
 test('picture alt text is neutral (no correct/incorrect words)', () => {
   for (const entry of Object.values(ASSETS)) assert.equal(/ถูก|ผิด|correct/i.test(entry.alt), false);
 });
+
+test('app icons and web manifest exist (home-screen and browser-tab icon)', async () => {
+  const pub = new URL('../public/', import.meta.url);
+  const manifest = JSON.parse(await readFile(new URL('manifest.webmanifest', pub), 'utf8'));
+  assert.equal(manifest.short_name, 'Lily Exam');
+  for (const icon of manifest.icons) await access(new URL(icon.src, pub));
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  for (const href of ['manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-32.png']) {
+    assert.ok(html.includes(`href="${href}"`), href);
+    await access(new URL(href, pub));
+  }
+});
