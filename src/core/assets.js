@@ -17,6 +17,10 @@ const PICTURES = {
   'bfly-egg': 'ไข่ผีเสื้อ', caterpillar: 'หนอน', chrysalis: 'ดักแด้', 'bfly-adult': 'ผีเสื้อ',
   'season-rain': 'ภาพทุ่งนา', 'season-hot': 'ภาพทุ่งนา', 'season-cool': 'ภาพทุ่งนา',
   ant: 'มด', jug: 'เหยือก', bottle: 'ขวด', glass: 'แก้ว', bat: 'ค้างคาว',
+  // แผ่น D (design/PROMPTS-gemini-4.md) — อาชีพ เครื่องมือ ยานพาหนะ
+  doctor: 'หมอ', police: 'ตำรวจ', firefighter: 'นักดับเพลิง', farmer: 'ชาวนา', teacher: 'ครู', cook: 'แม่ครัว',
+  stethoscope: 'หูฟัง', hoe: 'จอบ', wok: 'กระทะ', extinguisher: 'ถังดับเพลิง',
+  firetruck: 'รถดับเพลิง', ambulance: 'รถพยาบาล', boat: 'เรือ', airplane: 'เครื่องบิน', bus: 'รถโดยสาร', train: 'รถไฟ',
 };
 export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',
