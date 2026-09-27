@@ -2,7 +2,7 @@ import { SUBJECTS } from '../content/sets/index.js';
 
 const TYPES = new Set(['main', 'transfer']);
 const PROVENANCE = new Set(['original', 'official', 'third-party-practice']);
-const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack']);
+const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack', 'grid']);
 export const CAKE_CUTS = new Set(['halves', 'uneven-halves', 'quarters', 'uneven-quarters']);
 export const FOLD_SHAPES = new Set(['heart', 'crescent', 'lshape', 'star', 'circle', 'flag']);
 const COUNT_SHAPES = new Set(['triangle', 'circle', 'square']);
@@ -78,7 +78,8 @@ export function validateVisual(visual, assetIds) {
   if (visual.type === 'compass-map' && (!visual.center || !DIRECTIONS.every((d) => visual.places?.[d]))) errors.push('compass-map needs center and 4 places');
   if (visual.type === 'dice' && !(Number.isInteger(visual.face) && visual.face >= 1 && visual.face <= 6)) errors.push('dice face must be 1-6');
   if (visual.type === 'polygon' && !(Number.isInteger(visual.sides) && visual.sides >= 3 && visual.sides <= 8)) errors.push('polygon sides must be 3-8');
-  if (visual.type === 'row' && !(Array.isArray(visual.items) && visual.items.length >= 2 && visual.items.length <= 6 && visual.items.every(known) && ['labels', 'sides'].every((k) => visual[k] === undefined || typeof visual[k] === 'boolean'))) errors.push('row needs 2-6 known pictures');
+  if (visual.type === 'row' && !(Array.isArray(visual.items) && visual.items.length >= 2 && visual.items.length <= 6 && visual.items.filter((x) => x === '?').length <= 1 && visual.items.every((x) => x === '?' || known(x)) && ['labels', 'sides'].every((k) => visual[k] === undefined || typeof visual[k] === 'boolean'))) errors.push('row needs 2-6 known pictures (at most one ?)');
+  if (visual.type === 'grid' && !(Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 3 && visual.rows.every((r) => Array.isArray(r) && r.length === visual.rows[0].length && r.length >= 2 && r.length <= 3 && r.every(known)))) errors.push('grid needs 2-3 rows of 2-3 known pictures');
   if (visual.type === 'clock' && !(Number.isInteger(visual.hour) && visual.hour >= 1 && visual.hour <= 12 && [0, 30].includes(visual.minute))) errors.push('clock needs hour 1-12 and minute 0 or 30');
   if (visual.type === 'table' && !(visual.unit && Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 5 && visual.rows.every((r) => r.name && Number.isInteger(r.count) && r.count >= 0 && r.count <= 99))) errors.push('table needs a unit and 2-5 rows of name and count 0-99');
   if (visual.type === 'number-row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 7 && visual.items.filter((x) => x === '?').length === 1 && visual.items.every((x) => x === '?' || Number.isInteger(x)))) errors.push('number-row needs 3-7 numbers with exactly one ?');

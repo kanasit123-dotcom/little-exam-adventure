@@ -56,8 +56,8 @@ export function createAudio({
   function clipUrl(m, text) {
     const hash = m?.clips?.[text];
     if (!hash) return null;
-    // ต่อท้ายด้วยความเร็วที่อัด: เปลี่ยนความเร็วแล้วเครื่องจะไม่ใช้ไฟล์เก่าที่แคชไว้
-    const version = m.rates?.[rate] ? `?r=${encodeURIComponent(m.rates[rate])}` : '';
+    // ต่อท้ายด้วยความเร็วและรุ่นการเว้นจังหวะที่อัด: อัดใหม่แล้วเครื่องจะไม่ใช้ไฟล์เก่าที่แคชไว้
+    const version = m.rates?.[rate] ? `?r=${encodeURIComponent(m.rates[rate])}${m.style ? `&s=${encodeURIComponent(m.style)}` : ''}` : '';
     return `${base}voice/th/${rate}/${hash}.mp3${version}`;
   }
 

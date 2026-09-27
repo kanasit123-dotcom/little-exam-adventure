@@ -136,3 +136,19 @@ test('silence trimming keeps a little padding around the sound', () => {
   assert.ok(offset > 0.3 && offset < 0.4);
   assert.ok(duration > 0.2 && duration < 0.35);
 });
+
+test('clip URLs also carry the pause style so re-recorded pacing is not served from cache', async () => {
+  const { ctx, sources } = fakeContext();
+  const fetched = [];
+  const audio = createAudio({
+    base: '/x/', loadManifest: async () => ({ rates: { normal: '-20%' }, style: 'pause-1', clips: { 'สวัสดี': 'aaa' } }),
+    fetchArrayBuffer: async (url) => { fetched.push(url); return new ArrayBuffer(8); }, createContext: () => ctx, timers,
+  });
+  audio.unlock();
+  const done = audio.play({ text: 'สวัสดี', role: 'prompt' });
+  await waitForSource(sources, 2);
+  assert.equal(fetched[0], '/x/voice/th/normal/aaa.mp3?r=-20%25&s=pause-1');
+  sources.at(-1).onended();
+  await done;
+});
+

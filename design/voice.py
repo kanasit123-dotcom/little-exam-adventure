@@ -22,13 +22,33 @@ VOICE = 'th-TH-PremwadeeNeural'
 PITCH = '+10Hz'
 # ผู้ปกครองขอให้อ่านช้าลง (2026-09-26): ปกติ -10% -> -20%, ช้าลง -30% -> -35%
 RATES = {'normal': '-20%', 'slow': '-35%'}
+# ผู้ปกครองขอให้เว้นวรรคตอนนานขึ้น (2026-09-27): ช่องว่างระหว่างวลีเงียบแค่ ~0.05 วิ
+# ใส่จุลภาคแทนช่องว่างตอนส่งให้ TTS -> เว้น ~0.3 วิ (ลองขึ้นบรรทัดใหม่แล้วเว้น ~1.4 วิ นานไป)
+# เปลี่ยน STYLE -> อัดใหม่เฉพาะประโยคที่มีจุดเว้น และแอปโหลดไฟล์ใหม่แทนแคชเก่า
+STYLE = 'pause-1'
+MATH = {'บวก', 'ลบ', 'เท่ากับ'}
 
 
 def spoken(text):
     """ข้อความที่ส่งให้ TTS: ตัดอีโมจิ/สัญลักษณ์ และเปลี่ยนเครื่องหมายคณิตเป็นคำ"""
     text = text.replace('−', ' ลบ ').replace('+', ' บวก ').replace('=', ' เท่ากับ ')
     chars = [' ' if (0x1F000 <= ord(c) <= 0x1FFFF or 0x2600 <= ord(c) <= 0x27BF or c in '️·') else c for c in text]
-    return re.sub(r'\s+', ' ', ''.join(chars)).strip()
+    return paced(re.sub(r'\s+', ' ', ''.join(chars)).strip())
+
+
+def paced(text):
+    """เว้นจังหวะระหว่างวลี แต่ไม่เว้นระหว่างตัวเลขกับคำที่ตามมา ("2 ตัว", "8 ลบ 5", "ตอบข้อ 3")
+    ยกเว้นหลัง "ข้อ 1" ของตัวเลือก ("ข้อ 1, ส้ม"); คำซ้ำ "เท่าๆ กัน" ไม่เว้น"""
+    words = text.split(' ')
+    num = lambda w: re.fullmatch(r'\d+', w) is not None
+    tight_word = lambda w: num(w) or len(w) == 1 or w in MATH or w.endswith('ๆ') or w[-1] in '?!:;.,)"'
+    out = words[:1]
+    for i in range(1, len(words)):
+        a, b = words[i - 1], words[i]
+        after_choice = num(a) and i >= 2 and words[i - 2] == 'ข้อ'
+        tight = num(b) or len(b) == 1 or b in MATH or (tight_word(a) and not after_choice)
+        out.append((' ' if tight else ', ') + b)
+    return ''.join(out)
 
 
 async def main():
@@ -37,23 +57,28 @@ async def main():
     clips = {text: hashlib.md5(text.encode('utf-8')).hexdigest()[:12] for text in texts}
     # เปลี่ยนความเร็ว -> อัดใหม่ทั้งความเร็วนั้น (ไฟล์ตั้งชื่อตามข้อความ ไม่ได้ตามความเร็ว)
     # งานอัดใหม่จดไว้ใน design/.voice-state/ ทีละไฟล์ (ไม่ขึ้น git) จะได้หยุดกลางคันแล้วรันต่อได้
-    old = json.loads((OUT / 'manifest.json').read_text(encoding='utf-8')).get('rates', {}) if (OUT / 'manifest.json').exists() else {}
+    old_manifest = json.loads((OUT / 'manifest.json').read_text(encoding='utf-8')) if (OUT / 'manifest.json').exists() else {}
+    old, old_style = old_manifest.get('rates', {}), old_manifest.get('style')
     STATE.mkdir(parents=True, exist_ok=True)
     fresh = {}
     for speed, rate in RATES.items():
         mark = STATE / f'rate-{speed}.txt'
-        done_rate = mark.read_text(encoding='utf-8').strip() if mark.exists() else old.get(speed)
-        if done_rate != rate:
+        sig = f'{rate}|{STYLE}'
+        done_rate = mark.read_text(encoding='utf-8').strip() if mark.exists() else f"{old.get(speed)}|{old_style}"
+        if done_rate != sig:
             (STATE / f'redo-{speed}.txt').write_text(rate, encoding='utf-8')
         redo = (STATE / f'redo-{speed}.txt')
         progress = STATE / f'redone-{speed}.txt'
         if redo.exists():
             fresh[speed] = set(progress.read_text(encoding='utf-8').split()) if progress.exists() else set()
-        mark.write_text(rate, encoding='utf-8')
+        mark.write_text(sig, encoding='utf-8')
     def needed(text, h, speed):
-        if speed in fresh:
-            return h not in fresh[speed]
-        return not (OUT / speed / f'{h}.mp3').exists()
+        if not (OUT / speed / f'{h}.mp3').exists():
+            return True
+        # อัดใหม่ทั้งความเร็ว — ยกเว้นประโยคที่เสียงไม่เปลี่ยน (ไม่มีจุดเว้น) ถ้าความเร็วเท่าเดิม
+        if speed in fresh and h not in fresh[speed]:
+            return ',' in spoken(text) or old.get(speed) != RATES[speed]
+        return False
     todo = [(text, h, speed) for speed in RATES for text, h in clips.items() if needed(text, h, speed)]
     print(f'{len(clips)} phrases x {len(RATES)} speeds, {len(todo)} files to generate')
     failed = set()
@@ -82,6 +107,7 @@ async def main():
     manifest = {
         'voice': VOICE,
         'rates': RATES,
+        'style': STYLE,
         'reviewStatus': 'ผู้ปกครองต้องฟังตรวจก่อนให้เด็กใช้ (ดู docs/VOICE-REVIEW.md)',
         'clips': dict(sorted(clips.items())),
     }
@@ -93,7 +119,8 @@ async def main():
                 f.unlink()
                 print('  removed', speed, f.name)
     for speed in fresh:
-        left = [h for h in clips.values() if h not in set((STATE / f'redone-{speed}.txt').read_text(encoding='utf-8').split() if (STATE / f'redone-{speed}.txt').exists() else [])]
+        done_now = set((STATE / f'redone-{speed}.txt').read_text(encoding='utf-8').split() if (STATE / f'redone-{speed}.txt').exists() else [])
+        left = [h for t, h in clips.items() if h not in done_now and needed(t, h, speed)]
         if not left:
             (STATE / f'redo-{speed}.txt').unlink(missing_ok=True)
             (STATE / f'redone-{speed}.txt').unlink(missing_ok=True)

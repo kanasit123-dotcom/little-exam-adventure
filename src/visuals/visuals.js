@@ -90,10 +90,18 @@ function polygon(v) {
 const ROW_LABELS = ['ก', 'ข', 'ค', 'ง', 'จ', 'ฉ'];
 function row(v) {
   return `<figure class="lx-visual lx-row-visual" aria-label="ภาพเรียงจากซ้ายไปขวา">
-    <div class="lx-row-items${v.labels ? ' lx-row-labeled' : ''}">${v.items.map((id, i) => (v.labels
-      ? `<span class="lx-row-cell">${img(id, 'lx-row-pic')}<b class="lx-row-label">${ROW_LABELS[i]}</b></span>`
-      : img(id, 'lx-row-pic'))).join('')}</div>
+    <div class="lx-row-items${v.labels ? ' lx-row-labeled' : ''}">${v.items.map((id, i) => {
+      const pic = id === '?' ? '<span class="lx-row-pic lx-row-blank" aria-label="ช่องว่าง">?</span>' : img(id, 'lx-row-pic');
+      return v.labels ? `<span class="lx-row-cell">${pic}<b class="lx-row-label">${ROW_LABELS[i]}</b></span>` : pic;
+    }).join('')}</div>
     ${v.sides ? '<figcaption class="lx-row-sides"><span>◀ ซ้าย</span><span>ขวา ▶</span></figcaption>' : ''}
+  </figure>`;
+}
+
+// ตารางภาพ (บน ล่าง ระหว่าง) — ไม่อ่านออกเสียงตำแหน่ง เพราะเป็นสิ่งที่โจทย์ถาม
+function grid(v) {
+  return `<figure class="lx-visual lx-grid-visual" aria-label="ตารางภาพ ${v.rows.length} แถว">
+    <div class="lx-grid" style="--cols:${v.rows[0].length}">${v.rows.flat().map((id) => `<span class="lx-grid-cell">${img(id, 'lx-grid-pic')}</span>`).join('')}</div>
   </figure>`;
 }
 
@@ -246,6 +254,7 @@ export function renderVisual(visual) {
     case 'dice': return dice(visual);
     case 'polygon': return polygon(visual);
     case 'row': return row(visual);
+    case 'grid': return grid(visual);
     case 'clock': return clock(visual);
     case 'table': return table(visual);
     case 'number-row': return numberRow(visual);

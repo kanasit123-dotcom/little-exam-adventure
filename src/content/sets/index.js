@@ -8,8 +8,10 @@ import set03 from './set-03.js';
 import set04 from './set-04.js';
 import set05 from './set-05.js';
 import set06 from './set-06.js';
+import set07 from './set-07.js';
+import set08 from './set-08.js';
 
-export const SETS = [set01, set02, set03, set04, set05, set06];
+export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08];
 
 // ตัวเลือกในข้อสอบจริงใช้หมายเลข 1 2 3 (ไม่ใช่ ก ข ค)
 export const OPTION_LABELS = ['1', '2', '3', '4'];

@@ -525,3 +525,11 @@ body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ชุด 7: ช่อง ? ในแถวภาพ และตารางภาพ 3x3 */
+.lx-row-blank { display: flex; align-items: center; justify-content: center; border: 3px dashed var(--purple-dark); border-radius: var(--r-md); font-size: 2.2rem; font-weight: 700; color: var(--purple-dark); background: #fbf7ff; }
+.lx-grid-visual { width: min(100%, 360px); }
+.lx-grid { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 3px; background: var(--card-edge); border: 3px solid var(--card-edge); border-radius: var(--r-md); overflow: hidden; }
+.lx-grid-cell { display: flex; align-items: center; justify-content: center; padding: 6px; background: #fff; }
+.lx-grid-pic { width: 100%; max-width: 100px; aspect-ratio: 1; object-fit: contain; }
+
