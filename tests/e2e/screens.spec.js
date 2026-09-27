@@ -37,6 +37,15 @@ for (const [width, height] of SIZES) {
     await page.locator('.lx-pick').first().click(); await page.locator('#lx-next').click();
     await shot('q4-map');
     await answerAndSubmitBlock(page, () => 1);
+    // ป้าย "คำตอบที่ถูก" / "หนูตอบ" ต้องไม่ทับข้อความตัวเลือก
+    const overlaps = await page.evaluate(() => [...document.querySelectorAll('.lx-pick.lx-static')].filter((box) => {
+      const text = box.querySelector('.lx-opt-text');
+      const tag = box.querySelector('.lx-tag-right');
+      if (!text || !tag) return false;
+      const a = text.getBoundingClientRect(); const b = tag.getBoundingClientRect();
+      return a.bottom > b.top + 1 && b.bottom > a.top + 1 && a.right > b.left && b.right > a.left;
+    }).length);
+    expect(overlaps).toBe(0);
     await shot('review');
     await page.locator('[data-tool="steps"]').click();
     await page.locator('#lx-rdone').click();

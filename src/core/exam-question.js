@@ -24,6 +24,7 @@ export function copyVisual(visual) {
     case 'shape-count': return { type: 'shape-count', shapes: visual.shapes.slice() };
     case 'equivalence': return { type: 'equivalence', rows: visual.rows.map((r) => ({ left: r.left, right: r.right, count: r.count })) };
     case 'scatter': return { type: 'scatter', items: visual.items.map((i) => ({ asset: i.asset, count: i.count })) };
+    case 'stack': return { type: 'stack', columns: visual.columns.slice() };
     default: return null;
   }
 }

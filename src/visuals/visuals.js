@@ -220,6 +220,23 @@ export function renderOptionSvg(svg) {
   return '';
 }
 
+// กล่องซ้อน: แต่ละแถวตั้งวางจากพื้นขึ้นไป (นับกล่อง / มิติสัมพันธ์)
+function stack(v) {
+  const size = 44;
+  const gap = 4;
+  const height = Math.max(...v.columns) * size;
+  const width = v.columns.length * (size + gap);
+  const boxes = v.columns.flatMap((n, col) => Array.from({ length: n }, (_, row) => {
+    const x = col * (size + gap) + 10;
+    const y = height - (row + 1) * size + 10;
+    return `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="4" fill="#ffe3b3" stroke="#4a3b52" stroke-width="3"/>`
+      + `<path d="M${x + 8} ${y + 10} h${size - 16}" stroke="#d9a860" stroke-width="3" stroke-linecap="round"/>`;
+  })).join('');
+  return `<figure class="lx-visual lx-stack" aria-label="กล่องซ้อนกัน">
+    <svg viewBox="0 0 ${width + 16} ${height + 24}"><line x1="2" y1="${height + 11.5}" x2="${width + 14}" y2="${height + 11.5}" stroke="#4a3b52" stroke-width="3"/>${boxes}</svg>
+  </figure>`;
+}
+
 export function renderVisual(visual) {
   if (!visual) return '';
   switch (visual.type) {
@@ -235,6 +252,7 @@ export function renderVisual(visual) {
     case 'shape-count': return shapeCount(visual);
     case 'equivalence': return equivalence(visual);
     case 'scatter': return scatter(visual);
+    case 'stack': return stack(visual);
     default: return '';
   }
 }

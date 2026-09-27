@@ -236,6 +236,8 @@ button, .lx-pick, .lx-dot { -webkit-user-select: none; user-select: none; -webki
   .lx-options:not(.lx-options-pics) .lx-pick { min-height: 60px; padding: 8px 8px 8px 40px; }
   .lx-options:not(.lx-options-pics) .lx-pick .lx-num { left: 16px; top: 50%; transform: translateY(-50%); }
   .lx-options-pics .lx-pick { min-height: 120px; padding-top: 24px; }
+  /* หน้าเฉลย: เว้นที่ใต้ข้อความให้ป้าย "คำตอบที่ถูก" ไม่ทับตัวเลือก */
+  .lx-options:not(.lx-options-pics) .lx-pick.lx-static { min-height: 76px; padding-bottom: 28px; }
 }
 
 /* ---------------------------------------------------------------- ภาพประกอบโจทย์ */
@@ -289,6 +291,7 @@ button, .lx-pick, .lx-dot { -webkit-user-select: none; user-select: none; -webki
 .lx-shapes svg { width: min(100%, 380px); height: auto; }
 .lx-fold { width: min(100%, 110px); aspect-ratio: 1; }
 .lx-cake { width: min(100%, 110px); aspect-ratio: 1; }
+.lx-stack svg { width: min(70vw, 220px); height: auto; }
 .lx-row-cell { flex: 1 1 0; min-width: 0; max-width: 130px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .lx-row-cell .lx-row-pic { width: 100%; max-width: 130px; flex: none; }
 .lx-row-label { font-size: 1.3rem; color: var(--purple-dark); }

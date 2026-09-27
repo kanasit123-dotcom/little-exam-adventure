@@ -2,7 +2,7 @@ import { SUBJECTS } from '../content/sets/index.js';
 
 const TYPES = new Set(['main', 'transfer']);
 const PROVENANCE = new Set(['original', 'official', 'third-party-practice']);
-const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter']);
+const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack']);
 export const CAKE_CUTS = new Set(['halves', 'uneven-halves', 'quarters', 'uneven-quarters']);
 export const FOLD_SHAPES = new Set(['heart', 'crescent', 'lshape', 'star', 'circle', 'flag']);
 const COUNT_SHAPES = new Set(['triangle', 'circle', 'square']);
@@ -85,6 +85,7 @@ export function validateVisual(visual, assetIds) {
   if (visual.type === 'shape-count' && !(Array.isArray(visual.shapes) && visual.shapes.length >= 3 && visual.shapes.length <= 9 && visual.shapes.every((s) => COUNT_SHAPES.has(s)))) errors.push('shape-count needs 3-9 triangle/circle/square');
   if (visual.type === 'equivalence' && !(Array.isArray(visual.rows) && visual.rows.length >= 1 && visual.rows.length <= 3 && visual.rows.every((r) => known(r.left) && known(r.right) && Number.isInteger(r.count) && r.count >= 1 && r.count <= 6))) errors.push('equivalence rows need left, right and count 1-6');
   if (visual.type === 'scatter' && !(Array.isArray(visual.items) && visual.items.length >= 2 && visual.items.length <= 4 && visual.items.every((i) => known(i.asset) && Number.isInteger(i.count) && i.count >= 1) && visual.items.reduce((n, i) => n + i.count, 0) <= 16)) errors.push('scatter needs 2-4 kinds and at most 16 pictures');
+  if (visual.type === 'stack' && !(Array.isArray(visual.columns) && visual.columns.length >= 1 && visual.columns.length <= 5 && visual.columns.every((n) => Number.isInteger(n) && n >= 1 && n <= 5))) errors.push('stack needs 1-5 columns of 1-5 boxes');
   return errors;
 }
 
