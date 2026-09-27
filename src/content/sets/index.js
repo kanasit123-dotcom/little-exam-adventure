@@ -23,8 +23,30 @@ export const SUBJECTS = {
   general: 'ความรู้รอบตัว',
 };
 
+/*
+ * ชุดพิเศษ (src/content/library.js) ใช้โจทย์รวมจากทุกชุด: ชื่อเรื่องที่ใช้ร่วม (stimulus) ขึ้นต้นด้วยรหัสชุด
+ * เพราะชุดต่างกันอาจตั้งชื่อเรื่องซ้ำกัน — รหัสข้อไม่ซ้ำกันข้ามชุด (มี test ตรวจ)
+ */
+export const VIRTUAL_SETS = {
+  mock: { title: 'ชุดจำลองสอบจริง', note: '30 ข้อ สุ่มจากทุกชุด หมวดละเท่าๆ กัน' },
+  practice: { title: 'ทบทวนข้อที่เคยตอบผิด', note: 'ข้อที่เคยตอบผิดหรือยังไม่แน่ใจ ตอบถูกแล้วจะหายจากรายการ' },
+};
+const virtualCache = {};
+function virtualSet(id) {
+  if (!virtualCache[id]) {
+    const stimuli = {};
+    const items = [];
+    for (const set of SETS) {
+      for (const [key, stimulus] of Object.entries(set.stimuli || {})) stimuli[`${set.id}/${key}`] = stimulus;
+      for (const item of set.items) items.push(item.stimulus ? { ...item, stimulus: `${set.id}/${item.stimulus}` } : item);
+    }
+    virtualCache[id] = { id, version: 1, virtual: true, ...VIRTUAL_SETS[id], order: [], stimuli, items };
+  }
+  return virtualCache[id];
+}
+
 export function getSet(id) {
-  return SETS.find((set) => set.id === id) || null;
+  return SETS.find((set) => set.id === id) || (VIRTUAL_SETS[id] ? virtualSet(id) : null);
 }
 
 export function getItem(set, id) {

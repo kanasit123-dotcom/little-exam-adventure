@@ -33,8 +33,9 @@ export function newSessionId(now = Date.now(), random = Math.random) {
  * สร้าง session ใหม่จากชุดข้อสอบ — ใช้ลำดับที่ชุดกำหนด (คงที่เพื่อ QA) และลำดับตัวเลือกตามที่เขียนไว้
  * (เฉลยอ้างถึง "ข้อ 1/2/3" จึงไม่สลับตัวเลือก) ทั้งหมดบันทึกลง session เพื่อให้ทำต่อแล้วไม่เปลี่ยน
  */
-export function createSession(set, { now = Date.now(), random = Math.random, count } = {}) {
-  const ids = set.order.slice(0, count || set.order.length);
+export function createSession(set, { now = Date.now(), random = Math.random, count, ids: chosen } = {}) {
+  // ชุดพิเศษส่งรายการข้อมาเอง (chosen) ชุดปกติใช้ลำดับของชุด
+  const ids = chosen ? chosen.slice() : set.order.slice(0, count || set.order.length);
   const byId = new Map(set.items.map((item) => [item.id, item]));
   return {
     id: newSessionId(now, random),

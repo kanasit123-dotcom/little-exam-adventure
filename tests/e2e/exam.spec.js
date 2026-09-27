@@ -97,6 +97,47 @@ for (const s of SETS) {
   });
 }
 
+test('mock exam draws 30 questions from all sets, keeps them after reload, and records its own progress', async ({ page }) => {
+  await freshStart(page);
+  await startSet(page, 'mock');
+  const title = await page.locator('#lx-block-title').textContent();
+  expect(title).toMatch(/^ช่วงที่ 1 จาก [67]$/);
+  const first = await page.locator('.lx-qtext').textContent();
+  const stored = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).session, KEY);
+  expect(stored.setId).toBe('mock');
+  expect(stored.questionIds).toHaveLength(30);
+  await page.reload();
+  await page.locator('#lx-resume').click();
+  await expect(page.locator('.lx-qtext')).toHaveText(first);
+});
+
+test('wrong and not-sure answers go to the review list; answering them right clears them', async ({ page }) => {
+  await freshStart(page);
+  await startSet(page);
+  // ช่วงแรกของชุด 1: ตอบ "ยังไม่แน่ใจ" ทุกข้อ -> ต้องทบทวน 5 ข้อ
+  await answerAndSubmitBlock(page, () => 'unsure');
+  await page.goto('/');
+  await page.locator('#lx-sets').click();
+  const card = page.locator('[data-set="practice"]');
+  await expect(card).toContainText('มีข้อที่ควรทบทวน 5 ข้อ');
+  await card.click();
+  await page.locator('button:has-text("เริ่มชุดนี้")').click();   // มีชุด 1 ค้างอยู่ ต้องยืนยันก่อน
+  await page.locator('#lx-go').click();
+  await expect(page.locator('#lx-dots .lx-dot')).toHaveCount(5);
+  // ตอบถูกทุกข้อ (หาข้อปัจจุบันจากข้อมูลที่บันทึก แล้วดูคำตอบจากเนื้อหา)
+  const set = getSet('set-01');
+  for (let i = 0; i < 5; i++) {
+    const qid = await page.evaluate((key) => { const s = JSON.parse(localStorage.getItem(key)).session; return s.blocks[s.block][s.cursor]; }, KEY);
+    const item = set.items.find((it) => it.id === qid);
+    await page.locator('.lx-pick').nth(item.options.findIndex((o) => o.id === item.correctOptionId)).click();
+    await page.locator('#lx-next').click();
+  }
+  await page.locator('#lx-send').click();
+  await expect(page.locator('.lx-review')).toBeVisible();
+  const mistakes = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).mistakes, KEY);
+  expect(Object.keys(mistakes)).toHaveLength(0);
+});
+
 test('set picker: a set in progress shows its answered count and resumes where it stopped', async ({ page }) => {
   await freshStart(page);
   await startSet(page);

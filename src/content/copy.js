@@ -24,7 +24,7 @@ export const SAY = {
 export const yourAnswer = (label) => `หนูตอบข้อ ${label}`;
 export const correctIs = (label) => `คำตอบที่ถูกคือข้อ ${label}`;
 export const blockStart = (n) => `เริ่มช่วงที่ ${n}`;
-export const MAX_BLOCKS = 3;
+export const MAX_BLOCKS = 7;   // ชุดจำลอง 30 ข้อแบ่งได้ถึง 6-7 ช่วง
 
 /** ประโยคทั้งหมดในไฟล์นี้ (ใช้สร้างรายการอัดเสียง) */
 export function copySpeeches() {

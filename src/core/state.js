@@ -17,8 +17,12 @@ export function initialState() {
     history: [],
     // ผลรายชุด (ไม่จำกัดจำนวนชุด ต่างจาก history ที่เก็บแค่ 10 ครั้งล่าสุด)
     progress: {},
+    // ข้อที่ตอบผิด/ยังไม่แน่ใจตอนส่ง (รหัสข้อ -> { misses, at }) ตอบถูกภายหลังจะถูกลบ
+    mistakes: {},
   };
 }
+
+export const MISTAKES_LIMIT = 200;
 
 const SETTINGS = {
   sound: (v) => typeof v === 'boolean',
@@ -108,13 +112,31 @@ export function reduce(state, action) {
       for (const id of ids) if (s.skills[id]?.some((skill) => skill in s.taughtSkills)) exposure[id] = true;
       const taughtSkills = { ...s.taughtSkills };
       for (const id of ids) for (const skill of s.skills[id] || []) if (!(skill in taughtSkills)) taughtSkills[skill] = s.block;
-      return withSession(state, {
-        submitted: [...s.submitted, { block: s.block, answers, at: action.now ?? Date.now() }],
-        exposure,
-        taughtSkills,
-        phase: 'review',
-        review: { ...s.review, block: s.block, cursor: 0 },
-      });
+      // ผู้ส่ง (หน้าจอ) ตัดสินถูกผิดจากเนื้อหาแล้วส่งมาใน results; reducer แค่จดข้อที่ควรทบทวน
+      const at = action.now ?? Date.now();
+      let mistakes = state.mistakes || {};
+      if (action.results) {
+        mistakes = { ...mistakes };
+        for (const id of ids) {
+          const result = action.results[id];
+          if (result === 'correct') delete mistakes[id];
+          else if (result === 'incorrect' || result === 'unsure') mistakes[id] = { misses: (mistakes[id]?.misses || 0) + 1, at };
+        }
+        const keep = Object.entries(mistakes).sort((a, b) => b[1].at - a[1].at).slice(0, MISTAKES_LIMIT);
+        mistakes = Object.fromEntries(keep);
+      }
+      return {
+        ...state,
+        mistakes,
+        session: {
+          ...s,
+          submitted: [...s.submitted, { block: s.block, answers, at }],
+          exposure,
+          taughtSkills,
+          phase: 'review',
+          review: { ...s.review, block: s.block, cursor: 0 },
+        },
+      };
     }
 
     case 'reviewGoto': {

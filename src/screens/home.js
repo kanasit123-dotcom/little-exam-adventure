@@ -1,5 +1,6 @@
 /* หน้าแรก เลือกชุดข้อสอบ เลือกเพื่อน และสมุดสติกเกอร์ */
-import { SETS, getSet } from '../content/sets/index.js';
+import { SETS, getSet, VIRTUAL_SETS } from '../content/sets/index.js';
+import { MOCK_SIZE, mainCount, pickMock, practiceIds } from '../content/library.js';
 import { SAY } from '../content/copy.js';
 import { FRIENDS, STICKERS } from '../core/assets.js';
 import { createSession } from '../core/session.js';
@@ -13,7 +14,8 @@ const PROBLEMS = {
 
 export function sessionUsable(session) {
   const set = session && getSet(session.setId);
-  return !!set && set.version === session.setVersion && session.questionIds.every((id) => set.items.some((item) => item.id === id));
+  // ชุดพิเศษไม่มีรุ่นของตัวเอง ใช้ได้ถ้าข้อทุกข้อยังมีในคลัง
+  return !!set && (set.virtual || set.version === session.setVersion) && session.questionIds.every((id) => set.items.some((item) => item.id === id));
 }
 
 export function mountHome(root, ctx) {
@@ -68,6 +70,29 @@ export function setCards(state, sets = SETS) {
   });
 }
 
+/** การ์ดชุดพิเศษ: ชุดจำลองสอบจริง และทบทวนข้อที่เคยผิด */
+export function specialCards(state) {
+  const s = state.session;
+  const activeId = s && s.phase !== 'done' && sessionUsable(s) ? s.setId : null;
+  const answered = (id) => (activeId === id ? s.questionIds.filter((q) => s.drafts[q] != null).length : 0);
+  const mistakes = practiceIds(state, Infinity).length;
+  const cards = [];
+  const mockReady = mainCount() >= MOCK_SIZE;
+  const mockProgress = state.progress?.mock;
+  cards.push({
+    id: 'mock', ...VIRTUAL_SETS.mock, active: activeId === 'mock', progress: mockProgress, disabled: !mockReady,
+    status: activeId === 'mock' ? `กำลังทำ · ตอบแล้ว ${answered('mock')}/${s.questionIds.length}`
+      : !mockReady ? 'ต้องมีโจทย์ในคลังอย่างน้อย 30 ข้อ'
+        : mockProgress ? `⭐ ทำแล้ว ${mockProgress.completed} ครั้ง${mockProgress.last ? ` · ครั้งล่าสุดถูก ${mockProgress.last.correct}/${mockProgress.last.total}` : ''}` : 'ยังไม่เคยทำ',
+  });
+  cards.push({
+    id: 'practice', ...VIRTUAL_SETS.practice, active: activeId === 'practice', progress: null, disabled: !mistakes && activeId !== 'practice',
+    status: activeId === 'practice' ? `กำลังทำ · ตอบแล้ว ${answered('practice')}/${s.questionIds.length}`
+      : mistakes ? `มีข้อที่ควรทบทวน ${mistakes} ข้อ` : 'ยังไม่มีข้อที่ต้องทบทวน',
+  });
+  return cards;
+}
+
 export function mountSets(root, ctx) {
   const { store, signal } = ctx;
   const state = store.state;
@@ -80,6 +105,14 @@ export function mountSets(root, ctx) {
         <div class="lx-bar-title">เลือกชุดข้อสอบ</div>
       </header>
       <main class="lx-paper">
+        <div class="lx-set-grid lx-set-special">${specialCards(state).map((c) => `
+          <button class="lx-set-card lx-set-extra${c.active ? ' lx-set-active' : ''}" data-set="${esc(c.id)}" type="button"${c.disabled ? ' disabled' : ''}>
+            <b class="lx-set-title">${esc(c.title)}</b>
+            <span class="lx-set-note">${esc(c.note)}</span>
+            <span class="lx-set-status${c.active ? ' lx-set-doing' : c.progress ? ' lx-set-done' : ''}">${esc(c.status)}</span>
+            <span class="lx-set-go">${c.disabled ? '' : c.active ? 'ทำต่อ ▶' : 'เริ่ม ▶'}</span>
+          </button>`).join('')}</div>
+        <h2 class="lx-h2">ชุดข้อสอบ</h2>
         <div class="lx-set-grid">${cards.map((c) => {
           const status = c.active
             ? `<span class="lx-set-status lx-set-doing">กำลังทำ · ตอบแล้ว ${c.answered}/${c.set.order.length}</span>`
@@ -102,12 +135,16 @@ export function mountSets(root, ctx) {
     const card = event.target.closest('[data-set]');
     if (!card) return;
     const setId = card.dataset.set;
-    if (activeCard?.set.id === setId) { ctx.go('play'); return; }
-    if (activeCard) {
-      const ok = await confirmBox(root, { text: `เริ่ม${getSet(setId).title}ใช่ไหม ${activeCard.set.title}ที่ทำค้างไว้จะเก็บผลไว้ในหน้าผู้ปกครอง`, yes: 'เริ่มชุดนี้', no: 'ไม่ใช่' }, signal);
+    const s = store.state.session;
+    const activeId = s && s.phase !== 'done' && sessionUsable(s) ? s.setId : null;
+    if (activeId === setId) { ctx.go('play'); return; }
+    if (activeId) {
+      const ok = await confirmBox(root, { text: `เริ่ม${getSet(setId).title}ใช่ไหม ${getSet(activeId).title}ที่ทำค้างไว้จะเก็บผลไว้ในหน้าผู้ปกครอง`, yes: 'เริ่มชุดนี้', no: 'ไม่ใช่' }, signal);
       if (!ok) return;
     }
-    ctx.go('buddy', { setId });
+    // ชุดพิเศษ: เลือกข้อตอนกดเริ่ม แล้วส่งต่อไปหน้าเลือกเพื่อน
+    const ids = setId === 'mock' ? pickMock() : setId === 'practice' ? practiceIds(store.state) : null;
+    ctx.go('buddy', { setId, ids });
   }, signal);
 }
 
@@ -146,7 +183,7 @@ export function mountBuddy(root, ctx) {
     if (event.target.closest('#lx-back')) { ctx.go('sets'); return; }
     if (event.target.closest('#lx-go')) {
       store.dispatch({ type: 'settings', patch: { buddy: chosen } });
-      store.dispatch({ type: 'start', session: createSession(set) });
+      store.dispatch({ type: 'start', session: createSession(set, params?.ids ? { ids: params.ids } : {}) });
       ctx.go('play');
     }
   }, signal);

@@ -6,6 +6,7 @@
 import { getItem, sectionOf } from '../content/sets/index.js';
 import { SAY, blockStart } from '../content/copy.js';
 import { toExamQuestion } from '../core/exam-question.js';
+import { answerStatus } from '../core/summary.js';
 import { UNSURE, blockComplete, currentBlockIds } from '../core/state.js';
 import { renderVisual, renderOptionSvg } from '../visuals/visuals.js';
 import { $, $$, buddyHTML, esc, on, picture, markSpeaking, sleep } from '../ui.js';
@@ -251,5 +252,8 @@ export function mountConfirm(root, ctx) {
     const item = event.target.closest('.lx-check');
     if (item) back(Number(item.dataset.i));
   }, signal);
-  on($(root, '#lx-send'), 'click', () => store.dispatch({ type: 'submit', now: Date.now() }), signal);
+  on($(root, '#lx-send'), 'click', () => {
+    const results = Object.fromEntries(ids.map((id) => [id, answerStatus(getItem(ctx.set, id), s.drafts[id])]));
+    store.dispatch({ type: 'submit', results, now: Date.now() });
+  }, signal);
 }

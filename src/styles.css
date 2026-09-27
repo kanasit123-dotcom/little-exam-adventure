@@ -478,6 +478,10 @@ button, .lx-pick, .lx-dot { -webkit-user-select: none; user-select: none; -webki
 .lx-set-next { border-color: var(--green-dark); box-shadow: 0 5px 0 #b9e3a2; }
 .lx-set-badge { position: absolute; top: -12px; right: 14px; background: var(--green-dark); color: #fff; font-size: .9rem; padding: 0 12px; border-radius: 999px; }
 .lx-sets .lx-bar-title { text-align: center; }
+.lx-set-special { margin-bottom: 6px; }
+.lx-set-extra { background: #fff8e3; border-color: #f5e2b0; box-shadow: 0 5px 0 #f0d690; min-height: 130px; }
+.lx-set-extra .lx-set-title { color: var(--orange-dark); }
+.lx-set-card[disabled] { opacity: .6; cursor: default; }
 
 /* ---------------------------------------------------------------- หน้าผู้ปกครอง */
 .lx-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }

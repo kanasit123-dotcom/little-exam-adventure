@@ -54,9 +54,10 @@ export function mountParent(root, ctx) {
           <h2 class="lx-h2">ผลล่าสุด ${latest ? `· ${esc(getSet(latest.setId)?.title || latest.setId)} · เริ่ม ${date(latest.startedAt)}${latest.abandoned ? ' (เลิกกลางคัน)' : latest.phase === 'done' ? ' (ทำครบ)' : ' (กำลังทำ)'}` : ''}</h2>
           ${latest ? sessionReport(latest) : '<p class="lx-small">ยังไม่มีผล</p>'}
           <h2 class="lx-h2">ผลรายชุด</h2>
+          <p class="lx-small">ข้อที่ควรทบทวน (เคยตอบผิดหรือยังไม่แน่ใจ): ${Object.keys(state.mistakes || {}).length} ข้อ</p>
           <div class="lx-table-wrap"><table class="lx-table lx-table-sets">
             <thead><tr><th>ชุด</th><th>ทำครบ</th><th>ครั้งล่าสุด ตอบถูก</th><th>ดีที่สุด</th></tr></thead>
-            <tbody>${SETS.map((set) => {
+            <tbody>${[...SETS, getSet('mock')].map((set) => {
               const p = state.progress?.[set.id];
               const score = (r) => (r ? `${r.correct}/${r.total}` : '-');
               return `<tr><td>${esc(set.title)}</td><td>${p ? `${p.completed} ครั้ง` : 'ยังไม่เคย'}</td><td>${score(p?.last)}${p ? ` <small>(${date(p.at)})</small>` : ''}</td><td>${score(p?.best)}</td></tr>`;

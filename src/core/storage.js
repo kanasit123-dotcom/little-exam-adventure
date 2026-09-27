@@ -42,7 +42,11 @@ export function normalize(raw) {
   if (isObj(raw.progress)) {
     for (const [setId, p] of Object.entries(raw.progress)) if (isObj(p) && Number.isInteger(p.completed) && p.completed > 0) progress[setId] = p;
   }
-  return { state: { version: STATE_VERSION, settings, session, rewards, history, progress }, problem };
+  const mistakes = {};
+  if (isObj(raw.mistakes)) {
+    for (const [id, m] of Object.entries(raw.mistakes)) if (isObj(m) && Number.isInteger(m.misses)) mistakes[id] = { misses: m.misses, at: Number(m.at) || 0 };
+  }
+  return { state: { version: STATE_VERSION, settings, session, rewards, history, progress, mistakes }, problem };
 }
 
 export function load(storage) {
