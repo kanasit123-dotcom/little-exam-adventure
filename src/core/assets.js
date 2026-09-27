@@ -21,6 +21,11 @@ const PICTURES = {
   doctor: 'หมอ', police: 'ตำรวจ', firefighter: 'นักดับเพลิง', farmer: 'ชาวนา', teacher: 'ครู', cook: 'แม่ครัว',
   stethoscope: 'หูฟัง', hoe: 'จอบ', wok: 'กระทะ', extinguisher: 'ถังดับเพลิง',
   firetruck: 'รถดับเพลิง', ambulance: 'รถพยาบาล', boat: 'เรือ', airplane: 'เครื่องบิน', bus: 'รถโดยสาร', train: 'รถไฟ',
+  // แผ่น E (design/PROMPTS-gemini-5.md) — สถานที่ 4 ภาพอยู่ในกรอบ, เครื่องใช้ไฟฟ้า ของใช้ เครื่องเขียน
+  school: 'โรงเรียน', temple: 'วัด', market: 'ตลาด', playground: 'สนามเด็กเล่น',
+  fan: 'พัดลม', fridge: 'ตู้เย็น', tv: 'โทรทัศน์', ricecooker: 'หม้อหุงข้าว',
+  broom: 'ไม้กวาด', dustpan: 'ที่ตักผง', soap: 'สบู่', towel: 'ผ้าเช็ดตัว',
+  pencil: 'ดินสอ', eraser: 'ยางลบ', ruler: 'ไม้บรรทัด', scissors: 'กรรไกร',
 };
 export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',
