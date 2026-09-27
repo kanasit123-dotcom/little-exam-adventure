@@ -30,6 +30,11 @@ const PICTURES = {
   sun: 'ดวงอาทิตย์', night: 'ท้องฟ้ากลางคืน', 'rain-cloud': 'เมฆฝน', rainbow: 'รุ้ง',
   raincoat: 'เสื้อกันฝน', sweater: 'เสื้อกันหนาว', sneakers: 'รองเท้าผ้าใบ', rice: 'ข้าว', milk: 'นม', 'fried-egg': 'ไข่ดาว',
   mango: 'มะม่วง', durian: 'ทุเรียน', rambutan: 'เงาะ', bee: 'ผึ้ง', snail: 'หอยทาก', spider: 'แมงมุม',
+  // แผ่น G (design/PROMPTS-gemini-7.md) — สถานที่ 4 ภาพอยู่ในกรอบ; คนสูงอายุใช้ได้ทั้ง ปู่ย่า และ ตายาย (เนื้อเรื่องเรียกเอง)
+  beach: 'ทะเล', mountain: 'ภูเขา', waterfall: 'น้ำตก', ricefield: 'ทุ่งนา',
+  grandpa: 'ผู้ชายสูงอายุ', grandma: 'ผู้หญิงสูงอายุ', father: 'ผู้ชาย', mother: 'ผู้หญิง',
+  'coconut-tree': 'ต้นมะพร้าว', 'banana-tree': 'ต้นกล้วย', 'mango-tree': 'ต้นมะม่วง', bamboo: 'ต้นไผ่',
+  knife: 'มีด', mortar: 'ครกกับสาก', pot: 'หม้อ', plate: 'จาน',
 };
 export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',

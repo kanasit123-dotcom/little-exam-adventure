@@ -6,6 +6,7 @@
     python design/cutout.py                 # แปลงทุกไฟล์ใน design/cut/
     python design/cutout.py pic-fish        # แปลงเฉพาะไฟล์ที่ระบุ (ไม่ต้องใส่นามสกุล)
     python design/cutout.py --shadow pic-egg     # รูปที่มีเงาจางๆ ที่พื้น: นับพิกเซลเทาอ่อนเป็นพื้นด้วย
+    python design/cutout.py --white 250 pic-grandpa   # เสื้อสีครีมเกือบขาว: นับเฉพาะขาวจัดเป็นพื้น (ค่าปกติ 238)
 
 ปลายทางเลือกจากคำนำหน้าชื่อไฟล์ (ดูตาราง KINDS):
     pic-fish.png      -> public/assets/pictures/fish.png    400px
@@ -41,7 +42,7 @@ SHADOW_MIN = 200    # โหมด --shadow: สว่างกว่านี�
 SHADOW_SAT = 30
 
 
-def background_mask(im, shadow=False):
+def background_mask(im, shadow=False, white=WHITE):
     """คืน mask (L) 255 = พื้นหลัง โดย flood fill จากพิกเซลขอบที่เป็นสีขาว"""
     w, h = im.size
     px = im.load()
@@ -50,7 +51,7 @@ def background_mask(im, shadow=False):
 
     def is_white(x, y):
         r, g, b = px[x, y][:3]
-        if r >= WHITE and g >= WHITE and b >= WHITE:
+        if r >= white and g >= white and b >= white:
             return True
         return shadow and min(r, g, b) >= SHADOW_MIN and max(r, g, b) - min(r, g, b) <= SHADOW_SAT
 
@@ -73,9 +74,9 @@ def background_mask(im, shadow=False):
     return Image.frombytes('L', (w, h), bytes(255 if s else 0 for s in seen))
 
 
-def cutout(src: Path, dst: Path, size=SIZE, shadow=False):
+def cutout(src: Path, dst: Path, size=SIZE, shadow=False, white=WHITE):
     im = Image.open(src).convert('RGB')
-    bg = background_mask(im, shadow)
+    bg = background_mask(im, shadow, white)
     alpha = Image.eval(bg, lambda v: 255 - v)
     # ขอบนุ่มนิดหน่อยจะได้ไม่เป็นขั้นบันได แล้วกินขอบขาวที่ติดมา 1px
     alpha = alpha.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
@@ -104,7 +105,8 @@ def finish(out: Image.Image, dst: Path, size=SIZE):
 
 def main(args):
     shadow = '--shadow' in args
-    names = set(a for a in args if not a.startswith('--'))
+    white = int(args[args.index('--white') + 1]) if '--white' in args else WHITE
+    names = set(a for i, a in enumerate(args) if not a.startswith('--') and not (i and args[i - 1] == '--white'))
     files = [] if not INCOMING.exists() else [p for p in sorted(INCOMING.iterdir()) if p.suffix.lower() in ('.jpg', '.jpeg', '.png', '.webp') and (not names or p.stem in names)]
     if not files:
         print('ไม่พบไฟล์ใน design/cut/')
@@ -115,7 +117,7 @@ def main(args):
             print(f'ข้าม {src.name}: ชื่อต้องขึ้นต้นด้วย {"/".join(KINDS)}-')
             continue
         folder, size = KINDS[prefix]
-        cutout(src, OUT / folder / f'{name}.png', size=size, shadow=shadow)
+        cutout(src, OUT / folder / f'{name}.png', size=size, shadow=shadow, white=white)
 
 
 if __name__ == '__main__':

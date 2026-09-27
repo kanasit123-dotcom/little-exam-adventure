@@ -9,6 +9,18 @@ import { getSet } from './sets/index.js';
 export const MOCK_SIZE = 30;
 export const PRACTICE_SIZE = 10;
 export const SUBJECT_CAP = 6;   // ชุดจำลอง: หมวดละไม่เกิน 6 ข้อ (6 หมวด x 5 = 30)
+export const MOCK_BLOCKS = 7;   // ชุดจำลอง: ไม่เกิน 7 ช่วง (ช่วงละไม่เกิน 5 ข้อ)
+const BLOCK = 5;
+
+/** จัดกลุ่มข้อลงช่วงละไม่เกิน 5 ข้อ ให้ได้จำนวนช่วงน้อยที่สุด (ใส่กลุ่มใหญ่ก่อน ลงช่วงแรกที่ยังว่างพอ) */
+function packBlocks(unitList) {
+  const bins = [];
+  for (const unit of unitList.slice().sort((a, b) => b.length - a.length)) {
+    const bin = bins.find((b) => b.size + unit.length <= BLOCK);
+    if (bin) { bin.units.push(unit); bin.size += unit.length; } else bins.push({ units: [unit], size: unit.length });
+  }
+  return bins;
+}
 
 function shuffle(list, random) {
   const out = list.slice();
@@ -41,7 +53,9 @@ export function pickMock(random = Math.random, size = MOCK_SIZE) {
   const picked = [];
   const perSubject = {};
   let count = 0;   // จำนวนข้อ (หนึ่งกลุ่มอาจมีหลายข้อ)
+  // ชุดใหม่ (ชุด 12 ขึ้นไป) มีเรื่องละ 5 ข้อ: ไม่รับกลุ่มที่ทำให้จัดลงช่วงแล้วเกิน 7 ช่วง
   const fits = (unit, cap) => count + unit.length <= size
+    && packBlocks(picked.concat([unit])).length <= MOCK_BLOCKS
     && unit.every((item) => (perSubject[item.subject] || 0) + unit.filter((u) => u.subject === item.subject).length <= cap);
   const take = (unit) => {
     picked.push(unit);
@@ -53,7 +67,8 @@ export function pickMock(random = Math.random, size = MOCK_SIZE) {
   for (const cap of [SUBJECT_CAP - 1, SUBJECT_CAP, Infinity]) {
     for (const unit of all) if (!picked.includes(unit) && fits(unit, cap)) take(unit);
   }
-  return picked.flat().map((item) => item.id);
+  // เรียงตามช่วงที่จัดไว้ (สลับลำดับช่วงเพื่อไม่ให้เรื่องยาวอยู่ต้นชุดเสมอ)
+  return shuffle(packBlocks(picked), random).flatMap((bin) => bin.units.flat()).map((item) => item.id);
 }
 
 /** ข้อที่ควรทบทวน เรียงจากที่ผิดล่าสุด (เฉพาะข้อที่ยังมีในคลัง) */
