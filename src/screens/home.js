@@ -4,6 +4,8 @@ import { MOCK_SIZE, mainCount, pickMock, practiceIds } from '../content/library.
 import { SAY } from '../content/copy.js';
 import { FRIENDS, STICKERS } from '../core/assets.js';
 import { createSession } from '../core/session.js';
+import { friendIds } from '../core/friends.js';
+import { friendCard } from './rest.js';
 import { $, buddyId, esc, on, picture, confirmBox } from '../ui.js';
 
 const PROBLEMS = {
@@ -192,13 +194,17 @@ export function mountBuddy(root, ctx) {
 export function mountAlbum(root, ctx) {
   const { store, signal } = ctx;
   const owned = new Set(store.state.rewards.stickers);
+  const friends = store.state.rewards.friends || {};
   root.innerHTML = `
     <div class="lx-screen lx-album">
       <main class="lx-paper lx-paper-narrow lx-center">
         <h1 class="lx-h1">สติกเกอร์ของหนู</h1>
-        <p class="lx-lead">⭐ ดาวทั้งหมด ${store.state.rewards.stars} ดวง · ทำครบหนึ่งชุด ได้สติกเกอร์ 1 ชิ้น</p>
-        <div class="lx-sticker-pick">${Object.entries(STICKERS).map(([id, name]) => `
-          <div class="lx-sticker${owned.has(`sticker-${id}`) ? '' : ' lx-locked'}">${picture(`sticker-${id}`)}<span>${esc(name)}</span></div>`).join('')}</div>
+        <p class="lx-lead">⭐ ดาวทั้งหมด ${store.state.rewards.stars} ดวง · ทำครบหนึ่งชุด เลือกเพื่อนได้ 1 ตัว</p>
+        <p class="lx-small">เลือกเพื่อนตัวเดิมซ้ำ เพื่อนจะโตขึ้น เล็ก กลาง ใหญ่ ใหญ่มาก</p>
+        <div class="lx-friend-pick">${friendIds().map((id) => friendCard(id, friends[id])).join('')}</div>
+        ${owned.size ? `<h2 class="lx-h2">สติกเกอร์ที่เคยได้</h2>
+        <div class="lx-sticker-pick">${Object.entries(STICKERS).filter(([id]) => owned.has(`sticker-${id}`)).map(([id, name]) => `
+          <div class="lx-sticker">${picture(`sticker-${id}`)}<span>${esc(name)}</span></div>`).join('')}</div>` : ''}
         <button class="lx-btn lx-btn-go" id="lx-back" type="button">กลับหน้าแรก 🏠</button>
       </main>
     </div>`;

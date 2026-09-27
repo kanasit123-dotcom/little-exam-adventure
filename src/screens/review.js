@@ -30,7 +30,7 @@ export function mountReview(root, ctx) {
   root.innerHTML = `
     <div class="lx-screen lx-review">
       <header class="lx-bar">
-        <div class="lx-bar-title">เฉลยช่วงที่ ${session().review.block + 1}</div>
+        <div class="lx-bar-title" id="lx-rtitle">เฉลยช่วงที่ ${session().review.block + 1}</div>
         ${buddyHTML(store.state, 'cheer')}
         <div class="lx-filter" role="group" aria-label="เลือกข้อ">
           <button class="lx-chip" data-filter="all" type="button">ทั้งหมด</button>
@@ -42,7 +42,7 @@ export function mountReview(root, ctx) {
       <footer class="lx-nav">
         <button class="lx-btn lx-btn-ghost" id="lx-rprev" type="button">◀ ข้อก่อน</button>
         <button class="lx-btn lx-btn-ghost" id="lx-rnext" type="button">ข้อต่อไป ▶</button>
-        <button class="lx-btn lx-btn-go" id="lx-rdone" type="button">${isLastBlock(session()) ? 'รับรางวัล ⭐' : 'ไปพักกัน ▶'}</button>
+        <button class="lx-btn lx-btn-go" id="lx-rdone" type="button">${session().resume ? 'กลับ ▶' : isLastBlock(session()) ? 'รับรางวัล ⭐' : 'ไปพักกัน ▶'}</button>
       </footer>
     </div>`;
 
@@ -50,19 +50,23 @@ export function mountReview(root, ctx) {
   const unsubscribe = audio.onChange((request) => markSpeaking(root, request));
   signal.addEventListener('abort', () => { unsubscribe(); itemCtrl?.abort(); tool?.destroy?.(); }, { once: true });
 
-  const visible = () => ids().map((id, i) => ({ id, i })).filter(({ id }) => filter === 'all' || statusOf(id) !== 'correct');
+  const entries = () => session().submitted.flatMap((sub) => session().blocks[sub.block].map((id, i) => ({ id, i, block: sub.block })));
+  const visible = () => entries().filter(({ id }) => filter === 'all' || statusOf(id) !== 'correct');
+  const isHere = (e) => e.block === session().review.block && e.i === session().review.cursor;
 
   function renderBar() {
     const s = session();
     root.querySelectorAll('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === filter)));
-    const revisit = ids().filter((id) => statusOf(id) !== 'correct').length;
+    const revisit = entries().filter(({ id }) => statusOf(id) !== 'correct').length;
     root.querySelector('[data-filter="revisit"]').textContent = `ข้อที่ควรทบทวน (${revisit})`;
-    $(root, '#lx-rdots').innerHTML = visible().map(({ id, i }) => {
-      const st = statusOf(id);
-      return `<button class="lx-dot lx-r-${st}${i === s.review.cursor ? ' lx-here' : ''}" data-go="${i}" type="button" aria-label="ข้อ ${s.questionIds.indexOf(id) + 1}">${s.questionIds.indexOf(id) + 1}${st === 'correct' ? '<i>✓</i>' : ''}</button>`;
+    $(root, '#lx-rtitle').textContent = `เฉลยช่วงที่ ${s.review.block + 1}`;
+    $(root, '#lx-rdots').innerHTML = visible().map((e) => {
+      const st = statusOf(e.id);
+      const n = s.questionIds.indexOf(e.id) + 1;
+      return `<button class="lx-dot lx-r-${st}${isHere(e) ? ' lx-here' : ''}" data-go="${e.block}:${e.i}" type="button" aria-label="ข้อ ${n}">${n}${st === 'correct' ? '<i>✓</i>' : ''}</button>`;
     }).join('');
-    const list = visible().map((v) => v.i);
-    const pos = list.indexOf(s.review.cursor);
+    const list = visible();
+    const pos = list.findIndex(isHere);
     $(root, '#lx-rprev').hidden = pos <= 0;
     $(root, '#lx-rnext').hidden = pos === -1 || pos >= list.length - 1;
   }
@@ -268,8 +272,8 @@ export function mountReview(root, ctx) {
     return null;
   }
 
-  function goItem(cursor) {
-    if (store.dispatch({ type: 'reviewGoto', cursor })) renderItem();
+  function goItem(block, cursor) {
+    if (store.dispatch({ type: 'reviewGoto', block, cursor })) renderItem();
   }
 
   on(paper, 'click', (event) => {
@@ -280,20 +284,22 @@ export function mountReview(root, ctx) {
   }, signal);
   on($(root, '#lx-rdots'), 'click', (event) => {
     const dot = event.target.closest('[data-go]');
-    if (dot) goItem(Number(dot.dataset.go));
+    if (dot) {
+      const [block, cursor] = dot.dataset.go.split(':').map(Number);
+      goItem(block, cursor);
+    }
   }, signal);
   on(root.querySelector('.lx-filter'), 'click', (event) => {
     const chip = event.target.closest('[data-filter]');
     if (!chip) return;
     filter = chip.dataset.filter;
     const list = visible();
-    if (list.length && !list.some((v) => v.i === session().review.cursor)) goItem(list[0].i); else renderBar();
+    if (list.length && !list.some(isHere)) goItem(list[0].block, list[0].i); else renderBar();
   }, signal);
   const step = (dir) => {
-    const list = visible().map((v) => v.i);
-    const pos = list.indexOf(session().review.cursor);
-    const next = list[pos + dir];
-    if (next != null) goItem(next);
+    const list = visible();
+    const next = list[list.findIndex(isHere) + dir];
+    if (next) goItem(next.block, next.i);
   };
   on($(root, '#lx-rprev'), 'click', () => step(-1), signal);
   on($(root, '#lx-rnext'), 'click', () => step(1), signal);

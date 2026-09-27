@@ -32,8 +32,10 @@ export function normalize(raw) {
     if (typeof raw.settings.buddy === 'string') settings.buddy = raw.settings.buddy;
     if (['buddy', 'plain'].includes(raw.settings.mode)) settings.mode = raw.settings.mode;
   }
+  const friends = {};
+  if (isObj(raw.rewards?.friends)) for (const [id, n] of Object.entries(raw.rewards.friends)) if (Number.isInteger(n) && n > 0) friends[id] = n;
   const rewards = isObj(raw.rewards) && Number.isInteger(raw.rewards.stars) && Array.isArray(raw.rewards.stickers) && isObj(raw.rewards.claimed)
-    ? { stars: raw.rewards.stars, stickers: raw.rewards.stickers.filter((x) => typeof x === 'string'), claimed: raw.rewards.claimed }
+    ? { stars: raw.rewards.stars, stickers: raw.rewards.stickers.filter((x) => typeof x === 'string'), friends, claimed: raw.rewards.claimed }
     : base.rewards;
   const history = Array.isArray(raw.history) ? raw.history.map(validSession).filter(Boolean).slice(0, HISTORY_LIMIT) : [];
   const session = raw.session == null ? null : validSession(raw.session);

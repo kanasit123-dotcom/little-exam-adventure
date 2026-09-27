@@ -197,3 +197,48 @@ test('summary separates correct / incorrect / not sure', () => {
   const t = summarize(s.session, set).totals;
   assert.deepEqual([t.correct, t.incorrect, t.unsure, t.submitted], [1, 1, 3, 5]);
 });
+
+test('friend stickers grow each time the same friend is chosen: small, medium, large, very large', async () => {
+  const { friendLevel, sizeName, FRIEND_SIZES } = await import('../src/core/friends.js');
+  let s = initialState();
+  for (let n = 1; n <= 5; n++) {
+    s = reduce(s, { type: 'start', session: createSession(set, { now: n * 10, random: () => n / 10 }) });
+    for (let block = 0; block < 3; block++) {
+      s = submitBlock(s);
+      s = reduce(s, { type: 'finishReview' });
+      if (block < 2) s = reduce(s, { type: 'endBreak' });
+    }
+    s = reduce(s, { type: 'claim', friend: 'turtle', now: n * 10 + 1 });
+    assert.equal(s.rewards.friends.turtle, n);
+    assert.equal(sizeName(friendLevel(n)), FRIEND_SIZES[Math.min(n, 4) - 1]);
+  }
+  assert.deepEqual(FRIEND_SIZES, ['เล็ก', 'กลาง', 'ใหญ่', 'ใหญ่มาก']);
+  assert.equal(s.rewards.stars, 5);
+  // กดรับซ้ำในชุดเดิมไม่โตเพิ่ม
+  const again = reduce({ ...s, session: { ...s.session, phase: 'reward' } }, { type: 'claim', friend: 'turtle', now: 999 });
+  assert.equal(again.rewards.friends.turtle, 5);
+});
+
+test('reviews of submitted blocks can be reopened from break, the next exam block and the reward, then return', () => {
+  let s = started();
+  assert.equal(reduce(s, { type: 'openReview' }), s, 'nothing submitted yet');
+  s = submitBlock(s);
+  s = reduce(s, { type: 'finishReview' });
+  assert.equal(s.session.phase, 'break');
+  s = reduce(s, { type: 'openReview' });
+  assert.equal(s.session.phase, 'review');
+  s = reduce(s, { type: 'reviewGoto', block: 0, cursor: 3 });
+  assert.equal(s.session.review.cursor, 3);
+  assert.equal(reduce(s, { type: 'reviewGoto', block: 1, cursor: 0 }), s, 'unsubmitted block stays closed');
+  s = reduce(s, { type: 'finishReview' });
+  assert.equal(s.session.phase, 'break', 'back where we came from');
+  s = reduce(s, { type: 'endBreak' });
+  s = reduce(s, { type: 'goto', cursor: 2 });
+  s = reduce(s, { type: 'openReview', block: 0 });
+  assert.equal(s.session.phase, 'review');
+  s = reduce(s, { type: 'finishReview' });
+  assert.equal(s.session.phase, 'exam');
+  assert.equal(s.session.cursor, 2, 'exam position kept');
+  assert.equal(s.session.block, 1);
+});
+

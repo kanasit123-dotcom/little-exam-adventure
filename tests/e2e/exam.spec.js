@@ -15,9 +15,9 @@ test('full session 5 + 5 + 2: review each block, skip break, reward once, other 
     await expect(page.locator('#lx-block-title')).toHaveText(`ช่วงที่ ${block} จาก 3`);
     await answerAndSubmitBlock(page, (n) => (n === 3 ? 'unsure' : n % 3));
     await expect(page.locator('.lx-bar-title').first()).toHaveText(`เฉลยช่วงที่ ${block}`);
-    // ทุกข้อในช่วงที่ส่งแล้วเปิดดูได้ รวมข้อที่ตอบถูก
+    // เลขข้อของทุกช่วงที่ส่งแล้วกดดูได้ รวมข้อที่ตอบถูก (สะสมข้ามช่วง)
     const dots = page.locator('#lx-rdots .lx-dot');
-    expect(await dots.count()).toBe(block === 3 ? 2 : 5);
+    expect(await dots.count()).toBe(block === 3 ? 12 : block * 5);
     await page.locator('#lx-rdone').click();
     if (block < 3) {
       await expect(page.locator('#lx-continue')).toBeVisible();
@@ -25,12 +25,13 @@ test('full session 5 + 5 + 2: review each block, skip break, reward once, other 
     }
   }
   await expect(page.locator('.lx-reward')).toBeVisible();
-  await page.locator('[data-sticker="sticker-bow"]').click();
+  await page.locator('[data-friend="turtle"]').click();
+  await expect(page.locator('.lx-reward-friend')).toContainText('ขนาดเล็ก');
   await expect(page.locator('#lx-home')).toBeVisible();
   await page.reload();
   const stored = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), KEY);
   expect(stored.rewards.stars).toBe(1);
-  expect(stored.rewards.stickers).toEqual(['sticker-bow']);
+  expect(stored.rewards.friends).toEqual({ turtle: 1 });
   expect(stored.history).toHaveLength(1);
   expect(await page.evaluate(() => localStorage.getItem('lilly-world-v1'))).toBe('{"stars":7}');
   expect(missing).toEqual([]);
@@ -60,7 +61,7 @@ test('set 2 plays through 5 + 5 + 2 with its clock, row and sequence questions; 
   }
   expect(seen.join(' ')).toContain('lx-clock');
   expect(seen.join(' ')).toContain('lx-row-visual');
-  await page.locator('[data-sticker]').first().click();
+  await page.locator('[data-friend]').first().click();
   await page.locator('#lx-home').click();
   await page.locator('#lx-sets').click();
   await expect(page.locator('[data-set="set-02"]')).toContainText('ทำครบแล้ว 1 ครั้ง');
@@ -136,6 +137,44 @@ test('wrong and not-sure answers go to the review list; answering them right cle
   await expect(page.locator('.lx-review')).toBeVisible();
   const mistakes = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).mistakes, KEY);
   expect(Object.keys(mistakes)).toHaveLength(0);
+});
+
+test('review can be reopened from the break and the next block; tapping a question number opens it', async ({ page }) => {
+  await freshStart(page);
+  await startSet(page);
+  await answerAndSubmitBlock(page, () => 0);
+  await page.locator('#lx-rdots [data-go="0:3"]').click();
+  await expect(page.locator('#lx-rpaper .lx-qnum')).toHaveText('4.');
+  await page.locator('#lx-rdone').click();
+  await page.locator('#lx-see-review').click();                 // หน้าพัก -> เฉลย
+  await expect(page.locator('.lx-review')).toBeVisible();
+  await expect(page.locator('#lx-rdone')).toHaveText('กลับ ▶');
+  await page.locator('#lx-rdone').click();
+  await expect(page.locator('#lx-continue')).toBeVisible();     // กลับหน้าพัก
+  await page.locator('#lx-continue').click();
+  await page.locator('.lx-pick').first().click();
+  await page.locator('#lx-next').click();                       // อยู่ข้อ 7
+  await page.locator('#lx-see-review').click();                 // ระหว่างทำช่วง 2 -> เฉลยช่วง 1
+  await page.locator('#lx-rdots [data-go="0:1"]').click();
+  await expect(page.locator('#lx-rpaper .lx-qnum')).toHaveText('2.');
+  await page.locator('#lx-rdone').click();
+  await expect(page.locator('.lx-qnum')).toHaveText('7.');      // กลับข้อเดิม
+});
+
+test('friend album shows every friend with its size label', async ({ page }) => {
+  await freshStart(page);
+  await page.evaluate((key) => {
+    const s = JSON.parse(localStorage.getItem(key));
+    s.rewards.friends = { turtle: 4, seal: 2 };
+    localStorage.setItem(key, JSON.stringify(s));
+  }, KEY);
+  await page.reload();
+  await page.locator('#lx-album').click();
+  await expect(page.locator('.lx-fcard')).toHaveCount(11);
+  await expect(page.locator('.lx-fcard', { hasText: 'เต่า' })).toContainText('ขนาดใหญ่มาก');
+  await expect(page.locator('.lx-fcard', { hasText: 'แมวน้ำ' })).toContainText('ขนาดกลาง');
+  const widths = await page.evaluate(() => ['เต่า', 'แมวน้ำ'].map((name) => [...document.querySelectorAll('.lx-fcard')].find((c) => c.textContent.includes(name)).querySelector('img').getBoundingClientRect().width));
+  expect(widths[0]).toBeGreaterThan(widths[1]);
 });
 
 test('set picker: a set in progress shows its answered count and resumes where it stopped', async ({ page }) => {
@@ -248,7 +287,7 @@ test('review shows your answer, the correct answer, steps, the column helper and
   expect(s.transfers['m-add-pencils-t'].attempts[0].correct).toBe(true);
   expect(s.review.helper['m-shells-add'].opened).toBe(1);
   // borrow: ข้อ 12 (12 − 5)
-  await page.locator('#lx-rdots [data-go="1"]').click();
+  await page.locator('#lx-rdots [data-go="2:1"]').click();
   await page.locator('[data-tool="column"]').click();
   await expect(page.locator('.lx-col .lx-cell.lx-digit.lx-pulse')).toHaveText('1');
   await page.locator('.lx-col .lx-cell.lx-digit.lx-pulse').click();

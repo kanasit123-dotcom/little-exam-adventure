@@ -70,6 +70,14 @@ test('per-set progress survives reload; broken entries are dropped', () => {
   assert.deepEqual(load(memory({ [STORAGE_KEY]: JSON.stringify(old) })).state.progress, {});
 });
 
+test('friend sticker counts survive reload; bad counts are dropped', () => {
+  const raw = { ...initialState(), rewards: { stars: 2, stickers: [], friends: { turtle: 3, seal: 'x', fox: 0 }, claimed: {} } };
+  const back = load(memory({ [STORAGE_KEY]: JSON.stringify(raw) })).state;
+  assert.deepEqual(back.rewards.friends, { turtle: 3 });
+  const old = { ...initialState(), rewards: { stars: 1, stickers: ['sticker-bow'], claimed: {} } };
+  assert.deepEqual(load(memory({ [STORAGE_KEY]: JSON.stringify(old) })).state.rewards.friends, {});
+});
+
 test('storage failures are reported instead of throwing', () => {
   const broken = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('full'); } };
   assert.equal(load(broken).problem, 'storage');

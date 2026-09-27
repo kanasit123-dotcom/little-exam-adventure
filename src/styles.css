@@ -445,6 +445,20 @@ button, .lx-pick, .lx-dot { -webkit-user-select: none; user-select: none; -webki
 .lx-sticker i { position: absolute; top: 4px; right: 6px; font-style: normal; font-size: .8rem; color: var(--ink-soft); }
 .lx-sticker.lx-locked img { filter: grayscale(1) opacity(.35); }
 .lx-reward-sticker { width: 140px; height: 140px; object-fit: contain; }
+/* สติกเกอร์เพื่อน: กรอบเท่ากันทุกใบ ภาพข้างในใหญ่ขึ้นตามขนาดที่โต */
+.lx-friend-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; width: 100%; }
+.lx-fcard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; border: 3px solid var(--card-edge); border-radius: var(--r-md); background: #fff; padding: 6px 4px 8px; font: inherit; color: inherit; }
+button.lx-fcard { cursor: pointer; }
+button.lx-fcard:active { transform: translateY(2px); }
+.lx-fcard-box { width: 100%; aspect-ratio: 1; display: flex; align-items: flex-end; justify-content: center; }
+.lx-fcard-img { height: auto; aspect-ratio: 1; object-fit: contain; }
+.lx-fcard-name { font-size: 1.02rem; line-height: 1.3; }
+.lx-fcard-size { font-size: .8rem; color: var(--purple-dark); background: #f3ecff; border-radius: 999px; padding: 0 8px; }
+.lx-fcard-none .lx-fcard-img { opacity: .45; filter: saturate(.5); }
+.lx-fcard-none .lx-fcard-size { color: var(--ink-soft); background: #f3f0f5; }
+.lx-reward-friend { width: min(220px, 70vw); }
+.lx-reward-friend .lx-fcard-name { font-size: 1.3rem; }
+.lx-reward-friend .lx-fcard-size { font-size: 1rem; }
 .lx-big-star { font-size: 4rem; animation: lx-pop .6s cubic-bezier(.2, .9, .3, 1.6); }
 .lx-stretch .lx-buddy { width: 140px; height: 140px; }
 .lx-buddy-stretch img { animation: lx-stretch 2.4s ease-in-out infinite; transform-origin: bottom center; }

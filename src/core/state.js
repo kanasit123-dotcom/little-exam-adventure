@@ -13,7 +13,8 @@ export function initialState() {
     version: STATE_VERSION,
     settings: { sound: true, rate: 'normal', buddy: null, mode: 'buddy' },
     session: null,
-    rewards: { stars: 0, stickers: [], claimed: {} },
+    // friends: รหัสเพื่อน -> จำนวนครั้งที่เลือก (ใช้คิดขนาด เล็ก กลาง ใหญ่ ใหญ่มาก)
+    rewards: { stars: 0, stickers: [], friends: {}, claimed: {} },
     history: [],
     // ผลรายชุด (ไม่จำกัดจำนวนชุด ต่างจาก history ที่เก็บแค่ 10 ครั้งล่าสุด)
     progress: {},
@@ -140,10 +141,20 @@ export function reduce(state, action) {
     }
 
     case 'reviewGoto': {
+      // ไปข้อไหนก็ได้ในทุกช่วงที่ส่งแล้ว (กดเลขข้อ)
       if (s?.phase !== 'review') return state;
-      const ids = s.blocks[s.review.block];
-      if (!submittedBlock(s, s.review.block) || !Number.isInteger(action.cursor) || action.cursor < 0 || action.cursor >= ids.length) return state;
-      return withSession(state, { review: { ...s.review, cursor: action.cursor } });
+      const block = Number.isInteger(action.block) ? action.block : s.review.block;
+      const ids = s.blocks[block];
+      if (!ids || !submittedBlock(s, block) || !Number.isInteger(action.cursor) || action.cursor < 0 || action.cursor >= ids.length) return state;
+      return withSession(state, { review: { ...s.review, block, cursor: action.cursor } });
+    }
+
+    case 'openReview': {
+      // กลับมาดูเฉลยจากหน้าพัก หน้ารางวัล หรือระหว่างทำช่วงถัดไป แล้วกด "กลับ" ไปที่เดิม
+      if (!s || !s.submitted.length || !['exam', 'break', 'reward', 'done'].includes(s.phase)) return state;
+      const last = s.submitted[s.submitted.length - 1].block;
+      const block = Number.isInteger(action.block) && submittedBlock(s, action.block) ? action.block : last;
+      return withSession(state, { phase: 'review', resume: s.phase, review: { ...s.review, block, cursor: 0 } });
     }
 
     case 'reviewStep': {
@@ -184,6 +195,7 @@ export function reduce(state, action) {
 
     case 'finishReview': {
       if (s?.phase !== 'review') return state;
+      if (s.resume) return withSession(state, { phase: s.resume, resume: null });
       return withSession(state, { phase: isLastBlock(s) ? 'reward' : 'break' });
     }
 
@@ -200,10 +212,14 @@ export function reduce(state, action) {
       if (state.rewards.claimed[s.id]) return { ...state, session: done };
       const sticker = typeof action.sticker === 'string' ? action.sticker : null;
       const stickers = sticker && !state.rewards.stickers.includes(sticker) ? [...state.rewards.stickers, sticker] : state.rewards.stickers;
+      // สติกเกอร์เพื่อน: เลือกตัวเดิมซ้ำ = โตขึ้นหนึ่งขั้น
+      const friend = typeof action.friend === 'string' ? action.friend : null;
+      const friends = { ...(state.rewards.friends || {}) };
+      if (friend) friends[friend] = (friends[friend] || 0) + 1;
       return {
         ...state,
         session: done,
-        rewards: { stars: state.rewards.stars + 1, stickers, claimed: { ...state.rewards.claimed, [s.id]: { sticker, at } } },
+        rewards: { stars: state.rewards.stars + 1, stickers, friends, claimed: { ...state.rewards.claimed, [s.id]: { sticker, friend, at } } },
         history: keepHistory(state.history, done),
         progress: { ...state.progress, [s.setId]: nextProgress(state.progress?.[s.setId], action.result, s.setVersion, at) },
       };

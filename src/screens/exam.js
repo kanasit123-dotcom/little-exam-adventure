@@ -28,6 +28,7 @@ export function mountExam(root, ctx) {
     <div class="lx-screen lx-exam">
       <header class="lx-bar">
         <button class="lx-btn lx-btn-small lx-btn-ghost" id="lx-pause" type="button">⏸ พัก</button>
+        ${session().submitted.length ? '<button class="lx-btn lx-btn-small lx-btn-soft" id="lx-see-review" type="button">📖 เฉลย</button>' : ''}
         <div class="lx-bar-title" id="lx-block-title"></div>
         ${buddyHTML(store.state)}
         <div class="lx-dots" id="lx-dots"></div>
@@ -213,6 +214,8 @@ export function mountExam(root, ctx) {
     store.dispatch({ type: 'confirm' });
   }, signal);
   on($(root, '#lx-pause'), 'click', () => ctx.go('home'), signal);
+  const seeReview = $(root, '#lx-see-review');
+  if (seeReview) on(seeReview, 'click', () => store.dispatch({ type: 'openReview' }), signal);
 
   // เข้าหน้านี้ครั้งแรก: นับว่าได้เปิดข้อนี้แล้ว
   store.dispatch({ type: 'goto', cursor: session().cursor });

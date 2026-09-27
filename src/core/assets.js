@@ -18,7 +18,10 @@ const PICTURES = {
   'season-rain': 'ภาพทุ่งนา', 'season-hot': 'ภาพทุ่งนา', 'season-cool': 'ภาพทุ่งนา',
   ant: 'มด', jug: 'เหยือก', bottle: 'ขวด', glass: 'แก้ว', bat: 'ค้างคาว',
 };
-export const FRIENDS = { cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น' };
+export const FRIENDS = {
+  cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',
+  butterfly: 'ผีเสื้อ', dolphin: 'โลมา', fox: 'จิ้งจอก', octopus: 'ปลาหมึก', squirrel: 'กระรอก',
+};
 export const STICKERS = {
   star: 'ดาว', rainbow: 'สายรุ้ง', balloon: 'ลูกโป่ง', blossom: 'ดอกไม้', bow: 'โบว์',
   fish: 'ปลาน้อย', icecream: 'ไอศกรีม', lollipop: 'อมยิ้ม', strawberry: 'สตรอว์เบอร์รี', sunflower: 'ทานตะวัน',

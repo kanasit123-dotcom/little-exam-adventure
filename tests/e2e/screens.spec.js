@@ -62,7 +62,8 @@ for (const [width, height] of SIZES) {
     await shot('column');
     await page.locator('#lx-rdone').click();
     await shot('reward');
-    await page.locator('[data-sticker]').first().click();
+    await page.locator('[data-friend]').first().click();
+    await shot('reward-friend');
     await page.locator('#lx-home').click();
     await page.locator('#lx-parent').click();
     await shot('parent');
