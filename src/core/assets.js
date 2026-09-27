@@ -26,6 +26,10 @@ const PICTURES = {
   fan: 'พัดลม', fridge: 'ตู้เย็น', tv: 'โทรทัศน์', ricecooker: 'หม้อหุงข้าว',
   broom: 'ไม้กวาด', dustpan: 'ที่ตักผง', soap: 'สบู่', towel: 'ผ้าเช็ดตัว',
   pencil: 'ดินสอ', eraser: 'ยางลบ', ruler: 'ไม้บรรทัด', scissors: 'กรรไกร',
+  // แผ่น F (design/PROMPTS-gemini-6.md) — ท้องฟ้ากลางคืนอยู่ในกรอบ
+  sun: 'ดวงอาทิตย์', night: 'ท้องฟ้ากลางคืน', 'rain-cloud': 'เมฆฝน', rainbow: 'รุ้ง',
+  raincoat: 'เสื้อกันฝน', sweater: 'เสื้อกันหนาว', sneakers: 'รองเท้าผ้าใบ', rice: 'ข้าว', milk: 'นม', 'fried-egg': 'ไข่ดาว',
+  mango: 'มะม่วง', durian: 'ทุเรียน', rambutan: 'เงาะ', bee: 'ผึ้ง', snail: 'หอยทาก', spider: 'แมงมุม',
 };
 export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',

@@ -1,6 +1,6 @@
 # Prompt ชุดที่ 6 — รูปประกอบโจทย์แผ่น F (ใช้กับข้อสอบชุดที่ 11 ขึ้นไป)
 
-> **สถานะ: รอรูป**
+> **สถานะ: ทำแล้ว (2026-09-27)** — ตัดเป็น `public/assets/pictures/` 16 ชิ้น ใช้ในชุดที่ 11 (แมงมุมรอแก้ ดูท้ายไฟล์)
 
 **รวม 1 รูป**: แผ่นรูปประกอบโจทย์ 4×4 (16 ชิ้น)
 ถ้าเลือกความละเอียดได้ ขอ **2K**
@@ -59,3 +59,13 @@ Item 2 is a small SCENE inside a rounded-rectangle panel with a thin soft grey-b
 | ข้าว นม ไข่ดาว | อาหารหลัก / นมช่วยให้กระดูกแข็งแรง / มื้อเช้า |
 | มะม่วง ทุเรียน เงาะ | ผลไม้ใดมีหนาม / ไม่เข้าพวก (ร่วมกับผักจากแผ่น B) / นับผลไม้ |
 | ผึ้ง หอยทาก แมงมุม | นับขา (ผึ้ง 6 แมงมุม 8) / สัตว์ใดเดินช้าที่สุด / ผึ้งให้อะไรกับเรา |
+
+## แก้รูปแมงมุม (ไม่บังคับ)
+
+แมงมุมในแผ่น F มีปุ่มเล็กๆ 2 อันใต้หน้า เด็กอาจนับเป็น 10 ขา จึงยังไม่ใช้ทำโจทย์นับขา
+ถ้าจะแก้: แนบ `sheet-pictures-f.jpg` แล้ววาง prompt นี้ เซฟเป็น **`spider-fix.jpg`** ในโฟลเดอร์ `design\incoming\` เดิม
+
+```text
+Redraw ONLY the brown spider from the attached sheet (bottom-right item) as a single picture, in exactly the same drawing style, colours and size. Keep it cute and not scary, top view. Remove the two small short stubs under its face, so the spider has exactly EIGHT long legs and nothing else sticking out: four legs on the left side and four legs on the right side, all clearly separated so a child can count them. Plain pure white background, no border, no text, no shadow.
+```
+
