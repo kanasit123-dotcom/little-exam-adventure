@@ -2,8 +2,12 @@ import { SUBJECTS } from '../content/sets/index.js';
 
 const TYPES = new Set(['main', 'transfer']);
 const PROVENANCE = new Set(['original', 'official', 'third-party-practice']);
-const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack', 'grid', 'board', 'figure-row']);
+const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack', 'grid', 'board', 'figure-row', 'figure-grid']);
 export const ARROWS = new Set(['up', 'right', 'down', 'left']);
+export const HALVES = new Set(['tl', 'tr', 'br', 'bl']);
+export const SHAPES = new Set(['circle', 'square', 'triangle', 'hexagon', 'diamond']);
+export const FILLS = new Set(['empty', 'dots', 'solid']);
+export const VENNS = new Set(['both', 'circle', 'square', 'none']);
 export const CAKE_CUTS = new Set(['halves', 'uneven-halves', 'quarters', 'uneven-quarters']);
 export const FOLD_SHAPES = new Set(['heart', 'crescent', 'lshape', 'star', 'circle', 'flag']);
 const COUNT_SHAPES = new Set(['triangle', 'circle', 'square']);
@@ -42,7 +46,7 @@ export function validateItem(item, { assetIds } = {}) {
   for (const option of options) {
     if (!option.text && !option.image && !option.svg) fail(`option ${option.id} shows nothing`);
     if (option.image && assetIds && !assetIds.has(option.image)) fail(`unknown asset ${option.image}`);
-    if (option.svg && !validSvg(option.svg)) fail(`option ${option.id} has an unknown drawing`);
+    if (option.svg && !validSvg(option.svg, assetIds)) fail(`option ${option.id} has an unknown drawing`);
   }
 
   if (item?.visual) errors.push(...validateVisual(item.visual, assetIds).map((message) => `${id}: ${message}`));
@@ -59,7 +63,9 @@ export function validateItem(item, { assetIds } = {}) {
   return errors;
 }
 
-function validSvg(svg) {
+function validSvg(svg, assetIds) {
+  if (svg.count) return validCount(svg.count, assetIds);
+  if (svg.venn) return VENNS.has(svg.venn);
   if (svg.swatch) return /^#[0-9a-f]{6}$/i.test(svg.swatch);
   if (svg.fold) return FOLD_SHAPES.has(svg.fold);
   if (svg.cut) return CAKE_CUTS.has(svg.cut);
@@ -67,10 +73,18 @@ function validSvg(svg) {
   return false;
 }
 
+/** ตัวเลือกแบบ "กี่ชิ้น": รูปเดียวกันซ้ำ n ชิ้น (n = 1-10) ให้เด็กนับเอง */
+function validCount(c, assetIds) {
+  return !!c && typeof c.asset === 'string' && (!assetIds || assetIds.has(c.asset)) && Number.isInteger(c.n) && c.n >= 1 && c.n <= 10;
+}
+
 /** รูปเรขาคณิตที่วาดด้วยโค้ด (โจทย์ภาพต่อเนื่อง): วงแปดช่องระบาย 1 ช่อง, ลูกศร, จุด */
 export function validFigure(f) {
   if (!f || typeof f !== 'object') return false;
-  if (Object.keys(f).length !== 1) return false;
+  const keys = Object.keys(f);
+  if ('shape' in f) return SHAPES.has(f.shape) && keys.every((k) => k === 'shape' || k === 'fill') && (f.fill === undefined || FILLS.has(f.fill));
+  if (keys.length !== 1) return false;
+  if ('half' in f) return HALVES.has(f.half);
   if ('wheel' in f) return Number.isInteger(f.wheel) && f.wheel >= 0 && f.wheel <= 7;
   if ('arrow' in f) return ARROWS.has(f.arrow);
   if ('dots' in f) return Number.isInteger(f.dots) && f.dots >= 1 && f.dots <= 9;
@@ -94,6 +108,7 @@ export function validateVisual(visual, assetIds) {
   if (visual.type === 'grid' && !(Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 3 && visual.rows.every((r) => Array.isArray(r) && r.length === visual.rows[0].length && r.length >= 2 && r.length <= 3 && r.every(known)))) errors.push('grid needs 2-3 rows of 2-3 known pictures');
   if (visual.type === 'board' && !(Array.isArray(visual.items) && visual.items.length >= 6 && visual.items.length <= 12 && new Set(visual.items).size === visual.items.length && visual.items.every(known))) errors.push('board needs 6-12 different known pictures');
   if (visual.type === 'figure-row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 5 && visual.items.filter((x) => x === '?').length === 1 && visual.items.every((x) => x === '?' || validFigure(x)))) errors.push('figure-row needs 3-5 figures with exactly one ?');
+  if (visual.type === 'figure-grid' && !(Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 3 && visual.rows.every((r) => Array.isArray(r) && r.length === visual.rows[0].length && r.length >= 2 && r.length <= 3) && visual.rows.flat().filter((x) => x === '?').length === 1 && visual.rows.flat().every((x) => x === '?' || validFigure(x)))) errors.push('figure-grid needs 2-3 rows of 2-3 figures with exactly one ?');
   if (visual.type === 'clock' && !(Number.isInteger(visual.hour) && visual.hour >= 1 && visual.hour <= 12 && [0, 30].includes(visual.minute))) errors.push('clock needs hour 1-12 and minute 0 or 30');
   if (visual.type === 'table' && !(visual.unit && Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 5 && visual.rows.every((r) => r.name && Number.isInteger(r.count) && r.count >= 0 && r.count <= 99))) errors.push('table needs a unit and 2-5 rows of name and count 0-99');
   if (visual.type === 'number-row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 7 && visual.items.filter((x) => x === '?').length === 1 && visual.items.every((x) => x === '?' || Number.isInteger(x)))) errors.push('number-row needs 3-7 numbers with exactly one ?');

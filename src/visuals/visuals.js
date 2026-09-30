@@ -228,9 +228,23 @@ const OCT = Array.from({ length: 8 }, (_, i) => {
 const ARROW_TURN = { up: 0, right: 90, down: 180, left: 270 };
 const DOT_SPOTS = [[50, 50], [30, 30], [70, 70], [70, 30], [30, 70], [30, 50], [70, 50], [50, 30], [50, 70]];
 const DOT_SETS = { 1: [0], 2: [1, 2], 3: [1, 0, 2], 4: [1, 3, 4, 2], 5: [1, 3, 0, 4, 2], 6: [1, 3, 5, 6, 4, 2], 7: [1, 3, 5, 0, 6, 4, 2], 8: [1, 3, 5, 6, 4, 2, 7, 8], 9: [0, 1, 2, 3, 4, 5, 6, 7, 8] };
+const HALF_POINTS = { tl: '14,14 86,14 14,86', tr: '14,14 86,14 86,86', br: '86,14 86,86 14,86', bl: '14,14 14,86 86,86' };
+const SHAPE_DRAW = {
+  circle: (a) => `<circle cx="50" cy="50" r="31" ${a}/>`,
+  square: (a) => `<rect x="20" y="20" width="60" height="60" ${a}/>`,
+  triangle: (a) => `<polygon points="50,16 84,80 16,80" ${a}/>`,
+  hexagon: (a) => `<polygon points="50,14 82,32 82,68 50,86 18,68 18,32" ${a}/>`,
+  diamond: (a) => `<polygon points="50,12 86,50 50,88 14,50" ${a}/>`,
+};
 export function renderFigure(f) {
   let body = '';
-  if (f && 'wheel' in f) {
+  if (f && 'half' in f) {
+    body = `<rect x="14" y="14" width="72" height="72" fill="#fff" stroke="#4a3b52" stroke-width="3"/><polygon points="${HALF_POINTS[f.half]}" fill="#4a3b52" stroke="#4a3b52" stroke-width="3" stroke-linejoin="round"/>`;
+  } else if (f && 'shape' in f) {
+    const fill = f.fill === 'solid' ? '#4a3b52' : f.fill === 'dots' ? 'url(#lx-dotfill)' : '#fff';
+    const defs = f.fill === 'dots' ? '<defs><pattern id="lx-dotfill" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#fff"/><circle cx="5" cy="5" r="2.2" fill="#4a3b52"/></pattern></defs>' : '';
+    body = `${defs}${(SHAPE_DRAW[f.shape] || (() => ''))(`fill="${fill}" stroke="#4a3b52" stroke-width="4" stroke-linejoin="round"`)}`;
+  } else if (f && 'wheel' in f) {
     const pt = (p) => p.map((n) => n.toFixed(1)).join(',');
     const slices = OCT.map((p, i) => `<polygon points="50,50 ${pt(p)} ${pt(OCT[(i + 1) % 8])}" fill="${i === f.wheel ? '#4a3b52' : '#fff'}"/>`).join('');
     body = `<g stroke="#4a3b52" stroke-width="2.5" stroke-linejoin="round">${slices}<polygon points="${OCT.map(pt).join(' ')}" fill="none"/></g>`;
@@ -241,6 +255,38 @@ export function renderFigure(f) {
       + '<rect x="12" y="12" width="76" height="76" rx="10" fill="none" stroke="#4a3b52" stroke-width="3"/>';
   }
   return `<svg class="lx-figure" viewBox="0 0 100 100" aria-hidden="true">${body}</svg>`;
+}
+
+// ตัวเลือก "กี่ชิ้น": รูปเดียวกันซ้ำ n ชิ้น จัดเป็นแถวให้นับง่าย
+export function renderCount({ asset, n }) {
+  const cols = n <= 3 ? n : n === 4 ? 2 : n <= 6 ? 3 : n <= 8 ? 4 : 5;
+  return `<span class="lx-count" style="--cols:${cols}" aria-hidden="true">${Array.from({ length: n }, () => img(asset, 'lx-count-pic')).join('')}</span>`;
+}
+
+// แผนภาพเวนน์แบบเด็ก: วงกลมซ้อนสี่เหลี่ยม ดาวอยู่ในบริเวณใดบริเวณหนึ่ง
+function starPoints(cx, cy, outer, inner) {
+  return Array.from({ length: 10 }, (_, i) => {
+    const r = i % 2 ? inner : outer;
+    const a = ((i * 36 - 90) * Math.PI) / 180;
+    return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+  }).join(' ');
+}
+const VENN_STAR = { both: [52, 52], circle: [22, 52], square: [77, 52], none: [18, 16] };
+export function renderVenn(where) {
+  const [x, y] = VENN_STAR[where] || VENN_STAR.none;
+  return `<svg class="lx-venn" viewBox="4 4 88 78" aria-hidden="true">
+    <rect x="42" y="26" width="46" height="52" rx="3" fill="#bfe0ff" fill-opacity=".75" stroke="#2f96de" stroke-width="3"/>
+    <circle cx="38" cy="52" r="27" fill="#ffc2dc" fill-opacity=".75" stroke="#d9598f" stroke-width="3"/>
+    <polygon points="${starPoints(x, y, 9, 4)}" fill="#ffc94d" stroke="#d99d1c" stroke-width="2" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+// ตารางภาพ 2x2 หรือ 3x3 มีช่อง ? หนึ่งช่อง (ภาพที่หายไป)
+function figureGrid(v) {
+  const cols = v.rows[0].length;
+  return `<figure class="lx-visual lx-figgrid" aria-label="ภาพตาราง มีช่องที่หายไปหนึ่งช่อง">
+    <div class="lx-figgrid-cells" style="--cols:${cols}">${v.rows.flat().map((x) => (x === '?' ? '<span class="lx-figgrid-cell lx-figgrid-blank">?</span>' : `<span class="lx-figgrid-cell">${renderFigure(x)}</span>`)).join('')}</div>
+  </figure>`;
 }
 
 // ภาพต่อเนื่อง มีช่อง ? หนึ่งช่อง (ภาพที่หายไปควรเป็นภาพใด)
@@ -263,6 +309,8 @@ export function renderOptionSvg(svg) {
   if (svg.fold) return renderFold(svg.fold);
   if (svg.cut) return renderCake(svg.cut);
   if (svg.figure) return renderFigure(svg.figure);
+  if (svg.count) return renderCount(svg.count);
+  if (svg.venn) return renderVenn(svg.venn);
   return '';
 }
 
@@ -295,6 +343,7 @@ export function renderVisual(visual) {
     case 'grid': return grid(visual);
     case 'board': return board(visual);
     case 'figure-row': return figureRow(visual);
+    case 'figure-grid': return figureGrid(visual);
     case 'clock': return clock(visual);
     case 'table': return table(visual);
     case 'number-row': return numberRow(visual);

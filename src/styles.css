@@ -813,3 +813,38 @@ body.lx-plain .lx-buddy { display: none; }
   .lx-rnav .lx-tools { order: 3; flex: 1 1 auto; }
   .lx-rnav #lx-rdone { order: 4; margin-left: 0; }
 }
+
+/* ชุด 15 ขึ้นไป: ตัวเลือกแบบ "กี่ชิ้น", แผนภาพเวนน์ของดาว, ตารางภาพที่มีช่องหาย */
+.lx-count { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 2px; width: min(100%, calc(var(--cols) * 38px)); justify-items: center; align-items: center; }
+.lx-count-pic { width: 100%; max-width: 38px; aspect-ratio: 1; object-fit: contain; }
+.lx-venn { width: min(100%, 120px); aspect-ratio: 88 / 78; }
+.lx-compact .lx-pick .lx-venn { width: auto; height: clamp(58px, 11.5dvh, 116px); max-width: 100%; aspect-ratio: 88 / 78; }
+.lx-figgrid-cells { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 4px; background: #fff; border: 3px solid var(--card-edge); border-radius: var(--r-md); padding: 6px; width: min(100%, calc(var(--cols) * 104px + 12px)); }
+.lx-figgrid-cell { display: flex; align-items: center; justify-content: center; border: 2px solid var(--card-edge); border-radius: 10px; aspect-ratio: 1; }
+.lx-figgrid-cell .lx-figure { width: 100%; max-width: 100px; }
+.lx-figgrid-blank { border: 3px dashed var(--purple-dark); font-size: 1.8rem; font-weight: 700; color: var(--purple-dark); background: #fbf7ff; }
+.lx-compact .lx-figgrid-cells { width: min(100%, calc(var(--cols) * clamp(52px, 9.4dvh, 100px) + 14px)); gap: 3px; padding: 4px; }
+.lx-compact .lx-figgrid-cell .lx-figure { max-width: none; }
+
+/* ตัวเลือกนับรูป: ปุ่มฟังอยู่มุมขวาบนข้างเลขข้อ ไม่ทับรูปที่ต้องนับ */
+.lx-compact .lx-options-pics .lx-pick:has(.lx-count) { padding-top: 34px; min-height: 0; }
+.lx-compact .lx-options-pics .lx-opt:has(.lx-count) .lx-say { top: 2px; bottom: auto; right: 2px; }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-count) .lx-count { width: min(100%, calc(var(--cols) * clamp(24px, 4.2dvh, 34px))); }
+
+
+/* ตัวเลือกนับรูป: เรียงเป็นแถวเต็มความกว้าง (เลขข้อ | รูปที่ต้องนับ | ปุ่มฟัง) รูปจึงใหญ่พอให้นับง่าย */
+.lx-compact .lx-options-pics:has(.lx-count) { grid-template-columns: 1fr; }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-count) { flex-direction: row; justify-content: center; min-height: 64px; padding: 6px 56px 6px 46px; }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-count) .lx-num { left: 18px; top: 50%; transform: translateY(-50%); }
+.lx-compact .lx-options-pics .lx-opt:has(.lx-count) .lx-say { top: 50%; bottom: auto; right: 6px; transform: translateY(-50%); }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-count) .lx-count { width: min(100%, calc(var(--cols) * 38px)); }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-count) .lx-count-pic { max-width: 38px; }
+
+/* หน้าเฉลย: ตัวเลือกนับรูปเป็นแถวเตี้ย ป้าย "หนูตอบ / คำตอบที่ถูก" อยู่ท้ายแถว */
+.lx-review.lx-compact .lx-options-pics:has(.lx-count) { grid-template-columns: 1fr; }
+.lx-review.lx-compact .lx-options-pics .lx-pick.lx-static:has(.lx-count) { flex-direction: row; justify-content: flex-start; min-height: 0; padding: 4px 8px 4px 46px; gap: 8px; }
+.lx-review .lx-pick.lx-static:has(.lx-count) .lx-num { left: 16px; top: 50%; transform: translateY(-50%); }
+.lx-review .lx-pick.lx-static:has(.lx-count) .lx-count { width: calc(var(--cols) * 28px); flex: 0 0 auto; }
+.lx-review .lx-pick.lx-static:has(.lx-count) .lx-count-pic { max-width: 28px; }
+.lx-review .lx-options-pics .lx-pick.lx-static:has(.lx-count) .lx-tag { position: static; transform: none; margin-left: auto; font-size: .8rem; line-height: 1.5; }
+.lx-review .lx-options-pics .lx-pick.lx-static:has(.lx-count) .lx-tag + .lx-tag { margin-left: 4px; }

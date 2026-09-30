@@ -1,0 +1,418 @@
+/*
+ * ชุดที่ 16 — รูปแบบใหม่ 15 ข้อ (ดู docs/QUESTION-TYPES.md หัวข้อ "รูปแบบชุด 12 ขึ้นไป")
+ * ช่วง 1 เรื่องเดียวถาม 5 ข้อ (น้องบัวเก็บกระเป๋าสตางค์ได้แล้วส่งคืน: เห็นอะไร กี่บาท ทำอย่างไร ความหมายคำ กี่คน)
+ * ช่วง 2 แผ่นภาพสถานที่และยานพาหนะ ถาม 5 ข้อ
+ * ช่วง 3 โจทย์แนวใหม่ที่วาดด้วยโค้ด: นับรูปสามขั้น, ตารางภาพที่มีช่องหาย, แผนภาพดาว + ความปลอดภัยการข้ามถนน
+ * แต่งใหม่ทั้งหมด ตั้งชื่อตัวละคร สถานที่ และตัวเลขใหม่ตามแนวข้อสอบเก่า
+ */
+const R = { provenance: 'original', rights: 'แต่งใหม่ทั้งหมด (ข้อความ ตัวเลข ภาพ) เผยแพร่ใน repo นี้ได้', reviewStatus: 'draft' };
+const SRC = 'src-a24-compilation';
+const LISTEN = 'ฟังเรื่องแล้วตอบคำถามให้ถูกต้อง';
+const LOOK = 'ดูรูปภาพแล้วตอบคำถามให้ถูกต้อง';
+const PLACES = 'ดูภาพสถานที่และยานพาหนะแล้วตอบคำถามให้ถูกต้อง';
+const FIGURES = 'ภาพต่อเนื่อง ภาพที่หายไปควรเป็นภาพใด';
+const cnt = (id, asset, n, say) => ({ id, svg: { count: { asset, n } }, speech: say });
+const fig = (id, figure) => ({ id, svg: { figure } });
+const venn = (id, where) => ({ id, svg: { venn: where } });
+const row = (asset, n) => ({ type: 'row', items: Array.from({ length: n }, () => asset) });
+const BOARD = { type: 'board', items: ['pic-school', 'pic-temple', 'pic-market', 'pic-playground', 'pic-bus', 'pic-boat', 'pic-airplane', 'pic-train', 'pic-ambulance', 'pic-firetruck', 'pic-beach', 'pic-mountain'] };
+const BOARD_TEXT = 'ในภาพมีของ 12 อย่าง คือ โรงเรียน วัด ตลาด สนามเด็กเล่น รถโดยสาร เรือ เครื่องบิน รถไฟ รถพยาบาล รถดับเพลิง ทะเล และภูเขา';
+
+export default {
+  id: 'set-16',
+  version: 1,
+  title: 'ชุดที่ 16',
+  note: 'น้องบัวเก็บกระเป๋า สถานที่และยานพาหนะ ภาพที่หายไป',
+  order: [
+    'th-wallet-what', 'm-wallet-money', 'g-wallet-did', 'th-word-honest', 'r-wallet-people',
+    'g-place-temple', 'sc-vehicle-water', 'm-vehicle-count', 'r-vehicle-help', 'th-place-nature',
+    'm-flower-picture', 'r-corner-missing-2', 'r-fill-missing', 'sp-star-square', 'g-cross-road',
+  ],
+  stimuli: {
+    wallet: {
+      section: LISTEN,
+      text: 'วันหยุด น้องบัวไปเดินเล่นที่สนามเด็กเล่นกับคุณยาย น้องบัวเห็นกระเป๋าสตางค์สีแดงตกอยู่ใต้ม้านั่ง ในกระเป๋ามีเงิน 100 บาท น้องบัวไม่ได้เก็บไว้เอง แต่รีบนำไปให้คุณครูที่อยู่ใกล้ๆ คุณครูประกาศหาเจ้าของ จนพบคุณลุงคนหนึ่ง คุณลุงดีใจมาก และชมว่าน้องบัวเป็นเด็กซื่อสัตย์',
+    },
+    places: { section: PLACES, text: BOARD_TEXT, visual: BOARD },
+  },
+  items: [
+    // ---------------------------------------------------------------- ช่วงที่ 1: เรื่องเดียว 5 ข้อ
+    {
+      id: 'th-wallet-what', type: 'main', subject: 'thai', skillIds: ['listening-comprehension'], familyId: 'story-what', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'wallet',
+      prompt: { text: 'น้องบัวเห็นอะไรตกอยู่ใต้ม้านั่ง' },
+      options: [{ id: 'a', text: 'กระเป๋าสตางค์สีแดง' }, { id: 'b', text: 'ร่มสีเหลือง' }, { id: 'c', text: 'หมวกสีฟ้า' }],
+      correctOptionId: 'a',
+      narration: 'ฟังเรื่องและตัวเลือกได้ วัดการฟังจับรายละเอียด',
+      review: {
+        summary: 'น้องบัวเห็นกระเป๋าสตางค์ตกใต้ม้านั่ง',
+        hints: ['ฟังประโยคที่สองของเรื่อง'],
+        steps: ['เรื่องบอกว่า น้องบัวเห็นกระเป๋าสตางค์สีแดงตกอยู่ใต้ม้านั่ง', 'จึงเป็นกระเป๋าสตางค์สีแดง ตอบข้อ 1'],
+        transferIds: ['th-umbrella-what-t'],
+      },
+    },
+    {
+      id: 'm-wallet-money', type: 'main', subject: 'math', skillIds: ['story-number'], familyId: 'story-number', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'wallet',
+      prompt: { text: 'ในกระเป๋าสตางค์มีเงินกี่บาท' },
+      options: [{ id: 'a', text: '10 บาท' }, { id: 'b', text: '50 บาท' }, { id: 'c', text: '100 บาท' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดการฟังตัวเลขจากเรื่อง',
+      review: {
+        summary: 'ในกระเป๋ามีเงินหนึ่งร้อยบาท',
+        hints: ['ฟังตัวเลขในประโยคที่สามของเรื่อง'],
+        steps: ['เรื่องบอกว่า ในกระเป๋ามีเงิน 100 บาท', 'จึงมีเงิน 100 บาท ตอบข้อ 3'],
+        transferIds: ['m-save-money-t'],
+      },
+    },
+    {
+      id: 'g-wallet-did', type: 'main', subject: 'general', skillIds: ['honesty'], familyId: 'honesty', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'wallet',
+      prompt: { text: 'น้องบัวทำอย่างไรกับกระเป๋าสตางค์' },
+      options: [{ id: 'a', text: 'เก็บไว้ใช้เอง' }, { id: 'b', text: 'นำไปให้คุณครู' }, { id: 'c', text: 'โยนทิ้งไป' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการฟังและคุณธรรมความซื่อสัตย์',
+      review: {
+        summary: 'น้องบัวส่งกระเป๋าให้คุณครูช่วยหาเจ้าของ',
+        hints: ['ฟังตอนที่น้องบัวไม่ได้เก็บไว้เอง'],
+        steps: ['เรื่องบอกว่า น้องบัวไม่ได้เก็บไว้เอง แต่รีบนำไปให้คุณครู', 'จึงนำไปให้คุณครู ตอบข้อ 2'],
+        transferIds: ['g-found-umbrella-t'],
+      },
+    },
+    {
+      id: 'th-word-honest', type: 'main', subject: 'thai', skillIds: ['word-meaning'], familyId: 'word-in-story', difficulty: 3,
+      sourceId: SRC, ...R, stimulus: 'wallet',
+      prompt: { text: 'คำว่า ซื่อสัตย์ หมายความว่าอย่างไร' },
+      options: [{ id: 'a', text: 'วิ่งเร็วมาก' }, { id: 'b', text: 'พูดเสียงดัง' }, { id: 'c', text: 'ไม่โกหก ไม่เอาของที่ไม่ใช่ของตน' }],
+      correctOptionId: 'c',
+      narration: 'ฟังตัวเลือกได้ วัดความเข้าใจความหมายคำจากเรื่อง',
+      review: {
+        summary: 'ซื่อสัตย์ คือพูดจริงและไม่เอาของคนอื่น',
+        hints: ['น้องบัวทำอย่างไรกับกระเป๋าที่ไม่ใช่ของเธอ'],
+        steps: ['น้องบัวไม่เอากระเป๋าที่ไม่ใช่ของตัวเองไปใช้ แต่ส่งคืนเจ้าของ', 'นี่คือความซื่อสัตย์ คือไม่โกหกและไม่เอาของที่ไม่ใช่ของตน ตอบข้อ 3'],
+        transferIds: ['th-word-kind-t'],
+      },
+    },
+    {
+      id: 'r-wallet-people', type: 'main', subject: 'reasoning', skillIds: ['story-count'], familyId: 'story-count', difficulty: 3,
+      sourceId: SRC, ...R, stimulus: 'wallet',
+      prompt: { text: 'ในเรื่องนี้มีคนทั้งหมดกี่คน' },
+      options: [{ id: 'a', text: '3 คน' }, { id: 'b', text: '4 คน' }, { id: 'c', text: '5 คน' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการนับจำนวนคนที่มีชื่อหรือบทบาทในเรื่อง',
+      review: {
+        summary: 'น้องบัว คุณยาย คุณครู และคุณลุง รวมเป็น 4 คน',
+        hints: ['นับทีละคนที่อยู่ในเรื่อง อย่าลืมนับน้องบัวด้วย'],
+        steps: ['คนในเรื่องมี น้องบัว หนึ่ง คุณยาย สอง คุณครู สาม คุณลุง สี่', 'มี 4 คน ตอบข้อ 2'],
+        transferIds: ['r-people-market-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- ช่วงที่ 2: แผ่นภาพสถานที่และยานพาหนะ 5 ข้อ
+    {
+      id: 'g-place-temple', type: 'main', subject: 'general', skillIds: ['community-places'], familyId: 'board-places', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'places',
+      prompt: { text: 'ถ้าอยากไปทำบุญ ควรไปที่ใด' },
+      options: [{ id: 'a', text: 'โรงเรียน' }, { id: 'b', text: 'ตลาด' }, { id: 'c', text: 'วัด' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องสถานที่ในชุมชน',
+      review: {
+        summary: 'คนไทยไปทำบุญที่วัด',
+        hints: ['ที่ไหนมีพระสงฆ์'],
+        steps: ['โรงเรียนเป็นที่เรียนหนังสือ ตลาดเป็นที่ซื้อของ', 'วัดเป็นที่ทำบุญ ตอบข้อ 3'],
+        transferIds: ['g-place-school-t'],
+      },
+    },
+    {
+      id: 'sc-vehicle-water', type: 'main', subject: 'science', skillIds: ['vehicle-route'], familyId: 'vehicle-route', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'places',
+      prompt: { text: 'ข้อใดเป็นยานพาหนะที่เดินทางไปทางน้ำ' },
+      options: [{ id: 'a', text: 'เรือ' }, { id: 'b', text: 'รถไฟ' }, { id: 'c', text: 'เครื่องบิน' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องยานพาหนะตามเส้นทาง',
+      review: {
+        summary: 'เรือลอยและแล่นไปบนผิวน้ำ',
+        hints: ['ยานพาหนะใดลอยอยู่บนน้ำ'],
+        steps: ['รถไฟวิ่งบนราง เครื่องบินบินในอากาศ', 'เรือแล่นบนน้ำ ตอบข้อ 1'],
+        transferIds: ['sc-vehicle-air-t'],
+      },
+    },
+    {
+      id: 'm-vehicle-count', type: 'main', subject: 'math', skillIds: ['classify-count'], familyId: 'board-count', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'places',
+      prompt: { text: 'ในภาพมียานพาหนะกี่อย่าง' },
+      options: [{ id: 'a', text: '4 อย่าง' }, { id: 'b', text: '5 อย่าง' }, { id: 'c', text: '6 อย่าง' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดการจัดกลุ่มแล้วนับ',
+      review: {
+        summary: 'รถโดยสาร เรือ เครื่องบิน รถไฟ รถพยาบาล รถดับเพลิง รวม 6 อย่าง',
+        hints: ['เลือกเฉพาะสิ่งที่ใช้เดินทางหรือขนส่ง แล้วนับทีละอย่าง'],
+        steps: ['ยานพาหนะในภาพมี รถโดยสาร เรือ เครื่องบิน รถไฟ รถพยาบาล และรถดับเพลิง', 'โรงเรียน วัด ตลาด สนามเด็กเล่น ทะเล ภูเขา ไม่ใช่ยานพาหนะ รวมเป็น 6 อย่าง ตอบข้อ 3'],
+        transferIds: ['m-place-count-t'],
+      },
+    },
+    {
+      id: 'r-vehicle-help', type: 'main', subject: 'reasoning', skillIds: ['classify'], familyId: 'board-classify', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'places',
+      prompt: { text: 'ยานพาหนะสองอย่างใดที่ช่วยเหลือคนที่ประสบเหตุฉุกเฉินได้ทันที' },
+      options: [{ id: 'a', text: 'รถไฟ, เรือ' }, { id: 'b', text: 'รถพยาบาล, รถดับเพลิง' }, { id: 'c', text: 'รถโดยสาร, เครื่องบิน' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการจัดกลุ่มตามหน้าที่',
+      review: {
+        summary: 'รถพยาบาลรับคนเจ็บ รถดับเพลิงดับไฟ',
+        hints: ['เกิดเหตุไฟไหม้หรือมีคนเจ็บ เรียกรถอะไร'],
+        steps: ['รถไฟ เรือ รถโดยสาร เครื่องบิน ใช้เดินทางตามปกติ', 'รถพยาบาลกับรถดับเพลิงช่วยคนเมื่อเกิดเหตุ ตอบข้อ 2'],
+        transferIds: ['r-vehicle-road-t'],
+      },
+    },
+    {
+      id: 'th-place-nature', type: 'main', subject: 'thai', skillIds: ['classify-words'], familyId: 'board-classify', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'places',
+      prompt: { text: 'ข้อใดเป็นสถานที่ตามธรรมชาติทั้งสองอย่าง' },
+      options: [{ id: 'a', text: 'ทะเล, ภูเขา' }, { id: 'b', text: 'วัด, สนามเด็กเล่น' }, { id: 'c', text: 'โรงเรียน, ตลาด' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดการแยกประเภทคำ',
+      review: {
+        summary: 'ทะเลและภูเขาเกิดเองตามธรรมชาติ',
+        hints: ['ที่ไหนที่คนไม่ได้สร้างขึ้นมา'],
+        steps: ['วัด สนามเด็กเล่น โรงเรียน ตลาด คนสร้างขึ้น', 'ทะเลและภูเขามีอยู่เองตามธรรมชาติ ตอบข้อ 1'],
+        transferIds: ['th-place-made-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- ช่วงที่ 3
+    {
+      id: 'm-flower-picture', type: 'main', subject: 'math', skillIds: ['multi-step-picture'], familyId: 'picture-answer', difficulty: 3,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ป้ามีต้นไม้ในกระถาง 5 ต้น ต้นไม้ตายไป 2 ต้น แล้วป้าปลูกเพิ่มอีก 4 ต้น ตอนนี้ป้ามีต้นไม้กี่ต้น' },
+      visual: row('pic-plant-flower', 5),
+      options: [cnt('a', 'pic-plant-flower', 7, 'ต้นไม้ 7 ต้น'), cnt('b', 'pic-plant-flower', 3, 'ต้นไม้ 3 ต้น'), cnt('c', 'pic-plant-flower', 9, 'ต้นไม้ 9 ต้น')],
+      correctOptionId: 'a',
+      narration: 'อ่านจำนวนของรูปในตัวเลือกได้ วัดการคิดสองขั้น ลบแล้วบวก และการนับรูป',
+      review: {
+        summary: 'ตายไปเหลือ 3 ปลูกเพิ่มเป็น 7 ต้น',
+        hints: ['ทำทีละขั้น ตายไปก่อน แล้วค่อยปลูกเพิ่ม'],
+        steps: ['มี 5 ต้น ตายไป 2 ต้น 5 ลบ 2 เท่ากับ 3 ต้น', 'ปลูกเพิ่ม 4 ต้น 3 บวก 4 เท่ากับ 7 ต้น ตอบข้อ 1'],
+        column: { a: 3, op: '+', b: 4 },
+        transferIds: ['m-banana-picture-t'],
+      },
+    },
+    {
+      id: 'r-corner-missing-2', type: 'main', subject: 'reasoning', skillIds: ['grid-missing'], familyId: 'grid-missing', difficulty: 2,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'ตารางนี้มีภาพสี่ภาพ ภาพในช่อง ? ควรเป็นภาพใด' },
+      visual: { type: 'figure-grid', rows: [[{ half: 'br' }, { half: 'bl' }], [{ half: 'tr' }, '?']] },
+      options: [fig('a', { half: 'tl' }), fig('b', { half: 'bl' }), fig('c', { half: 'tr' }), fig('d', { half: 'br' })],
+      correctOptionId: 'a',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการหาภาพที่ขาดในชุดภาพสี่มุม',
+      review: {
+        summary: 'สี่มุมต้องมีครบ ขาดมุมบนซ้าย',
+        hints: ['ดูว่าในตารางมีสีเข้มอยู่มุมไหนแล้วบ้าง'],
+        steps: ['ในตารางมีสีเข้มอยู่มุมล่างขวา มุมล่างซ้าย และมุมบนขวาแล้ว', 'ยังขาดมุมบนซ้าย ตอบข้อ 1'],
+        transferIds: ['r-corner-missing-2-t'],
+      },
+    },
+    {
+      id: 'r-fill-missing', type: 'main', subject: 'reasoning', skillIds: ['grid-missing'], familyId: 'grid-missing', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'ในแต่ละแถวและแต่ละแถวตั้ง มีวงกลมครบสามแบบ คือ ว่าง มีจุด และทึบ ช่อง ? ควรเป็นวงกลมแบบใด' },
+      visual: {
+        type: 'figure-grid',
+        rows: [
+          [{ shape: 'circle', fill: 'solid' }, { shape: 'circle', fill: 'dots' }, { shape: 'circle', fill: 'empty' }],
+          [{ shape: 'circle', fill: 'dots' }, { shape: 'circle', fill: 'empty' }, { shape: 'circle', fill: 'solid' }],
+          [{ shape: 'circle', fill: 'empty' }, { shape: 'circle', fill: 'solid' }, '?'],
+        ],
+      },
+      options: [fig('a', { shape: 'circle', fill: 'empty' }), fig('b', { shape: 'circle', fill: 'solid' }), fig('c', { shape: 'circle', fill: 'dots' }), fig('d', { shape: 'square', fill: 'dots' })],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการหารูปที่ขาดให้ครบทุกแถวทุกหลัก',
+      review: {
+        summary: 'แถวล่างมีวงกลมว่างกับทึบแล้ว ขาดวงกลมมีจุด',
+        hints: ['ดูแถวล่างสุด มีวงกลมแบบไหนแล้วบ้าง'],
+        steps: ['แถวล่างมีวงกลมว่างและวงกลมทึบแล้ว แต่ละแถวต้องมีครบสามแบบ', 'จึงขาดวงกลมมีจุด ตอบข้อ 3'],
+        transferIds: ['r-fill-missing-t'],
+      },
+    },
+    {
+      id: 'sp-star-square', type: 'main', subject: 'spatial', skillIds: ['region-overlap'], familyId: 'star-region', difficulty: 3,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ดาวอยู่ในสี่เหลี่ยมเท่านั้น ไม่อยู่ในวงกลม ภาพใดถูกต้อง' },
+      options: [venn('a', 'both'), venn('b', 'square'), venn('c', 'circle'), venn('d', 'none')],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการมองว่าดาวอยู่ในรูปใด',
+      review: {
+        summary: 'ดาวอยู่ในสี่เหลี่ยม แต่ไม่ซ้อนกับวงกลม',
+        hints: ['ดาวต้องอยู่ในสี่เหลี่ยม แต่อยู่ห่างจากวงกลม'],
+        steps: ['ข้อที่ดาวอยู่ในวงกลม หรืออยู่นอกรูปทั้งสอง ไม่ถูก', 'ดาวอยู่ทางขวาในสี่เหลี่ยมเท่านั้น ตอบข้อ 2'],
+        transferIds: ['sp-star-none-t'],
+      },
+    },
+    {
+      id: 'g-cross-road', type: 'main', subject: 'general', skillIds: ['safety'], familyId: 'safety-road', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'เมื่อต้องข้ามถนน หนูควรทำอย่างไร' },
+      options: [{ id: 'a', text: 'วิ่งข้ามทันที' }, { id: 'b', text: 'มองซ้ายขวา แล้วข้ามตรงทางม้าลาย' }, { id: 'c', text: 'ข้ามตรงที่มีรถจอดบัง' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องความปลอดภัยบนถนน',
+      review: {
+        summary: 'มองก่อนข้าม และข้ามตรงทางม้าลาย',
+        hints: ['ก่อนข้าม ต้องดูอะไรก่อน'],
+        steps: ['วิ่งข้ามทันที หรือข้ามตรงที่รถบังตา อันตรายมาก', 'ต้องมองซ้ายขวาให้ปลอดภัย แล้วข้ามตรงทางม้าลาย ตอบข้อ 2'],
+        transferIds: ['g-red-man-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- โจทย์ลองใหม่ (เปิดในหน้าเฉลย ไม่นับเป็นข้อสอบ)
+    {
+      id: 'th-umbrella-what-t', type: 'transfer', subject: 'thai', skillIds: ['listening-comprehension'], familyId: 'story-what', difficulty: 1,
+      sourceId: SRC, ...R, section: LISTEN,
+      prompt: { text: 'ตอนเช้า น้องเมฆเห็นร่มสีเขียวตกอยู่ที่หน้าประตูโรงเรียน น้องเมฆเห็นอะไรตกอยู่' },
+      options: [{ id: 'a', text: 'หมวกสีแดง' }, { id: 'b', text: 'ร่มสีเขียว' }, { id: 'c', text: 'กระเป๋าสีฟ้า' }],
+      correctOptionId: 'b',
+      narration: 'ฟังเรื่องได้',
+      review: { summary: 'น้องเมฆเห็นร่มสีเขียวตกอยู่', hints: [], steps: ['เรื่องบอกว่า น้องเมฆเห็นร่มสีเขียวตกอยู่ที่หน้าประตูโรงเรียน', 'จึงเป็นร่มสีเขียว'] },
+    },
+    {
+      id: 'm-save-money-t', type: 'transfer', subject: 'math', skillIds: ['story-number'], familyId: 'story-number', difficulty: 1,
+      sourceId: SRC, ...R, section: LISTEN,
+      prompt: { text: 'น้องฟ้าเก็บเงินได้ 20 บาท วันต่อมาเก็บได้อีก 30 บาท น้องฟ้าเก็บเงินได้รวมกี่บาท' },
+      options: [{ id: 'a', text: '10 บาท' }, { id: 'b', text: '50 บาท' }, { id: 'c', text: '60 บาท' }],
+      correctOptionId: 'b',
+      narration: 'ฟังเรื่องได้',
+      review: { summary: '20 บวก 30 เท่ากับ 50 บาท', hints: [], steps: ['เก็บได้วันแรก 20 บาท วันต่อมา 30 บาท', 'รวมกัน 20 บวก 30 เท่ากับ 50 บาท'], column: { a: 20, op: '+', b: 30 } },
+    },
+    {
+      id: 'g-found-umbrella-t', type: 'transfer', subject: 'general', skillIds: ['honesty'], familyId: 'honesty', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'น้องเมฆเก็บร่มที่มีคนลืมไว้ในห้องเรียนได้ น้องเมฆควรทำอย่างไร' },
+      options: [{ id: 'a', text: 'เอากลับบ้านเป็นของตัวเอง' }, { id: 'b', text: 'ซ่อนไว้ใต้โต๊ะ' }, { id: 'c', text: 'ส่งให้คุณครู เพื่อหาเจ้าของ' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ของที่ไม่ใช่ของเรา ต้องส่งคืนเจ้าของ', hints: [], steps: ['ร่มที่เก็บได้ไม่ใช่ของเรา จะเอาไปหรือซ่อนไม่ได้', 'ส่งให้คุณครูช่วยหาเจ้าของ'] },
+    },
+    {
+      id: 'th-word-kind-t', type: 'transfer', subject: 'thai', skillIds: ['word-meaning'], familyId: 'word-in-story', difficulty: 3,
+      sourceId: SRC, ...R,
+      prompt: { text: 'คำว่า ใจดี หมายความว่าอย่างไร' },
+      options: [{ id: 'a', text: 'ชอบช่วยเหลือและแบ่งปันผู้อื่น' }, { id: 'b', text: 'ชอบทะเลาะกับเพื่อน' }, { id: 'c', text: 'ชอบนอนตลอดวัน' }],
+      correctOptionId: 'a',
+      narration: 'ฟังตัวเลือกได้',
+      review: { summary: 'ใจดี คือมีน้ำใจ ช่วยเหลือผู้อื่น', hints: [], steps: ['คนใจดีชอบช่วยเหลือและแบ่งของให้คนอื่น', 'ไม่ทะเลาะและไม่เห็นแก่ตัว'] },
+    },
+    {
+      id: 'r-people-market-t', type: 'transfer', subject: 'reasoning', skillIds: ['story-count'], familyId: 'story-count', difficulty: 3,
+      sourceId: SRC, ...R, section: LISTEN,
+      prompt: { text: 'แม่พาน้องไปตลาด เจอคุณป้าข้างบ้านและลุงที่ขายผัก ในเรื่องนี้มีคนทั้งหมดกี่คน' },
+      options: [{ id: 'a', text: '2 คน' }, { id: 'b', text: '3 คน' }, { id: 'c', text: '4 คน' }],
+      correctOptionId: 'c',
+      narration: 'ฟังเรื่องได้',
+      review: { summary: 'แม่ น้อง คุณป้า และลุง รวม 4 คน', hints: [], steps: ['นับทีละคน แม่ หนึ่ง น้อง สอง คุณป้า สาม ลุง สี่', 'รวมเป็น 4 คน'] },
+    },
+    {
+      id: 'g-place-school-t', type: 'transfer', subject: 'general', skillIds: ['community-places'], familyId: 'board-places', difficulty: 1,
+      sourceId: SRC, ...R, section: PLACES,
+      prompt: { text: 'ข้อใดเป็นสถานที่ที่เด็กๆ ไปเรียนหนังสือ' },
+      visual: BOARD,
+      options: [{ id: 'a', text: 'ตลาด' }, { id: 'b', text: 'โรงเรียน' }, { id: 'c', text: 'วัด' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'เด็กๆ เรียนหนังสือที่โรงเรียน', hints: [], steps: ['ตลาดเป็นที่ซื้อขายของ วัดเป็นที่ทำบุญ', 'โรงเรียนเป็นที่เรียนหนังสือ'] },
+    },
+    {
+      id: 'sc-vehicle-air-t', type: 'transfer', subject: 'science', skillIds: ['vehicle-route'], familyId: 'vehicle-route', difficulty: 1,
+      sourceId: SRC, ...R, section: PLACES,
+      prompt: { text: 'ข้อใดเป็นยานพาหนะที่เดินทางไปในอากาศ' },
+      visual: BOARD,
+      options: [{ id: 'a', text: 'เรือ' }, { id: 'b', text: 'รถพยาบาล' }, { id: 'c', text: 'เครื่องบิน' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'เครื่องบินบินในอากาศ', hints: [], steps: ['เรือแล่นบนน้ำ รถพยาบาลวิ่งบนถนน', 'เครื่องบินบินไปในอากาศ'] },
+    },
+    {
+      id: 'm-place-count-t', type: 'transfer', subject: 'math', skillIds: ['classify-count'], familyId: 'board-count', difficulty: 2,
+      sourceId: SRC, ...R, section: PLACES,
+      prompt: { text: 'ในภาพมีสถานที่ที่คนสร้างขึ้นกี่แห่ง' },
+      visual: BOARD,
+      options: [{ id: 'a', text: '3 แห่ง' }, { id: 'b', text: '4 แห่ง' }, { id: 'c', text: '6 แห่ง' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'โรงเรียน วัด ตลาด สนามเด็กเล่น รวม 4 แห่ง', hints: [], steps: ['สถานที่ที่คนสร้างมี โรงเรียน วัด ตลาด และสนามเด็กเล่น', 'ทะเลและภูเขาเกิดเองตามธรรมชาติ จึงมี 4 แห่ง'] },
+    },
+    {
+      id: 'r-vehicle-road-t', type: 'transfer', subject: 'reasoning', skillIds: ['classify'], familyId: 'board-classify', difficulty: 2,
+      sourceId: SRC, ...R, section: PLACES,
+      prompt: { text: 'ยานพาหนะสองอย่างใดที่วิ่งบนถนนทั้งสองอย่าง' },
+      visual: BOARD,
+      options: [{ id: 'a', text: 'เรือ, เครื่องบิน' }, { id: 'b', text: 'เรือ, รถไฟ' }, { id: 'c', text: 'รถโดยสาร, รถพยาบาล' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'รถโดยสารและรถพยาบาลวิ่งบนถนน', hints: [], steps: ['เรือแล่นบนน้ำ เครื่องบินบินในอากาศ รถไฟวิ่งบนราง', 'รถโดยสารและรถพยาบาลวิ่งบนถนน'] },
+    },
+    {
+      id: 'th-place-made-t', type: 'transfer', subject: 'thai', skillIds: ['classify-words'], familyId: 'board-classify', difficulty: 2,
+      sourceId: SRC, ...R, section: PLACES,
+      prompt: { text: 'ข้อใดเป็นสถานที่ที่คนสร้างขึ้นทั้งสองอย่าง' },
+      visual: BOARD,
+      options: [{ id: 'a', text: 'ทะเล, ภูเขา' }, { id: 'b', text: 'โรงเรียน, ตลาด' }, { id: 'c', text: 'ภูเขา, วัด' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'โรงเรียนและตลาดคนสร้างขึ้น', hints: [], steps: ['ทะเลและภูเขาเกิดเองตามธรรมชาติ', 'โรงเรียนและตลาดคนสร้างขึ้นทั้งคู่'] },
+    },
+    {
+      id: 'm-banana-picture-t', type: 'transfer', subject: 'math', skillIds: ['multi-step-picture'], familyId: 'picture-answer', difficulty: 3,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'มีกล้วย 6 ลูก ลิงกินไป 3 ลูก แล้วแม่วางกล้วยเพิ่มอีก 4 ลูก ตอนนี้มีกล้วยกี่ลูก' },
+      visual: row('pic-banana', 6),
+      options: [cnt('a', 'pic-banana', 5, 'กล้วย 5 ลูก'), cnt('b', 'pic-banana', 7, 'กล้วย 7 ลูก'), cnt('c', 'pic-banana', 10, 'กล้วย 10 ลูก')],
+      correctOptionId: 'b',
+      narration: 'อ่านจำนวนของรูปในตัวเลือกได้',
+      review: { summary: '6 ลบ 3 เหลือ 3 บวก 4 เป็น 7 ลูก', hints: [], steps: ['ลิงกินไป 6 ลบ 3 เท่ากับ 3 ลูก', 'แม่วางเพิ่ม 3 บวก 4 เท่ากับ 7 ลูก'], column: { a: 3, op: '+', b: 4 } },
+    },
+    {
+      id: 'r-corner-missing-2-t', type: 'transfer', subject: 'reasoning', skillIds: ['grid-missing'], familyId: 'grid-missing', difficulty: 2,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'ตารางนี้มีภาพสี่ภาพ ภาพในช่อง ? ควรเป็นภาพใด' },
+      visual: { type: 'figure-grid', rows: [[{ half: 'tl' }, { half: 'bl' }], [{ half: 'tr' }, '?']] },
+      options: [fig('a', { half: 'tl' }), fig('b', { half: 'br' }), fig('c', { half: 'bl' }), fig('d', { half: 'tr' })],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'สี่มุมต้องครบ ขาดมุมล่างขวา', hints: [], steps: ['ในตารางมีสีเข้มที่มุมบนซ้าย ล่างซ้าย และบนขวาแล้ว', 'ยังขาดมุมล่างขวา'] },
+    },
+    {
+      id: 'r-fill-missing-t', type: 'transfer', subject: 'reasoning', skillIds: ['grid-missing'], familyId: 'grid-missing', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'ในแต่ละแถวและแต่ละแถวตั้ง มีสามเหลี่ยมครบสามแบบ คือ ว่าง มีจุด และทึบ ช่อง ? ควรเป็นสามเหลี่ยมแบบใด' },
+      visual: {
+        type: 'figure-grid',
+        rows: [
+          [{ shape: 'triangle', fill: 'solid' }, { shape: 'triangle', fill: 'empty' }, { shape: 'triangle', fill: 'dots' }],
+          [{ shape: 'triangle', fill: 'empty' }, { shape: 'triangle', fill: 'dots' }, { shape: 'triangle', fill: 'solid' }],
+          [{ shape: 'triangle', fill: 'dots' }, { shape: 'triangle', fill: 'solid' }, '?'],
+        ],
+      },
+      options: [fig('a', { shape: 'triangle', fill: 'solid' }), fig('b', { shape: 'triangle', fill: 'empty' }), fig('c', { shape: 'triangle', fill: 'dots' }), fig('d', { shape: 'circle', fill: 'empty' })],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'แถวล่างมีสามเหลี่ยมมีจุดกับทึบแล้ว ขาดสามเหลี่ยมว่าง', hints: [], steps: ['แถวล่างมีสามเหลี่ยมมีจุดและสามเหลี่ยมทึบแล้ว', 'ยังขาดสามเหลี่ยมว่าง'] },
+    },
+    {
+      id: 'sp-star-none-t', type: 'transfer', subject: 'spatial', skillIds: ['region-overlap'], familyId: 'star-region', difficulty: 3,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ดาวอยู่นอกวงกลมและอยู่นอกสี่เหลี่ยม ภาพใดถูกต้อง' },
+      options: [venn('a', 'circle'), venn('b', 'both'), venn('c', 'none'), venn('d', 'square')],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'ดาวอยู่ห่างจากทั้งสองรูป', hints: [], steps: ['ข้อที่ดาวอยู่ในวงกลมหรือในสี่เหลี่ยมไม่ถูก', 'ดาวอยู่มุมบนซ้าย นอกทั้งสองรูป'] },
+    },
+    {
+      id: 'g-red-man-t', type: 'transfer', subject: 'general', skillIds: ['safety'], familyId: 'safety-road', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ไฟสัญญาณสำหรับคนข้ามถนนเป็นรูปคนสีแดง หนูควรทำอย่างไร' },
+      options: [{ id: 'a', text: 'วิ่งข้ามเร็วๆ' }, { id: 'b', text: 'รอจนไฟเป็นรูปคนสีเขียว' }, { id: 'c', text: 'ให้รถหยุดให้หนูข้าม' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'สีแดงคือให้หยุดรอ', hints: [], steps: ['ไฟรูปคนสีแดงบอกว่าห้ามข้าม', 'ต้องรอจนเป็นสีเขียวจึงข้ามได้'] },
+    },
+  ],
+};

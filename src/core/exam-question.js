@@ -5,6 +5,19 @@
  */
 import { OPTION_LABELS, SUBJECTS, promptSpeech, optionSpeech, sectionOf, stimulusOf, stimulusSpeech } from '../content/sets/index.js';
 
+const copyFigure = (x) => (x === '?' ? '?' : { ...x });
+
+/** ตัวเลือกที่วาดด้วยโค้ด: คัดลอกทีละชนิดที่รู้จัก */
+function copySvg(svg) {
+  if (!svg) return null;
+  if (svg.fold) return { fold: svg.fold };
+  if (svg.cut) return { cut: svg.cut };
+  if (svg.figure) return { figure: { ...svg.figure } };
+  if (svg.count) return { count: { asset: svg.count.asset, n: svg.count.n } };
+  if (svg.venn) return { venn: svg.venn };
+  return null;
+}
+
 /** คัดลอกภาพประกอบทีละชนิด (ภาพเหล่านี้ไม่มีเฉลยอยู่แล้ว แต่ไม่ส่งฟิลด์ที่ไม่รู้จักต่อ) */
 export function copyVisual(visual) {
   if (!visual) return null;
@@ -27,7 +40,8 @@ export function copyVisual(visual) {
     case 'stack': return { type: 'stack', columns: visual.columns.slice() };
     case 'grid': return { type: 'grid', rows: visual.rows.map((r) => r.slice()) };
     case 'board': return { type: 'board', items: visual.items.slice() };
-    case 'figure-row': return { type: 'figure-row', items: visual.items.map((x) => (x === '?' ? '?' : { ...x })) };
+    case 'figure-row': return { type: 'figure-row', items: visual.items.map(copyFigure) };
+    case 'figure-grid': return { type: 'figure-grid', rows: visual.rows.map((r) => r.map(copyFigure)) };
     default: return null;
   }
 }
@@ -45,7 +59,7 @@ export function toExamQuestion(set, item, order = item.options.map((option) => o
       label: OPTION_LABELS[index],
       text: option.text || null,
       image: option.image || null,
-      svg: option.svg?.fold ? { fold: option.svg.fold } : option.svg?.cut ? { cut: option.svg.cut } : option.svg?.figure ? { figure: { ...option.svg.figure } } : null,
+      svg: copySvg(option.svg),
       speech: optionSpeech(option, index),
     };
   });
