@@ -47,6 +47,6 @@ push เข้า `main` แล้ว GitHub Actions จะทดสอบแล
 
 ## เอกสาร
 
-- [แผนหลัก](PROJECT-PLAN.md) · [งานสำหรับ AI ถัดไป](AI-HANDOFF.md) · [ข้อตกลง](docs/DECISIONS.md)
+- [แผนหลัก](PROJECT-PLAN.md) · [งานสำหรับ AI ถัดไป](AI-HANDOFF.md) · [คู่มือเพิ่มชุดข้อสอบ](docs/ADDING-A-SET.md) · [ข้อตกลง](docs/DECISIONS.md)
 - [สถาปัตยกรรม](docs/ARCHITECTURE.md) · [เนื้อหา](docs/CONTENT-SPEC.md) · [แหล่งอ้างอิง](docs/RESEARCH.md)
 - [ภาพและเสียง](docs/ASSET-MIGRATION.md) · [ตรวจเสียง](docs/VOICE-REVIEW.md) · [แผนทดสอบ](docs/TEST-PLAN.md) · [ผลสำรวจเกมเดิม](AUDIT-GAME-LILLY.md)

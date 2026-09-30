@@ -9,14 +9,14 @@
 
 The user's latest pasted specification and approved plan supersede the earlier draft. The missing attachment named Lily_Exam_Game_Work_Handoff.md is NOT a blocker.
 
-## Current State (2026-09-26)
+## Current State (2026-09-30) — read docs/ADDING-A-SET.md next
 
-- Working directory: C:\Users\KANASIT\Documents\Codex\little-exam-adventure. Public repo `kanasit123-dotcom/little-exam-adventure`, GitHub Pages from `main` via `.github/workflows/pages.yml`.
-- The first slice is implemented: set 1 (12 main + 12 transfer items, six subjects, 5+5+2 blocks), exam/confirm/review/break/reward/parent screens, pure reducer + versioned storage, allow-list exam projection, one-owner Web Audio voice engine with recorded Premwadee clips at two speeds, Lilly-style column helper on the kitchen's fixed-problem steps.
-- Content follows the format of the third-party compilation in docs/RESEARCH.md: section banners, shared stories, options 1 2 3. Everything is newly authored.
-- Pending gates: real iPad Safari audio, parent voice listening (docs/VOICE-REVIEW.md), content review of every item (`reviewStatus: 'draft'`).
-- Not built yet: offline/PWA, 36-item library with adaptive selection, full dashboard, garden.
-- Where to change things: new set → `src/content/sets/`; new visual type → `src/visuals/visuals.js` + validator; spoken UI phrases → `src/content/copy.js`, then `npm run voice`.
+- Working directory: C:\Users\KANASIT\Documents\Codex\little-exam-adventure. Public repo `kanasit123-dotcom/little-exam-adventure`, GitHub Pages from `main`; deploy with `gh workflow run pages.yml --ref main` (pushes alone do not trigger it).
+- 14 sets are live. Sets 1-11: 12 questions (5+5+2). Sets 12-14: the newer 15-question format (one five-question story, a picture board, then single questions; picture-only options may have four choices). Parent rule: do not change sets 1-11.
+- Also live: mock exam (30 questions drawn from every set, stories kept whole), mistakes practice, growable friend stickers, reopenable reviews, per-set progress, recorded Premwadee voice at two speeds with phrase pauses (commas between phrases, approved by the parent on iPhone).
+- Pictures: Gemini sheets A-G cut into `public/assets/pictures/`, registered in `src/core/assets.js`. Code-drawn visuals in `src/visuals/visuals.js` (grid, board, figure-row, etc.).
+- Pending gates: parent review of sets 2-14 (`reviewStatus: 'draft'`), real iPad Safari test.
+- How to add a set, gotchas, and the ranked list of next tasks: **docs/ADDING-A-SET.md**.
 
 The assignment below was the brief for that slice. Keep its constraints for later work.
 
