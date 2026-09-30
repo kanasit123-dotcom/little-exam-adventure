@@ -76,7 +76,7 @@ export function mountReview(root, ctx) {
   }
 
   function optionsHTML(q, qid, chosen, correctId) {
-    return `<div class="lx-options lx-options-review${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}">
+    return `<div class="lx-options lx-options-review${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}${q.compact ? ' lx-options-short' : ''}">
       ${q.options.map((option) => {
         const isCorrect = option.key === correctId;
         const isChosen = option.key === chosen;
@@ -123,7 +123,7 @@ export function mountReview(root, ctx) {
       <div class="lx-section-banner">${esc(sectionOf(set, it))}</div>
       <div class="lx-qgrid${hasSide ? ' lx-has-side' : ''}">
         <div class="lx-qleft">
-          ${stimulus ? `
+          ${stimulus && !stimulus.textHidden ? `
             <section class="lx-stimulus lx-stimulus-review" aria-label="เรื่อง">
               <div class="lx-stim-head" data-stim-toggle>
                 <span class="lx-stim-ico" aria-hidden="true">📖</span>
@@ -131,8 +131,8 @@ export function mountReview(root, ctx) {
               </div>
               <button class="lx-listen lx-stim-say" data-say="stimulus" type="button" aria-label="ฟังเรื่อง"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังเรื่อง</span></button>
               <button class="lx-stim-close" data-stim-close type="button">ปิด ✕</button>
-            </section>
-            ${stimulus.visual ? `<div class="lx-vis lx-vis-stim">${renderVisual(stimulus.visual)}</div>` : ''}` : ''}
+            </section>` : ''}
+          ${stimulus?.visual ? `<div class="lx-vis lx-vis-stim">${renderVisual(stimulus.visual)}</div>` : ''}
           ${it.visual ? `<div class="lx-vis lx-vis-q">${renderVisual(it.visual)}</div>` : ''}
         </div>
         <div class="lx-qright">
@@ -266,7 +266,7 @@ export function mountReview(root, ctx) {
       <div class="lx-question"><p class="lx-qtext">${esc(t.prompt.text).replace(/\n/g, '<br>')}</p></div>
       <button class="lx-listen lx-listen-main" data-say="tprompt" type="button">🔊 ฟังโจทย์</button>
       ${renderVisual(t.visual)}
-      <div class="lx-options${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}" id="lx-topts">
+      <div class="lx-options${q.options.some((o) => o.image || o.svg) ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}${q.compact ? ' lx-options-short' : ''}" id="lx-topts">
         ${q.options.map((option, i) => `<div class="lx-opt">
           <button class="lx-pick" data-ti="${i}" type="button"><span class="lx-num">${esc(option.label)}</span>${option.image ? picture(option.image, 'lx-opt-pic') : ''}${option.svg ? renderOptionSvg(option.svg) : ''}${option.text ? `<span class="lx-opt-text">${esc(option.text)}</span>` : ''}</button>
           <button class="lx-say" data-say="topt-${i}" type="button" aria-label="ฟังข้อ ${esc(option.label)}">🔊</button></div>`).join('')}

@@ -35,6 +35,23 @@ const PICTURES = {
   grandpa: 'ผู้ชายสูงอายุ', grandma: 'ผู้หญิงสูงอายุ', father: 'ผู้ชาย', mother: 'ผู้หญิง',
   'coconut-tree': 'ต้นมะพร้าว', 'banana-tree': 'ต้นกล้วย', 'mango-tree': 'ต้นมะม่วง', bamboo: 'ต้นไผ่',
   knife: 'มีด', mortar: 'ครกกับสาก', pot: 'หม้อ', plate: 'จาน',
+  // แผ่น H (design/PROMPTS-gemini-8.md) — ภาพเรื่องราว 4 ภาพ x 4 เรื่อง อยู่ในกรอบมุมมน (ชื่อกลางๆ ไม่บอกลำดับ)
+  'seq-plant-1': 'ภาพเหตุการณ์',
+  'seq-plant-2': 'ภาพเหตุการณ์',
+  'seq-plant-3': 'ภาพเหตุการณ์',
+  'seq-plant-4': 'ภาพเหตุการณ์',
+  'seq-teeth-1': 'ภาพเหตุการณ์',
+  'seq-teeth-2': 'ภาพเหตุการณ์',
+  'seq-teeth-3': 'ภาพเหตุการณ์',
+  'seq-teeth-4': 'ภาพเหตุการณ์',
+  'seq-sandwich-1': 'ภาพเหตุการณ์',
+  'seq-sandwich-2': 'ภาพเหตุการณ์',
+  'seq-sandwich-3': 'ภาพเหตุการณ์',
+  'seq-sandwich-4': 'ภาพเหตุการณ์',
+  'seq-road-1': 'ภาพเหตุการณ์',
+  'seq-road-2': 'ภาพเหตุการณ์',
+  'seq-road-3': 'ภาพเหตุการณ์',
+  'seq-road-4': 'ภาพเหตุการณ์',
 };
 export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',

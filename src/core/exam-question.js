@@ -68,10 +68,11 @@ export function toExamQuestion(set, item, order = item.options.map((option) => o
     subject: item.subject,
     subjectName: SUBJECTS[item.subject],
     section: sectionOf(set, item),
-    stimulus: stimulus ? { id: item.stimulus, text: stimulus.text, speech: stimulusSpeech(stimulus), visual: copyVisual(stimulus.visual) } : null,
+    stimulus: stimulus ? { id: item.stimulus, text: stimulus.text, speech: stimulusSpeech(stimulus), visual: copyVisual(stimulus.visual), hidden: !!stimulus.textHidden } : null,
     promptText: item.prompt.text,
     promptSpeech: promptSpeech(item),
     visual: copyVisual(item.visual),
+    compact: !!item.compact,
     options,
   };
 }

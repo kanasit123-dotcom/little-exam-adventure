@@ -96,7 +96,7 @@ export function mountExam(root, ctx) {
       <div class="lx-section-banner">${esc(q.section)}</div>
       <div class="lx-qgrid${hasSide ? ' lx-has-side' : ''}">
         <div class="lx-qleft">
-          ${q.stimulus ? `
+          ${q.stimulus && !q.stimulus.hidden ? `
             <section class="lx-stimulus" aria-label="เรื่อง">
               <div class="lx-stim-head" data-stim-toggle>
                 <span class="lx-stim-ico" aria-hidden="true">📖</span>
@@ -104,8 +104,8 @@ export function mountExam(root, ctx) {
               </div>
               <button class="lx-listen lx-stim-say" data-say="stimulus" type="button" aria-label="ฟังเรื่องอีกครั้ง"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังเรื่องอีกครั้ง</span></button>
               <button class="lx-stim-close" data-stim-close type="button">ปิด ✕</button>
-            </section>
-            ${q.stimulus.visual ? `<div class="lx-vis lx-vis-stim">${renderVisual(q.stimulus.visual)}</div>` : ''}` : ''}
+            </section>` : ''}
+          ${q.stimulus?.visual ? `<div class="lx-vis lx-vis-stim">${renderVisual(q.stimulus.visual)}</div>` : ''}
           ${q.visual ? `<div class="lx-vis lx-vis-q">${renderVisual(q.visual)}</div>` : ''}
         </div>
         <div class="lx-qright">
@@ -114,7 +114,7 @@ export function mountExam(root, ctx) {
             <p class="lx-qtext">${esc(q.promptText).replace(/\n/g, '<br>')}</p>
             <button class="lx-listen lx-listen-main" data-say="prompt" type="button" aria-label="ฟังโจทย์อีกครั้ง"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังโจทย์อีกครั้ง</span></button>
           </div>
-          <div class="lx-options${hasImages ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}" role="group" aria-label="ตัวเลือก">
+          <div class="lx-options${hasImages ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}${q.compact ? ' lx-options-short' : ''}" role="group" aria-label="ตัวเลือก">
             ${q.options.map((option, i) => `
               <div class="lx-opt">
                 <button class="lx-pick" data-i="${i}" type="button" aria-pressed="false">

@@ -848,3 +848,28 @@ body.lx-plain .lx-buddy { display: none; }
 .lx-review .lx-pick.lx-static:has(.lx-count) .lx-count-pic { max-width: 28px; }
 .lx-review .lx-options-pics .lx-pick.lx-static:has(.lx-count) .lx-tag { position: static; transform: none; margin-left: auto; font-size: .8rem; line-height: 1.5; }
 .lx-review .lx-options-pics .lx-pick.lx-static:has(.lx-count) .lx-tag + .lx-tag { margin-left: 4px; }
+
+/* ตัวเลือกสั้นๆ (เช่น ลำดับ "ค ก ง ข", "ภาพ ก", "ภาพที่ 3") เรียงเป็นการ์ดสามช่องในแถวเดียว ประหยัดที่ให้ภาพเรื่องราวใหญ่ขึ้น
+   ใช้เมื่อข้อนั้นตั้ง compact: true เท่านั้น */
+.lx-compact .lx-options.lx-options-short { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lx-compact .lx-options-short:not(.lx-options-pics) .lx-pick { flex-direction: column; justify-content: center; text-align: center; min-height: 72px; padding: 34px 6px 8px; font-size: clamp(1.15rem, 3.4vw, 1.5rem); }
+.lx-compact .lx-options-short:not(.lx-options-pics) .lx-pick .lx-num { left: 10px; top: 4px; transform: none; }
+.lx-compact .lx-options-short:not(.lx-options-pics) .lx-opt .lx-say { top: 2px; right: 2px; transform: none; }
+.lx-compact .lx-options-short .lx-opt-text { letter-spacing: .06em; }
+/* ภาพเรื่องราวที่ติดป้าย ก ข ค ง ใหญ่ขึ้นเมื่อใช้ตัวเลือกสั้น (เด็กต้องเห็นท่าทางในภาพ) */
+.lx-compact .lx-qgrid:has(.lx-options-short) .lx-row-labeled .lx-row-pic, .lx-compact .lx-qgrid:has(.lx-options-short) .lx-row-cell .lx-row-pic { max-width: clamp(76px, 17dvh, 150px); }
+.lx-compact .lx-qgrid:has(.lx-options-short) .lx-row-labeled .lx-row-cell { max-width: none; }
+/* หน้าเฉลย: การ์ดตัวเลือกสั้นมีป้ายหนูตอบ/คำตอบที่ถูกอยู่ใต้ข้อความ */
+.lx-review.lx-compact .lx-options-short:not(.lx-options-pics) .lx-pick.lx-static { flex-direction: column; justify-content: flex-start; text-align: center; min-height: 92px; padding: 30px 6px 28px; }
+.lx-review.lx-compact .lx-options-short:not(.lx-options-pics) .lx-pick.lx-static .lx-num { left: 10px; top: 4px; transform: none; }
+.lx-review.lx-compact .lx-options-short:not(.lx-options-pics) .lx-pick.lx-static .lx-tag { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); margin-left: 0; }
+.lx-review.lx-compact .lx-options-short:not(.lx-options-pics) .lx-pick.lx-static .lx-tag-mine { top: -10px; bottom: auto; }
+
+
+/* หน้าเฉลยบนจอแคบ: ภาพเรื่องราว 4 ภาพเรียงแถวเดียว (ไม่ใช่ 2x2) เหลือที่ให้คำอธิบาย */
+@media (max-width: 520px) {
+  .lx-review .lx-row-items.lx-row-labeled { display: flex; }
+  .lx-review.lx-compact .lx-qgrid:has(.lx-options-short) .lx-row-labeled .lx-row-pic, .lx-review.lx-compact .lx-qgrid:has(.lx-options-short) .lx-row-cell .lx-row-pic { max-width: 100%; }
+  .lx-review .lx-row-labeled .lx-row-cell { max-width: none; width: auto; }
+  .lx-review .lx-row-label { font-size: 1.05rem; }
+}
