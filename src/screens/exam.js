@@ -25,18 +25,19 @@ export function mountExam(root, ctx) {
   let shownQid = null;
 
   root.innerHTML = `
-    <div class="lx-screen lx-exam">
+    <div class="lx-screen lx-exam lx-compact">
       <header class="lx-bar">
-        <button class="lx-btn lx-btn-small lx-btn-ghost" id="lx-pause" type="button">⏸ พัก</button>
-        ${session().submitted.length ? '<button class="lx-btn lx-btn-small lx-btn-soft" id="lx-see-review" type="button">📖 เฉลย</button>' : ''}
+        <button class="lx-btn lx-btn-small lx-btn-ghost" id="lx-pause" type="button" aria-label="พัก"><span class="lx-ico">⏸</span><span class="lx-lbl"> พัก</span></button>
+        ${session().submitted.length ? '<button class="lx-btn lx-btn-small lx-btn-soft" id="lx-see-review" type="button" aria-label="ดูเฉลย"><span class="lx-ico">📖</span><span class="lx-lbl"> เฉลย</span></button>' : ''}
         <div class="lx-bar-title" id="lx-block-title"></div>
         ${buddyHTML(store.state)}
         <div class="lx-dots" id="lx-dots"></div>
       </header>
       <main class="lx-paper" id="lx-paper"></main>
       <footer class="lx-nav">
-        <button class="lx-btn lx-btn-ghost" id="lx-prev" type="button">◀ ข้อก่อน</button>
         <p class="lx-nav-note" id="lx-note" aria-live="polite"></p>
+        <button class="lx-btn lx-btn-ghost" id="lx-prev" type="button" aria-label="ข้อก่อน"><span class="lx-ico">◀</span><span class="lx-lbl"> ข้อก่อน</span></button>
+        <button class="lx-unsure" id="lx-unsure" type="button" aria-pressed="false">ยังไม่แน่ใจ</button>
         <button class="lx-btn lx-btn-go" id="lx-next" type="button">ข้อต่อไป ▶</button>
       </footer>
     </div>`;
@@ -78,7 +79,7 @@ export function mountExam(root, ctx) {
       button.setAttribute('aria-pressed', String(picked));
       button.classList.toggle('lx-picked', picked);
     });
-    const unsure = $(paper, '#lx-unsure');
+    const unsure = $(root, '#lx-unsure');
     unsure.setAttribute('aria-pressed', String(chosen === UNSURE));
     unsure.classList.toggle('lx-picked', chosen === UNSURE);
     renderBar();
@@ -90,33 +91,43 @@ export function mountExam(root, ctx) {
     shownQid = q.id;
     const number = s.questionIds.indexOf(q.id) + 1;
     const hasImages = q.options.some((option) => option.image || option.svg);
+    const hasSide = !!(q.stimulus || q.visual);
     paper.innerHTML = `
       <div class="lx-section-banner">${esc(q.section)}</div>
-      ${q.stimulus ? `
-        <section class="lx-stimulus" aria-label="เรื่อง">
-          <p class="lx-stim-text">${esc(q.stimulus.text)}</p>
-          ${renderVisual(q.stimulus.visual)}
-          <button class="lx-listen" data-say="stimulus" type="button">🔊 ฟังเรื่องอีกครั้ง</button>
-        </section>` : ''}
-      <div class="lx-question">
-        <span class="lx-qnum">${number}.</span>
-        <p class="lx-qtext">${esc(q.promptText).replace(/\n/g, '<br>')}</p>
-      </div>
-      <button class="lx-listen lx-listen-main" data-say="prompt" type="button">🔊 ฟังโจทย์อีกครั้ง</button>
-      ${renderVisual(q.visual)}
-      <div class="lx-options${hasImages ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}" role="group" aria-label="ตัวเลือก">
-        ${q.options.map((option, i) => `
-          <div class="lx-opt">
-            <button class="lx-pick" data-i="${i}" type="button" aria-pressed="false">
-              <span class="lx-num">${esc(option.label)}</span>
-              ${option.image ? picture(option.image, 'lx-opt-pic') : ''}
-              ${option.svg ? renderOptionSvg(option.svg) : ''}
-              ${option.text ? `<span class="lx-opt-text">${esc(option.text)}</span>` : ''}
-            </button>
-            <button class="lx-say" data-say="opt-${i}" data-i="${i}" type="button" aria-label="ฟังข้อ ${esc(option.label)}">🔊</button>
-          </div>`).join('')}
-      </div>
-      <button class="lx-unsure" id="lx-unsure" type="button" aria-pressed="false">ยังไม่แน่ใจ</button>`;
+      <div class="lx-qgrid${hasSide ? ' lx-has-side' : ''}">
+        <div class="lx-qleft">
+          ${q.stimulus ? `
+            <section class="lx-stimulus" aria-label="เรื่อง">
+              <div class="lx-stim-head" data-stim-toggle>
+                <span class="lx-stim-ico" aria-hidden="true">📖</span>
+                <span class="lx-stim-text">${esc(q.stimulus.text)}</span>
+              </div>
+              <button class="lx-listen lx-stim-say" data-say="stimulus" type="button" aria-label="ฟังเรื่องอีกครั้ง"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังเรื่องอีกครั้ง</span></button>
+              <button class="lx-stim-close" data-stim-close type="button">ปิด ✕</button>
+            </section>
+            ${q.stimulus.visual ? `<div class="lx-vis lx-vis-stim">${renderVisual(q.stimulus.visual)}</div>` : ''}` : ''}
+          ${q.visual ? `<div class="lx-vis lx-vis-q">${renderVisual(q.visual)}</div>` : ''}
+        </div>
+        <div class="lx-qright">
+          <div class="lx-question">
+            <span class="lx-qnum">${number}.</span>
+            <p class="lx-qtext">${esc(q.promptText).replace(/\n/g, '<br>')}</p>
+            <button class="lx-listen lx-listen-main" data-say="prompt" type="button" aria-label="ฟังโจทย์อีกครั้ง"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังโจทย์อีกครั้ง</span></button>
+          </div>
+          <div class="lx-options${hasImages ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}" role="group" aria-label="ตัวเลือก">
+            ${q.options.map((option, i) => `
+              <div class="lx-opt">
+                <button class="lx-pick" data-i="${i}" type="button" aria-pressed="false">
+                  <span class="lx-num">${esc(option.label)}</span>
+                  ${option.image ? picture(option.image, 'lx-opt-pic') : ''}
+                  ${option.svg ? renderOptionSvg(option.svg) : ''}
+                  ${option.text ? `<span class="lx-opt-text">${esc(option.text)}</span>` : ''}
+                </button>
+                <button class="lx-say" data-say="opt-${i}" data-i="${i}" type="button" aria-label="ฟังข้อ ${esc(option.label)}">🔊</button>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
     $(root, '#lx-note').textContent = '';
     paper.scrollTop = 0;
     window.scrollTo?.(0, 0);
@@ -181,19 +192,25 @@ export function mountExam(root, ctx) {
   on(paper, 'click', (event) => {
     const say = event.target.closest('[data-say]');
     if (say) { listen(say.dataset.say); return; }
+    // จอแคบ: เรื่องย่อเหลือบรรทัดเดียว แตะเพื่ออ่านเต็ม (แผ่นลอยเหนือข้อ) แตะอีกครั้งหรือกดปิดเพื่อกลับ
+    const stim = event.target.closest('.lx-stimulus');
+    if (stim && (event.target.closest('[data-stim-close]') || (event.target.closest('[data-stim-toggle]') && window.matchMedia('(max-width: 600px)').matches))) {
+      stim.classList.toggle('lx-open', !event.target.closest('[data-stim-close]') && !stim.classList.contains('lx-open'));
+      return;
+    }
     const pick = event.target.closest('.lx-pick');
     const q = question();
     if (pick) {
       audio.tap();
       store.dispatch({ type: 'select', qid: q.id, answer: q.options[Number(pick.dataset.i)].key });
       renderSelection();
-      return;
     }
-    if (event.target.closest('#lx-unsure')) {
-      audio.tap(520);
-      store.dispatch({ type: 'select', qid: q.id, answer: UNSURE });
-      renderSelection();
-    }
+  }, signal);
+
+  on($(root, '#lx-unsure'), 'click', () => {
+    audio.tap(520);
+    store.dispatch({ type: 'select', qid: question().id, answer: UNSURE });
+    renderSelection();
   }, signal);
 
   on($(root, '#lx-dots'), 'click', (event) => {

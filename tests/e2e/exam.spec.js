@@ -199,7 +199,7 @@ test('exam view has no answer, hint or review data in DOM, aria or data attribut
     for (const text of secrets) expect(html.includes(text), text).toBe(false);
     expect(html).not.toMatch(/correct|lx-is-correct|คำตอบที่ถูก|คำใบ้|วิธีคิด|ตัวช่วยคิด/);
     const dataAttrs = await page.evaluate(() => [...new Set([...document.querySelectorAll('#app *')].flatMap((el) => el.getAttributeNames().filter((n) => n.startsWith('data-') || n.startsWith('aria-'))))]);
-    expect(dataAttrs.every((a) => ['data-go', 'data-i', 'data-say', 'aria-pressed', 'aria-label', 'aria-disabled', 'aria-hidden', 'aria-live'].includes(a)), dataAttrs.join()).toBe(true);
+    expect(dataAttrs.every((a) => ['data-go', 'data-i', 'data-say', 'data-stim-toggle', 'data-stim-close', 'aria-pressed', 'aria-label', 'aria-disabled', 'aria-hidden', 'aria-live'].includes(a)), dataAttrs.join()).toBe(true);
     const labels = await page.evaluate(() => [...document.querySelectorAll('#app [aria-label]')].map((el) => el.getAttribute('aria-label')).join('|'));
     expect(labels).not.toMatch(/ถูก|ผิด|correct/);
     await page.locator('.lx-pick').first().click();

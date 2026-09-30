@@ -549,3 +549,267 @@ body.lx-plain .lx-buddy { display: none; }
 .lx-board-pic { width: 100%; max-width: 110px; aspect-ratio: 1; object-fit: contain; }
 @media (max-width: 420px) { .lx-board-items { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
+
+/* ================================================================
+ * หน้าทำข้อสอบแบบกะทัดรัด (ผู้ปกครองขอ 2026-09-30: โจทย์+ตัวเลือกให้จบในหน้าเดียว ไม่ต้องเลื่อน)
+ * - จอแคบ (iPhone): แถบหัวแถวเดียว เรื่องย่อเหลือบรรทัดเดียวแตะเพื่ออ่านเต็ม ปุ่มฟังอยู่ในแถวเดียวกับโจทย์/ตัวเลือก
+ *   "ยังไม่แน่ใจ" อยู่แถบล่างระหว่างปุ่มก่อน/ถัดไป
+ * - iPad แนวนอน: สองคอลัมน์ ซ้าย = เรื่อง/ภาพ ขวา = โจทย์/ตัวเลือก
+ * - ขนาดรูปคำนวณจากความสูงจอ (dvh) ทุกอุปกรณ์จึงพอดีโดยไม่ต้องกำหนดรายรุ่น
+ * ใช้เฉพาะใน .lx-compact (หน้าทำข้อสอบและหน้าเฉลย) เพื่อไม่กระทบหน้าอื่น
+ * ================================================================ */
+.lx-compact { gap: 6px; padding-top: clamp(6px, 1.4vw, 12px); }
+.lx-compact .lx-bar { flex-wrap: nowrap; gap: 6px 10px; padding: 4px 8px; }
+.lx-compact .lx-bar .lx-btn-small { min-height: 48px; padding: 4px 14px; flex: 0 0 auto; }
+.lx-compact .lx-bar-title { font-size: 1.05rem; white-space: nowrap; }
+.lx-compact .lx-buddy { width: 44px; height: 44px; }
+.lx-compact .lx-dots { width: auto; flex: 0 0 auto; flex-wrap: nowrap; gap: 4px; margin-left: auto; }
+.lx-compact .lx-dot { min-width: 44px; height: 44px; font-size: 1rem; }
+.lx-compact .lx-paper { padding: clamp(8px, 1.6vw, 16px); margin-bottom: 4px; border-radius: 22px; flex: 1 1 auto; }
+.lx-compact .lx-section-banner { padding: 2px 10px; font-size: clamp(.95rem, 2.6vw, 1.15rem); margin-bottom: 6px; border-radius: 12px; line-height: 1.5; }
+
+/* โครงข้อ: จอแคบเรียงเป็นคอลัมน์เดียวตามลำดับ เรื่อง → โจทย์ → ภาพ → ตัวเลือก (ซ้าย/ขวาเป็นแค่กล่องห่อ) */
+.lx-qgrid { display: flex; flex-direction: column; gap: 6px; }
+.lx-qleft, .lx-qright { display: contents; }
+.lx-qgrid .lx-stimulus { order: 1; }
+.lx-qgrid .lx-vis-stim { order: 2; }
+.lx-qgrid .lx-question { order: 3; }
+.lx-qgrid .lx-vis-q { order: 4; }
+.lx-qgrid .lx-options { order: 5; }
+
+/* เรื่อง */
+.lx-compact .lx-stimulus { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; margin: 0; border-radius: 16px; }
+.lx-compact .lx-stim-head { flex: 1 1 auto; min-width: 0; display: flex; gap: 8px; align-items: flex-start; }
+.lx-compact .lx-stim-ico { flex: 0 0 auto; font-size: 1.2rem; line-height: 1.6; }
+.lx-compact .lx-stim-text { margin: 0; font-size: clamp(1.05rem, 2.6vw, 1.25rem); line-height: 1.6; }
+.lx-compact .lx-stim-say { flex: 0 0 auto; margin: 0; }
+.lx-compact .lx-stim-close { display: none; }
+
+/* โจทย์ + ปุ่มฟัง (ไอคอนอย่างเดียว) อยู่แถวเดียวกัน */
+.lx-compact .lx-question { align-items: center; gap: 8px; }
+.lx-compact .lx-qnum { line-height: 1.5; font-size: clamp(1.25rem, 3.6vw, 1.55rem); }
+.lx-compact .lx-qtext { flex: 1 1 auto; min-width: 0; font-size: clamp(1.1rem, 3.3vw, 1.5rem); line-height: 1.5; }
+.lx-compact .lx-listen { margin: 0; flex: 0 0 auto; min-width: 48px; padding: 6px 12px; }
+.lx-compact .lx-listen .lx-lbl, .lx-compact .lx-bar .lx-lbl, .lx-compact .lx-nav .lx-lbl { display: none; }
+@media (min-width: 601px) {
+  .lx-compact .lx-bar .lx-lbl, .lx-compact .lx-nav .lx-lbl, .lx-compact .lx-stim-say .lx-lbl { display: inline; }
+}
+
+/* ตัวเลือก: ปุ่มฟังอยู่ในการ์ดของตัวเลือกเอง ไม่เปลืองแถว */
+.lx-compact .lx-options { gap: 8px; margin: 0; grid-template-columns: 1fr; }
+.lx-compact .lx-opt { position: relative; display: block; }
+.lx-compact .lx-opt .lx-say { position: absolute; width: 44px; height: 44px; right: 6px; top: 50%; transform: translateY(-50%); z-index: 2; font-size: 1rem; }
+.lx-compact .lx-options:not(.lx-options-pics) .lx-pick { flex-direction: row; justify-content: flex-start; text-align: left; min-height: 56px; padding: 6px 58px 6px 52px; font-size: clamp(1.1rem, 3.2vw, 1.35rem); }
+.lx-compact .lx-options:not(.lx-options-pics) .lx-pick .lx-num { left: 18px; top: 50%; transform: translateY(-50%); }
+.lx-compact .lx-options-pics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lx-compact .lx-options-pics.lx-options-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lx-compact .lx-options-pics .lx-pick { min-height: clamp(84px, 13dvh, 140px); padding: 6px; }
+.lx-compact .lx-options-pics .lx-pick .lx-num { top: 4px; left: 10px; transform: none; }
+.lx-compact .lx-options-pics .lx-say { top: auto; bottom: 4px; right: 4px; transform: none; }
+.lx-compact .lx-opt-pic, .lx-compact .lx-pick .lx-fold, .lx-compact .lx-pick .lx-cake, .lx-compact .lx-pick .lx-figure { width: auto; height: clamp(56px, 10.5dvh, 112px); max-width: 100%; aspect-ratio: 1; object-fit: contain; }
+
+/* แถบล่าง: ก่อนหน้า | ยังไม่แน่ใจ | ถัดไป */
+.lx-compact .lx-nav { padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); gap: 6px; flex-wrap: wrap; }
+.lx-compact .lx-nav .lx-btn { min-height: 52px; padding: 6px 14px; }
+.lx-compact .lx-nav-note { order: -1; flex: 1 0 100%; margin: 0; font-size: .95rem; }
+.lx-compact .lx-nav-note:empty { display: none; }
+.lx-compact .lx-unsure { margin: 0 auto; min-height: 48px; padding: 4px 16px; font-size: 1rem; white-space: nowrap; flex: 0 1 auto; }
+
+/* ภาพประกอบโจทย์: ขนาดตามความสูงจอ */
+.lx-compact .lx-vis { display: block; }
+.lx-compact .lx-visual { margin: 2px auto; gap: 2px; }
+.lx-compact .lx-image-pic { width: auto; height: clamp(72px, 15dvh, 170px); max-width: 100%; }
+.lx-compact .lx-grid-visual { width: min(100%, clamp(210px, 40dvh, 340px)); }
+.lx-compact .lx-grid-cell { padding: 3px; }
+.lx-compact .lx-grid-pic { max-width: clamp(44px, 8.6dvh, 100px); }
+.lx-compact .lx-board-pic { max-width: clamp(44px, 8.6dvh, 90px); }
+.lx-compact .lx-figrow-items { padding: 6px; }
+.lx-compact .lx-figrow-cell .lx-figure { max-width: clamp(52px, 10dvh, 100px); }
+.lx-compact .lx-figrow-blank { max-width: clamp(52px, 10dvh, 100px); font-size: 1.8rem; }
+.lx-compact .lx-row-items { padding: 4px 8px; }
+.lx-compact .lx-row-pic, .lx-compact .lx-row-cell .lx-row-pic { max-width: clamp(52px, 10dvh, 110px); }
+.lx-compact .lx-clock svg { width: min(50vw, clamp(120px, 22dvh, 220px)); }
+.lx-compact .lx-dice svg { width: clamp(90px, 15dvh, 150px); }
+.lx-compact .lx-rose { width: clamp(150px, 28dvh, 250px); }
+.lx-compact .lx-stack svg { width: min(60vw, clamp(120px, 24dvh, 220px)); }
+.lx-compact .lx-scatter-box { width: min(100%, clamp(240px, 46dvh, 420px)); }
+.lx-compact .lx-polygon svg { width: clamp(100px, 18dvh, 200px); }
+.lx-compact .lx-shapes svg { width: min(100%, clamp(220px, 38dvh, 380px)); }
+.lx-compact .lx-data-table { font-size: 1.1rem; min-width: 180px; }
+.lx-compact .lx-data-table th, .lx-compact .lx-data-table td { padding: 3px 12px; }
+.lx-compact .lx-num-box { min-width: 48px; height: 48px; font-size: 1.4rem; }
+.lx-compact .lx-equiv-row { padding: 2px 8px; }
+
+/* จอแคบ: แผ่นภาพของ 12 ชิ้นเป็น 6 คอลัมน์ 2 แถว; เรื่องย่อแตะเพื่อเปิดเต็ม */
+@media (max-width: 600px) {
+  .lx-compact .lx-bar-title, .lx-compact .lx-buddy { display: none; }
+  .lx-compact .lx-bar .lx-btn-small { padding: 4px 0; min-width: 48px; }
+  .lx-compact .lx-dots { flex: 1 1 auto; justify-content: flex-end; }
+  .lx-compact .lx-board-items { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; padding: 4px; }
+  .lx-compact .lx-board-pic { max-width: 58px; }
+  .lx-compact #lx-prev, .lx-compact #lx-rprev, .lx-compact #lx-rnext { padding: 6px 0; min-width: 52px; }
+  .lx-compact .lx-stimulus:not(.lx-open) .lx-stim-text { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .lx-compact .lx-stim-head { cursor: pointer; align-items: center; min-height: 44px; }
+  .lx-compact .lx-stimulus.lx-open { position: fixed; left: 8px; right: 8px; bottom: calc(84px + env(safe-area-inset-bottom)); max-height: 62dvh; overflow: auto; z-index: 30; flex-wrap: wrap; box-shadow: 0 10px 34px rgba(74, 59, 82, .4); }
+  .lx-compact .lx-stimulus.lx-open .lx-stim-head { flex: 1 0 100%; order: 1; align-items: flex-start; }
+  .lx-compact .lx-stimulus.lx-open .lx-stim-say { order: 2; }
+  .lx-compact .lx-stimulus.lx-open .lx-stim-close { display: block; order: 3; flex: 1 1 auto; min-height: 48px; border: 0; border-radius: 999px; background: var(--ink); color: #fff; font-size: 1.05rem; cursor: pointer; }
+}
+
+/* iPad แนวนอน (กว้างแต่เตี้ย): สองคอลัมน์ ซ้าย = เรื่อง/ภาพ ขวา = โจทย์/ตัวเลือก */
+@media (min-width: 700px) and (max-height: 880px) {
+  .lx-compact .lx-bar, .lx-compact .lx-paper, .lx-compact .lx-nav { width: min(100%, 1040px); }
+  .lx-compact .lx-qgrid.lx-has-side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px 22px; align-items: start; }
+  .lx-compact .lx-has-side .lx-qleft, .lx-compact .lx-has-side .lx-qright { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .lx-compact .lx-has-side .lx-opt-pic, .lx-compact .lx-has-side .lx-pick .lx-fold, .lx-compact .lx-has-side .lx-pick .lx-cake, .lx-compact .lx-has-side .lx-pick .lx-figure { height: clamp(60px, 13dvh, 120px); }
+}
+
+/* ---- ปรับรอบ 2 (หลังวัดด้วย fit.mjs) ---- */
+.lx-compact .lx-btn { flex-direction: row; }
+/* ตัวเลือกที่มีทั้งรูปและข้อความ: ปุ่มฟังไปมุมขวาบน (อยู่แถวเดียวกับเลขข้อ) ไม่ทับข้อความใต้รูป */
+.lx-compact .lx-options-pics .lx-pick:has(.lx-opt-text) { padding-top: 32px; }
+.lx-compact .lx-options-pics .lx-opt:has(.lx-opt-text) .lx-say { top: 2px; bottom: auto; right: 2px; }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-opt-text) .lx-opt-pic { height: clamp(44px, 8dvh, 90px); }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-opt-text) .lx-opt-text { font-size: 1rem; line-height: 1.2; }
+.lx-compact .lx-options-pics .lx-pick:has(.lx-opt-text) { min-height: 0; }
+/* ภาพนับของ: ย่อกรอบลงเล็กน้อย */
+.lx-compact .lx-scatter-box { width: min(100%, clamp(200px, 34dvh, 420px)); }
+/* แผนที่ทิศ: ตารางแผนที่กับลูกศรทิศวางข้างกัน */
+.lx-compact .lx-map { flex-wrap: nowrap; gap: 6px; }
+.lx-compact .lx-map-grid { grid-template-columns: repeat(3, minmax(54px, 92px)); gap: 4px; }
+.lx-compact .lx-map-place { padding: 3px 6px; font-size: 1rem; min-width: 54px; }
+.lx-compact .lx-map-house { width: 46px; height: 46px; }
+.lx-compact .lx-map-center { font-size: .95rem; }
+.lx-compact .lx-rose { width: clamp(100px, 17dvh, 200px); }
+/* แผนภูมิรูปภาพ */
+.lx-compact .lx-pg-row { padding: 2px 0; }
+.lx-compact .lx-pg-face { width: 34px; height: 34px; }
+.lx-compact .lx-pg-icons .lx-pg-icon { width: min(clamp(32px, 6.4dvh, 44px), calc((100% - (var(--pg-max, 5) - 1) * 4px) / var(--pg-max, 5))); }
+/* เรื่องย่อเหลือบรรทัดเดียว: ลูกศรบอกว่าแตะได้ */
+@media (max-width: 600px) {
+  .lx-compact .lx-stimulus:not(.lx-open) .lx-stim-head::after { content: '▾'; flex: 0 0 auto; color: var(--ink-soft); font-size: 1rem; }
+}
+/* จอสูงน้อย (iPhone SE หรือ Safari ที่มีแถบเครื่องมือ): ย่อเพิ่ม */
+@media (max-height: 620px) {
+  .lx-compact .lx-section-banner { display: none; }
+  .lx-compact .lx-bar { padding: 2px 6px; }
+  .lx-compact .lx-bar .lx-btn-small, .lx-compact .lx-dot { min-height: 44px; height: 44px; }
+  .lx-compact .lx-nav .lx-btn { min-height: 48px; }
+  .lx-compact .lx-options:not(.lx-options-pics) .lx-pick { min-height: 48px; }
+  .lx-compact .lx-options-pics .lx-pick { min-height: 72px; }
+  .lx-compact .lx-opt-pic, .lx-compact .lx-pick .lx-fold, .lx-compact .lx-pick .lx-cake, .lx-compact .lx-pick .lx-figure { height: clamp(44px, 9.5dvh, 80px); }
+}
+/* จอกว้าง (iPad): ตัวหนังสือใหญ่ขึ้นตามพื้นที่ที่เหลือ */
+@media (min-width: 700px) {
+  .lx-compact .lx-stim-text { font-size: clamp(1.25rem, 2.2vw, 1.5rem); }
+  .lx-compact .lx-qtext { font-size: clamp(1.35rem, 2.6vw, 1.8rem); }
+  .lx-compact .lx-options:not(.lx-options-pics) .lx-pick { min-height: 64px; font-size: clamp(1.25rem, 2.3vw, 1.6rem); }
+  .lx-compact .lx-section-banner { font-size: 1.2rem; }
+}
+
+/* iPad แนวนอน: ปุ่มฟังเรื่องเป็นไอคอน เพื่อให้เรื่องยาวมีความกว้างเต็มคอลัมน์ */
+@media (min-width: 601px) { .lx-compact .lx-stim-say .lx-lbl { display: none; } }
+@media (min-width: 700px) { .lx-compact .lx-stim-text { font-size: clamp(1.2rem, 2vw, 1.4rem); line-height: 1.55; } }
+
+/* จอสูงไม่เกิน 700px (iPhone ส่วนใหญ่ใน Safari): ช่องไฟแน่นขึ้นอีกนิด */
+@media (max-height: 700px) {
+  .lx-compact .lx-paper { padding: 6px 8px; }
+  .lx-qgrid { gap: 4px; }
+  .lx-compact .lx-section-banner { margin-bottom: 4px; line-height: 1.35; font-size: .95rem; }
+  .lx-compact .lx-scatter-box { width: min(100%, clamp(190px, 30dvh, 420px)); }
+  .lx-compact .lx-pg-row { padding: 0; }
+}
+
+/* จอแคบมาก (320-360px): การ์ดรูปแคบเกินกว่าจะวางปุ่มฟังทับมุมโดยไม่บังกลางการ์ด (แตะกลางการ์ดจะกลายเป็นฟังแทนเลือก)
+   จึงวางปุ่มฟังไว้ใต้การ์ดเหมือนเดิม */
+@media (max-width: 360px) {
+  .lx-compact .lx-options-pics .lx-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .lx-compact .lx-options-pics .lx-pick { width: 100%; }
+  .lx-compact .lx-options-pics .lx-say, .lx-compact .lx-options-pics .lx-opt:has(.lx-opt-text) .lx-say { position: static; transform: none; }
+}
+
+/* 320-360px: ปุ่มพัก + เฉลย + เลขข้อ 5 ปุ่มไม่พอในแถวเดียว ให้เลขข้อลงแถวที่สอง (ไม่ให้หน้าล้นแนวนอน) */
+@media (max-width: 360px) {
+  .lx-compact .lx-bar { flex-wrap: wrap; }
+  .lx-compact .lx-dots { flex: 1 1 100%; justify-content: center; margin-left: 0; }
+}
+
+/* ================================================================
+ * หน้าเฉลยแบบกะทัดรัด: คำถาม คำตอบ และคำอธิบายสั้นอยู่ในหน้าเดียว; วิธีคิด/ลองข้อใหม่เป็นแผ่นลอย
+ * (ใช้ .lx-compact ร่วมกับหน้าทำข้อสอบ ด้านบน)
+ * ================================================================ */
+.lx-review .lx-buddy { display: none; }
+.lx-review.lx-compact .lx-bar { flex-wrap: wrap; gap: 4px 8px; }
+.lx-review .lx-bar-title { flex: 1 1 auto; font-size: 1.05rem; white-space: nowrap; }
+.lx-review .lx-filter { flex: 0 0 auto; gap: 4px; }
+.lx-review .lx-chip { min-height: 44px; padding: 2px 12px; font-size: .95rem; }
+.lx-review .lx-dots { position: relative; flex: 1 1 100%; width: 100%; margin-left: 0; overflow-x: auto; flex-wrap: nowrap; justify-content: flex-start; padding: 8px 6px 2px; scrollbar-width: none; }
+.lx-review .lx-dots::-webkit-scrollbar { display: none; }
+.lx-review .lx-dot { flex: 0 0 auto; }
+@media (min-width: 601px) { .lx-review .lx-dots { justify-content: center; } }
+
+.lx-compact .lx-feedback { order: 6; display: flex; flex-direction: column; gap: 4px; }
+.lx-compact .lx-status { margin: 0; padding: 3px 10px; font-size: 1.05rem; line-height: 1.45; }
+.lx-compact .lx-summary { padding: 4px 10px; gap: 8px; }
+.lx-compact .lx-summary p { font-size: 1.08rem; line-height: 1.45; }
+.lx-compact .lx-summary .lx-say { width: 44px; height: 44px; flex: 0 0 auto; }
+.lx-compact .lx-tools { margin: 6px 0 2px; gap: 6px; }
+.lx-compact .lx-tools .lx-btn { min-height: 48px; padding: 4px 12px; font-size: 1rem; flex-direction: row; }
+
+/* ตัวเลือกในหน้าเฉลย: ข้อความเป็นแถว ป้าย "หนูตอบ / คำตอบที่ถูก" อยู่ท้ายแถว */
+.lx-review.lx-compact .lx-options:not(.lx-options-pics) .lx-pick.lx-static { flex-direction: row; justify-content: flex-start; text-align: left; min-height: 52px; padding: 6px 10px 6px 52px; gap: 8px; }
+.lx-review.lx-compact .lx-options:not(.lx-options-pics) .lx-pick.lx-static .lx-num { left: 18px; top: 50%; transform: translateY(-50%); }
+.lx-review.lx-compact .lx-options:not(.lx-options-pics) .lx-pick.lx-static .lx-tag { position: static; transform: none; margin-left: auto; font-size: .85rem; line-height: 1.5; }
+.lx-review.lx-compact .lx-options:not(.lx-options-pics) .lx-pick.lx-static .lx-tag + .lx-tag { margin-left: 4px; }
+.lx-review.lx-compact .lx-options-pics .lx-pick.lx-static { min-height: 0; padding: 6px 6px 28px; }
+.lx-review.lx-compact .lx-options-pics .lx-pick.lx-static .lx-tag-mine { top: -10px; }
+.lx-review.lx-compact .lx-opt-pic, .lx-review.lx-compact .lx-pick .lx-fold, .lx-review.lx-compact .lx-pick .lx-cake, .lx-review.lx-compact .lx-pick .lx-figure { width: auto; height: clamp(52px, 9.5dvh, 100px); aspect-ratio: 1; object-fit: contain; }
+
+/* แผงวิธีคิด/คำใบ้/ลองข้อใหม่: จอแคบหรือ iPad แนวนอนเป็นแผ่นลอยด้านล่าง */
+.lx-sheet-close { display: none; }
+@media (max-width: 600px), (min-width: 700px) and (max-height: 880px) {
+  .lx-review .lx-tool-panel:not([hidden]) { position: fixed; inset-inline: 8px; margin-inline: auto; max-width: 760px; bottom: calc(var(--lx-footer-h, 76px) + 6px); max-height: 56dvh; overflow: auto; z-index: 30; background: #fff; border: 3px solid var(--purple); box-shadow: 0 10px 34px rgba(74, 59, 82, .4); margin-top: 0; }
+  .lx-review .lx-sheet-close { display: block; position: sticky; top: -12px; float: right; z-index: 1; min-height: 44px; padding: 4px 16px; border: 0; border-radius: 999px; background: var(--ink); color: #fff; font-size: 1rem; cursor: pointer; margin: -4px -4px 4px 8px; }
+}
+
+/* ---- หน้าเฉลยบนจอแคบ: ย่อเพิ่ม (รอบ 2) ---- */
+@media (max-width: 600px) {
+  .lx-review.lx-compact .lx-bar { flex-wrap: nowrap; align-items: center; }
+  .lx-review .lx-bar-title, .lx-review .lx-lbl-long { display: none; }
+  .lx-review .lx-dots { flex: 1 1 0; min-width: 0; width: auto; padding-top: 6px; }
+  .lx-review .lx-chip { padding: 2px 9px; font-size: .9rem; }
+  .lx-review .lx-section-banner { display: none; }
+  .lx-review.lx-compact .lx-options:not(.lx-options-pics) .lx-pick.lx-static { min-height: 46px; font-size: 1.05rem; }
+  .lx-compact .lx-tools .lx-btn { padding: 4px 8px; font-size: .95rem; }
+  /* ภาพประกอบในหน้าเฉลยเป็นแค่บริบท: ย่อให้เล็กลง */
+  .lx-review .lx-scatter-box { width: min(100%, clamp(130px, 22dvh, 300px)); }
+  .lx-review .lx-data-table { font-size: 1rem; }
+  .lx-review .lx-data-table th, .lx-review .lx-data-table td { padding: 1px 10px; }
+  .lx-review .lx-grid-visual { width: min(100%, clamp(150px, 26dvh, 300px)); }
+  .lx-review .lx-board-pic { max-width: 46px; }
+  .lx-review .lx-image-pic { height: clamp(56px, 11dvh, 120px); }
+  .lx-review .lx-rose { width: clamp(90px, 14dvh, 160px); }
+  .lx-review .lx-pg-face { width: 28px; height: 28px; }
+  .lx-review .lx-pg-icons .lx-pg-icon { width: min(clamp(26px, 5dvh, 36px), calc((100% - (var(--pg-max, 5) - 1) * 4px) / var(--pg-max, 5))); }
+}
+
+/* หน้าเฉลย: ภาพประกอบเป็นแค่บริบท จึงย่อทุกขนาดจอ */
+.lx-review .lx-scatter-box { width: min(100%, clamp(130px, 22dvh, 300px)); }
+@media (min-width: 601px) { .lx-review .lx-board-pic { max-width: clamp(40px, 5.6dvh, 70px); } }
+@media (max-width: 600px) {
+  /* ข้อที่ตอบถูกไม่ต้องมีแถบ "ถูกต้องแล้ว" ซ้ำ (ตัวเลือกสีเขียวและเครื่องหมายถูกที่เลขข้อบอกอยู่แล้ว เสียงยังชมเหมือนเดิม) */
+  .lx-review .lx-status-correct { display: none; }
+}
+
+/* เครื่องมือ (คำใบ้/วิธีคิด/ลองข้อใหม่) อยู่ท้ายสุดของข้อ; iPad แนวนอนจะอยู่ใต้เรื่องในคอลัมน์ซ้าย ไม่เพิ่มความสูง */
+.lx-qgrid .lx-tools { order: 8; }
+
+/* หน้าเฉลย: ปุ่มเครื่องมืออยู่ในแถบล่าง (จอแคบ: แถวบนของแถบล่าง; จอกว้าง: อยู่กลางแถว) แผ่นลอยจึงไม่บังปุ่ม */
+.lx-rnav { flex-wrap: wrap; }
+.lx-rnav .lx-tools { order: -1; flex: 1 0 100%; margin: 0; justify-content: center; }
+@media (min-width: 601px) {
+  .lx-rnav #lx-rprev { order: 1; }
+  .lx-rnav #lx-rnext { order: 2; }
+  .lx-rnav .lx-tools { order: 3; flex: 1 1 auto; }
+  .lx-rnav #lx-rdone { order: 4; margin-left: 0; }
+}

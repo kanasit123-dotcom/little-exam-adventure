@@ -28,7 +28,7 @@ export function mountReview(root, ctx) {
   const labelOf = (qid, optionId) => OPTION_LABELS[session().optionOrder[qid].indexOf(optionId)];
 
   root.innerHTML = `
-    <div class="lx-screen lx-review">
+    <div class="lx-screen lx-review lx-compact">
       <header class="lx-bar">
         <div class="lx-bar-title" id="lx-rtitle">เฉลยช่วงที่ ${session().review.block + 1}</div>
         ${buddyHTML(store.state, 'cheer')}
@@ -39,9 +39,10 @@ export function mountReview(root, ctx) {
         <div class="lx-dots" id="lx-rdots"></div>
       </header>
       <main class="lx-paper" id="lx-rpaper"></main>
-      <footer class="lx-nav">
-        <button class="lx-btn lx-btn-ghost" id="lx-rprev" type="button">◀ ข้อก่อน</button>
-        <button class="lx-btn lx-btn-ghost" id="lx-rnext" type="button">ข้อต่อไป ▶</button>
+      <footer class="lx-nav lx-rnav">
+        <div class="lx-tools" id="lx-rtools"></div>
+        <button class="lx-btn lx-btn-ghost" id="lx-rprev" type="button" aria-label="ข้อก่อน"><span class="lx-ico">◀</span><span class="lx-lbl"> ข้อก่อน</span></button>
+        <button class="lx-btn lx-btn-ghost" id="lx-rnext" type="button" aria-label="ข้อต่อไป"><span class="lx-lbl">ข้อต่อไป </span><span class="lx-ico">▶</span></button>
         <button class="lx-btn lx-btn-go" id="lx-rdone" type="button">${session().resume ? 'กลับ ▶' : isLastBlock(session()) ? 'รับรางวัล ⭐' : 'ไปพักกัน ▶'}</button>
       </footer>
     </div>`;
@@ -58,13 +59,16 @@ export function mountReview(root, ctx) {
     const s = session();
     root.querySelectorAll('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === filter)));
     const revisit = entries().filter(({ id }) => statusOf(id) !== 'correct').length;
-    root.querySelector('[data-filter="revisit"]').textContent = `ข้อที่ควรทบทวน (${revisit})`;
+    root.querySelector('[data-filter="revisit"]').innerHTML = `<span class="lx-lbl-long">ข้อที่ควร</span>ทบทวน (${revisit})`;
     $(root, '#lx-rtitle').textContent = `เฉลยช่วงที่ ${s.review.block + 1}`;
     $(root, '#lx-rdots').innerHTML = visible().map((e) => {
       const st = statusOf(e.id);
       const n = s.questionIds.indexOf(e.id) + 1;
       return `<button class="lx-dot lx-r-${st}${isHere(e) ? ' lx-here' : ''}" data-go="${e.block}:${e.i}" type="button" aria-label="ข้อ ${n}">${n}${st === 'correct' ? '<i>✓</i>' : ''}</button>`;
     }).join('');
+    const dotsEl = $(root, '#lx-rdots');
+    const here = dotsEl.querySelector('.lx-here');
+    if (here) dotsEl.scrollLeft = here.offsetLeft - dotsEl.clientWidth / 2 + here.offsetWidth / 2;
     const list = visible();
     const pos = list.findIndex(isHere);
     $(root, '#lx-rprev').hidden = pos <= 0;
@@ -114,24 +118,44 @@ export function mountReview(root, ctx) {
     const statusText = st === 'correct'
       ? 'ถูกต้องแล้ว เก่งมาก 🌟'
       : `${answer === UNSURE ? 'หนูตอบว่า ยังไม่แน่ใจ' : `หนูตอบข้อ ${labelOf(qid, answer)}`} · คำตอบที่ถูกคือข้อ ${labelOf(qid, it.correctOptionId)}`;
+    const hasSide = !!(stimulus || it.visual);
     paper.innerHTML = `
       <div class="lx-section-banner">${esc(sectionOf(set, it))}</div>
-      ${stimulus ? `<section class="lx-stimulus lx-stimulus-review"><p class="lx-stim-text">${esc(stimulus.text)}</p>${renderVisual(stimulus.visual)}
-        <button class="lx-listen" data-say="stimulus" type="button">🔊 ฟังเรื่อง</button></section>` : ''}
-      <div class="lx-question"><span class="lx-qnum">${s.questionIds.indexOf(qid) + 1}.</span><p class="lx-qtext">${esc(it.prompt.text).replace(/\n/g, '<br>')}</p></div>
-      <button class="lx-listen lx-listen-main" data-say="prompt" type="button">🔊 ฟังโจทย์</button>
-      ${renderVisual(it.visual)}
-      ${optionsHTML(q, qid, answer, it.correctOptionId)}
-      <p class="lx-status lx-status-${st}">${esc(statusText)}</p>
-      <div class="lx-summary"><p>${esc(review.summary)}</p><button class="lx-say" data-say="summary" type="button" aria-label="ฟังเฉลย">🔊</button></div>
-      <div class="lx-tools">
-        ${review.hints.length ? '<button class="lx-btn lx-btn-tool" data-tool="hint" type="button">💡 คำใบ้</button>' : ''}
-        <button class="lx-btn lx-btn-tool" data-tool="steps" type="button">👣 ดูวิธีคิดทีละขั้น</button>
-        ${review.column ? '<button class="lx-btn lx-btn-tool lx-btn-column" data-tool="column" type="button">🧮 ตัวช่วยคิด ตั้งเลข</button>' : ''}
-        ${(review.transferIds || []).length ? '<button class="lx-btn lx-btn-tool" data-tool="transfer" type="button">✏️ ลองข้อใหม่</button>' : ''}
+      <div class="lx-qgrid${hasSide ? ' lx-has-side' : ''}">
+        <div class="lx-qleft">
+          ${stimulus ? `
+            <section class="lx-stimulus lx-stimulus-review" aria-label="เรื่อง">
+              <div class="lx-stim-head" data-stim-toggle>
+                <span class="lx-stim-ico" aria-hidden="true">📖</span>
+                <span class="lx-stim-text">${esc(stimulus.text)}</span>
+              </div>
+              <button class="lx-listen lx-stim-say" data-say="stimulus" type="button" aria-label="ฟังเรื่อง"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังเรื่อง</span></button>
+              <button class="lx-stim-close" data-stim-close type="button">ปิด ✕</button>
+            </section>
+            ${stimulus.visual ? `<div class="lx-vis lx-vis-stim">${renderVisual(stimulus.visual)}</div>` : ''}` : ''}
+          ${it.visual ? `<div class="lx-vis lx-vis-q">${renderVisual(it.visual)}</div>` : ''}
+        </div>
+        <div class="lx-qright">
+          <div class="lx-question">
+            <span class="lx-qnum">${s.questionIds.indexOf(qid) + 1}.</span>
+            <p class="lx-qtext">${esc(it.prompt.text).replace(/\n/g, '<br>')}</p>
+            <button class="lx-listen lx-listen-main" data-say="prompt" type="button" aria-label="ฟังโจทย์"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังโจทย์</span></button>
+          </div>
+          ${optionsHTML(q, qid, answer, it.correctOptionId)}
+          <div class="lx-feedback">
+            <p class="lx-status lx-status-${st}">${esc(statusText)}</p>
+            <div class="lx-summary"><p>${esc(review.summary)}</p><button class="lx-say" data-say="summary" type="button" aria-label="ฟังเฉลย">🔊</button></div>
+          </div>
+        </div>
       </div>
       <div class="lx-tool-panel" id="lx-tool" hidden></div>`;
+    $(root, '#lx-rtools').innerHTML = `
+      ${review.hints.length ? '<button class="lx-btn lx-btn-tool" data-tool="hint" type="button">💡 คำใบ้</button>' : ''}
+      <button class="lx-btn lx-btn-tool" data-tool="steps" type="button">👣 วิธีคิด</button>
+      ${review.column ? '<button class="lx-btn lx-btn-tool lx-btn-column" data-tool="column" type="button">🧮 ตั้งเลข</button>' : ''}
+      ${(review.transferIds || []).length ? '<button class="lx-btn lx-btn-tool" data-tool="transfer" type="button">✏️ ลองข้อใหม่</button>' : ''}`;
     renderBar();
+    measureFooter();
     const seq = [];
     const key = `${s.id}:${s.review.block}`;
     if (!introduced.has(key)) { seq.push(SAY.reviewIntro); introduced.add(key); }
@@ -161,19 +185,20 @@ export function mountReview(root, ctx) {
     itemCtrl.signal.addEventListener('abort', () => toolCtrl.abort(), { once: true });
     tool = { name, destroy: () => toolCtrl.abort() };
     panel.hidden = false;
-    paper.querySelectorAll('[data-tool]').forEach((b) => b.classList.toggle('lx-on', b.dataset.tool === name));
+    panel.innerHTML = '';
+    root.querySelectorAll('[data-tool]').forEach((b) => b.classList.toggle('lx-on', b.dataset.tool === name));
     if (name === 'hint') {
       const used = s.review.hints[qid] || 0;
       const shown = Math.min(it.review.hints.length, used + 1);
       store.dispatch({ type: 'hint', qid });
       const hints = it.review.hints.slice(0, shown);
-      panel.innerHTML = `<h3 class="lx-h3">คำใบ้</h3>${hints.map((h, i) => `<p class="lx-hint">💡 ${esc(h)} <button class="lx-say" data-say="hint-${i}" type="button" aria-label="ฟังคำใบ้">🔊</button></p>`).join('')}`;
+      setPanel(panel, `<h3 class="lx-h3">คำใบ้</h3>${hints.map((h, i) => `<p class="lx-hint">💡 ${esc(h)} <button class="lx-say" data-say="hint-${i}" type="button" aria-label="ฟังคำใบ้">🔊</button></p>`).join('')}`);
       audio.play({ text: hints.at(-1), role: 'hint', qid, key: `hint-${shown - 1}` }, { signal: toolCtrl.signal });
     } else if (name === 'steps') {
       runSteps(panel, it, qid, toolCtrl.signal);
     } else if (name === 'column') {
       store.dispatch({ type: 'helper', qid, completed: false });
-      panel.innerHTML = '<div id="lx-col-host"></div>';
+      setPanel(panel, '<div id="lx-col-host"></div>');
       const col = mountColumn($(panel, '#lx-col-host'), it.review.column, {
         audio, signal: toolCtrl.signal, reduced,
         onFinish: () => { store.dispatch({ type: 'helper', qid, completed: true }); panel.hidden = true; panel.innerHTML = ''; tool = null; },
@@ -182,12 +207,31 @@ export function mountReview(root, ctx) {
     } else if (name === 'transfer') {
       runTransfer(panel, it, qid, toolCtrl.signal);
     }
-    panel.scrollIntoView?.({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
+    if (!sheetMode()) panel.scrollIntoView?.({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
+  }
+
+  // จอแคบ หรือ iPad แนวนอน: แผงวิธีคิด/ลองข้อใหม่ลอยทับด้านล่าง ไม่ทำให้หน้าเลื่อน
+  // แผ่นลอยวางเหนือแถบล่าง (ที่มีปุ่มเครื่องมืออยู่) พอดี
+  function measureFooter() {
+    const footer = root.querySelector('.lx-rnav');
+    if (footer) root.style.setProperty('--lx-footer-h', `${footer.offsetHeight}px`);
+  }
+  globalThis.addEventListener?.('resize', measureFooter, { signal });
+  const sheetMode = () => globalThis.matchMedia?.('(max-width: 600px), (min-width: 700px) and (max-height: 880px)').matches;
+  const CLOSE_BUTTON = '<button class="lx-sheet-close" data-close-tool type="button">ปิด ✕</button>';
+  function setPanel(panel, html) { panel.innerHTML = CLOSE_BUTTON + html; }
+  function closeTool() {
+    tool?.destroy?.();
+    tool = null;
+    const panel = $(paper, '#lx-tool');
+    panel.hidden = true;
+    panel.innerHTML = '';
+    root.querySelectorAll('[data-tool]').forEach((b) => b.classList.remove('lx-on'));
   }
 
   async function runSteps(panel, it, qid, sig) {
     const steps = it.review.steps;
-    panel.innerHTML = `<h3 class="lx-h3">วิธีคิด</h3><ol class="lx-steps" id="lx-steps"></ol>`;
+    setPanel(panel, `<h3 class="lx-h3">วิธีคิด</h3><ol class="lx-steps" id="lx-steps"></ol>`);
     const list = $(panel, '#lx-steps');
     for (let i = 0; i < steps.length; i++) {
       if (sig.aborted) return;
@@ -216,7 +260,7 @@ export function mountReview(root, ctx) {
     const tids = it.review.transferIds;
     const t = getItem(set, tids[0]);
     const q = toExamQuestion(set, t);
-    panel.innerHTML = `
+    setPanel(panel, `
       <h3 class="lx-h3">ลองข้อใหม่ที่คล้ายกัน</h3>
       <p class="lx-small">ข้อนี้ไม่เปลี่ยนคะแนนที่ส่งไปแล้ว</p>
       <div class="lx-question"><p class="lx-qtext">${esc(t.prompt.text).replace(/\n/g, '<br>')}</p></div>
@@ -227,7 +271,7 @@ export function mountReview(root, ctx) {
           <button class="lx-pick" data-ti="${i}" type="button"><span class="lx-num">${esc(option.label)}</span>${option.image ? picture(option.image, 'lx-opt-pic') : ''}${option.svg ? renderOptionSvg(option.svg) : ''}${option.text ? `<span class="lx-opt-text">${esc(option.text)}</span>` : ''}</button>
           <button class="lx-say" data-say="topt-${i}" type="button" aria-label="ฟังข้อ ${esc(option.label)}">🔊</button></div>`).join('')}
       </div>
-      <div id="lx-tresult"></div>`;
+      <div id="lx-tresult"></div>`);
     const tSpeech = { tprompt: promptSpeech(t), ...Object.fromEntries(q.options.map((o, i) => [`topt-${i}`, o.speech])) };
     tool.speech = tSpeech;
     playSeq([SAY.transferIntro, tSpeech.tprompt], 'transfer', qid, sig, 'tprompt');
@@ -279,6 +323,15 @@ export function mountReview(root, ctx) {
   on(paper, 'click', (event) => {
     const say = event.target.closest('[data-say]');
     if (say) { speakKey(say.dataset.say); return; }
+    if (event.target.closest('[data-close-tool]')) { closeTool(); return; }
+    // จอแคบ: เรื่องย่อเหลือบรรทัดเดียว แตะเพื่ออ่านเต็ม (เหมือนหน้าข้อสอบ)
+    const stim = event.target.closest('.lx-stimulus');
+    if (stim && (event.target.closest('[data-stim-close]') || (event.target.closest('[data-stim-toggle]') && globalThis.matchMedia?.('(max-width: 600px)').matches))) {
+      stim.classList.toggle('lx-open', !event.target.closest('[data-stim-close]') && !stim.classList.contains('lx-open'));
+      return;
+    }
+  }, signal);
+  on($(root, '#lx-rtools'), 'click', (event) => {
     const t = event.target.closest('[data-tool]');
     if (t) openTool(t.dataset.tool);
   }, signal);
