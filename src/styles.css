@@ -558,6 +558,14 @@ button.lx-fcard:active { transform: translateY(2px); }
 .lx-weak-flag { grid-column: 1 / -1; color: var(--orange-dark); font-weight: 700; font-size: .95rem; }
 .lx-mistakes small { color: var(--ink-soft); }
 
+/* ธง "สงสัย" และกล่องรายการ (หน้าตรวจเฉลย) */
+.lx-row-left { justify-content: flex-start; }
+.lx-ak-flags { background: #fff8ef; border-radius: var(--r-sm); padding: 6px 14px 10px; margin: 8px 0; }
+.lx-ak-flags .lx-warn { margin: 6px 0; }
+.lx-ak-flag { margin-left: auto; min-height: 44px; padding: 4px 14px; border-radius: 999px; border: 2px solid var(--card-edge); background: #fff; cursor: pointer; font-size: 1rem; }
+.lx-ak-flag.lx-on { background: #ffe9d6; border-color: var(--orange); font-weight: 700; }
+.lx-ak-flagtext { width: 100%; font: inherit; font-size: .95rem; border: 2px solid var(--card-edge); border-radius: var(--r-sm); padding: 8px; background: #fff; }
+
 /* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
 body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {

@@ -74,3 +74,35 @@ test('weak-spot report: after a submitted block the parent page shows per-subjec
     expect(await noHorizontalOverflow(page), `parent page overflows at ${width}`).toBe(true);
   }
 });
+
+test('answer key: flags and "checked" marks persist, the flagged list can be copied, and clearing works', async ({ page }) => {
+  await openAnswers(page);
+  await page.locator('[data-set="set-05"]').click();
+  await page.locator('.lx-ak-flag').nth(2).click();
+  await page.locator('.lx-ak-flag').nth(6).click();
+  await expect(page.locator('#lx-ak-flagcount')).toContainText('2 ข้อ');
+  await page.locator('.lx-ak-check').first().click();
+  await expect(page.locator('[data-set="set-05"]')).toHaveClass(/lx-ak-done/);
+  await page.locator('#lx-ak-copy').click();
+  const text = await page.locator('#lx-ak-flagtext').inputValue();
+  expect(text).toContain('2 ข้อ');
+  expect(text).toMatch(/ชุดที่ 5 ข้อ 3 \[/);
+  expect(text).toMatch(/ชุดที่ 5 ข้อ 7 \[/);
+  expect(text).toContain('เฉลยในเกม: ข้อ');
+  // ค้างอยู่หลังรีโหลด และไม่ไปแตะข้อมูลของเกม
+  const before = await page.evaluate(() => localStorage.getItem('little-exam-adventure-v1'));
+  await page.reload();
+  await page.locator('#lx-parent').click();
+  await page.locator('#lx-answers').click();
+  await expect(page.locator('#lx-ak-flagcount')).toContainText('2 ข้อ');
+  await page.locator('[data-set="set-05"]').click();
+  await expect(page.locator('.lx-ak-flag.lx-on')).toHaveCount(2);
+  await expect(page.locator('[data-set="set-05"]')).toHaveClass(/lx-ak-done/);
+  expect(await page.evaluate(() => localStorage.getItem('little-exam-adventure-v1'))).toBe(before);
+  const small = await page.evaluate(() => [...document.querySelectorAll('button')].filter((b) => b.offsetParent && (b.offsetHeight < 44 || b.offsetWidth < 44)).map((b) => b.textContent.trim().slice(0, 20)));
+  expect(small, 'small buttons').toEqual([]);
+  await page.locator('#lx-ak-clear').click();
+  await page.locator('.lx-modal [data-v="yes"]').click();
+  await expect(page.locator('.lx-ak-flag.lx-on')).toHaveCount(0);
+  await expect(page.locator('#lx-ak-flagcount')).toContainText('ยังไม่ได้ติดธง');
+});
