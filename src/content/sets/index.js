@@ -20,8 +20,9 @@ import set15 from './set-15.js';
 import set16 from './set-16.js';
 import set17 from './set-17.js';
 import set18 from './set-18.js';
+import set19 from './set-19.js';
 
-export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18];
+export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19];
 
 // ตัวเลือกในข้อสอบจริงใช้หมายเลข 1 2 3 (ไม่ใช่ ก ข ค)
 export const OPTION_LABELS = ['1', '2', '3', '4'];
