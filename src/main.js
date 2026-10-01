@@ -12,12 +12,13 @@ import { mountReview } from './screens/review.js';
 import { mountBreak, mountReward } from './screens/rest.js';
 import { mountHome, mountSets, mountBuddy, mountAlbum, sessionUsable } from './screens/home.js';
 import { mountParent } from './screens/parent.js';
+import { mountAnswers } from './screens/answers.js';
 
 const root = document.querySelector('#app');
 const store = createStore(window.localStorage);
 const audio = createAudio({ base: import.meta.env.BASE_URL });
 
-const VIEWS = { home: mountHome, sets: mountSets, buddy: mountBuddy, album: mountAlbum, parent: mountParent };
+const VIEWS = { home: mountHome, sets: mountSets, buddy: mountBuddy, album: mountAlbum, parent: mountParent, answers: mountAnswers };
 const PHASES = { exam: mountExam, confirm: mountConfirm, review: mountReview, break: mountBreak, reward: mountReward, done: mountReward };
 
 let view = 'home';

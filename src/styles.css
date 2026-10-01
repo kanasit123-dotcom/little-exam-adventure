@@ -520,6 +520,34 @@ button.lx-fcard:active { transform: translateY(2px); }
 .lx-modal { position: fixed; inset: 0; background: rgba(74, 59, 82, .45); display: grid; place-items: center; z-index: 20; padding: 16px; }
 .lx-modal-card { background: #fff; border-radius: var(--r-lg); padding: 20px; max-width: 420px; text-align: center; font-size: 1.15rem; }
 
+/* ---------------------------------------------------------------- หน้าตรวจเฉลยสำหรับผู้ปกครอง (อ่านอย่างเดียว เลื่อนได้) */
+.lx-ak-sets { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+.lx-ak-sets .lx-chip { min-width: 48px; min-height: 48px; }
+.lx-ak-sets .lx-chip.lx-ak-done { box-shadow: 0 0 0 3px var(--green) inset; }
+.lx-ak-strip { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 12px; }
+.lx-ak-key { display: flex; align-items: baseline; gap: 6px; min-width: 56px; min-height: 48px; padding: 4px 10px; border: 0; border-radius: 12px; background: #f3ecff; cursor: pointer; font-size: 1.05rem; justify-content: center; align-items: center; }
+.lx-ak-key b { font-size: 1.15rem; }
+.lx-ak-key span { background: var(--green-dark); color: #fff; border-radius: 999px; min-width: 26px; height: 26px; line-height: 26px; text-align: center; font-size: 1rem; }
+.lx-ak-banner { margin-top: 18px; }
+.lx-ak-story { background: #f3faff; border-radius: var(--r-sm); box-shadow: 0 0 0 3px var(--blue) inset; padding: 10px 14px; margin: 8px 0; }
+.lx-ak-story-text { margin: 0; font-size: 1.12rem; line-height: 1.7; }
+.lx-ak-card { border: 2px solid var(--card-edge); border-radius: var(--r-sm); padding: 10px 14px 12px; margin: 10px 0; scroll-margin-top: 8px; }
+.lx-ak-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.lx-ak-ans { background: var(--green-dark); color: #fff; border-radius: 999px; padding: 2px 14px; font-weight: 700; }
+.lx-ak-ok { color: var(--green-dark); font-size: .95rem; }
+.lx-ak-q { font-size: 1.2rem; line-height: 1.55; margin: 8px 0 4px; }
+.lx-ak-n { font-family: var(--font-num); font-weight: 700; color: var(--purple-dark); }
+.lx-ak-vis { margin: 6px 0; }
+.lx-ak-options { margin: 8px 0; }
+.lx-ak-options .lx-pick { min-height: 56px; }
+.lx-ak-options.lx-options-pics .lx-pick { min-height: 100px; }
+.lx-ak-options .lx-opt-pic, .lx-ak-options .lx-pick .lx-fold, .lx-ak-options .lx-pick .lx-cake, .lx-ak-options .lx-pick .lx-figure { width: auto; height: 84px; max-width: 100%; aspect-ratio: 1; object-fit: contain; }
+.lx-ak-why { margin: 6px 0; line-height: 1.6; }
+.lx-ak-more { margin: 4px 0; }
+.lx-ak-more summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; color: var(--blue-dark); }
+.lx-ak-more ol, .lx-ak-more ul { margin: 4px 0; padding-left: 1.4em; line-height: 1.6; }
+.lx-ak-transfer { background: #fafaf5; border-radius: var(--r-sm); padding: 0 10px; }
+
 /* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
 body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {

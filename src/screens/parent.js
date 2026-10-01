@@ -51,6 +51,7 @@ export function mountParent(root, ctx) {
             <div class="lx-field"><label>หน้าจอ</label>
               <div class="lx-seg" data-key="mode"><button data-v="buddy" type="button">มีเพื่อนและฉาก</button><button data-v="plain" type="button">เรียบง่าย</button></div></div>
           </section>
+          <div class="lx-row"><button class="lx-btn lx-btn-soft" id="lx-answers" type="button">📋 ตรวจเฉลยทุกข้อของแต่ละชุด</button></div>
           <h2 class="lx-h2">ผลล่าสุด ${latest ? `· ${esc(getSet(latest.setId)?.title || latest.setId)} · เริ่ม ${date(latest.startedAt)}${latest.abandoned ? ' (เลิกกลางคัน)' : latest.phase === 'done' ? ' (ทำครบ)' : ' (กำลังทำ)'}` : ''}</h2>
           ${latest ? sessionReport(latest) : '<p class="lx-small">ยังไม่มีผล</p>'}
           <h2 class="lx-h2">ผลรายชุด</h2>
@@ -95,6 +96,7 @@ export function mountParent(root, ctx) {
       return;
     }
     if (event.target.closest('#lx-back')) { ctx.go('home'); return; }
+    if (event.target.closest('#lx-answers')) { ctx.go('answers'); return; }
     if (event.target.closest('#lx-abandon')) {
       const ok = await confirmBox(root, { text: 'เลิกชุดที่ทำค้างใช่ไหม ผลที่ส่งแล้วจะเก็บไว้ในประวัติ', yes: 'เลิกชุดนี้', no: 'ไม่ใช่' }, signal);
       if (ok) { store.dispatch({ type: 'abandon', now: Date.now() }); render(); }

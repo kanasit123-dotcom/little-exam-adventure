@@ -16,7 +16,7 @@ The user's latest pasted specification and approved plan supersede the earlier d
 - Layout rule (parent, 2026-09-30): a question and its answers must fit one screen on iPhone and iPad (no scrolling); `tests/e2e/fit.spec.js` enforces it for every question of every set.
 - Also live: mock exam (30 questions drawn from every set, stories kept whole), mistakes practice, growable friend stickers, reopenable reviews, per-set progress, recorded Premwadee voice at two speeds with phrase pauses (commas between phrases, approved by the parent on iPhone).
 - Pictures: Gemini sheets A-H cut into `public/assets/pictures/`, registered in `src/core/assets.js`. Code-drawn visuals in `src/visuals/visuals.js` (grid, board, figure-row, etc.).
-- Pending gates: parent review of sets 2-17 (`reviewStatus: 'draft'`), real iPad Safari test.
+- Pending gates: parent review of sets 2-17 (`reviewStatus: 'draft'`), real iPad Safari test. The review is now quick: parent page → "ตรวจเฉลยทุกข้อของแต่ละชุด" (`src/screens/answers.js`) lists every question of a set with its answer, reasoning and practice question on one scrolling page (read-only, no audio).
 - How to add a set, gotchas, and the ranked list of next tasks: **docs/ADDING-A-SET.md**.
 
 The assignment below was the brief for that slice. Keep its constraints for later work.
