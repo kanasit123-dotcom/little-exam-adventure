@@ -548,6 +548,16 @@ button.lx-fcard:active { transform: translateY(2px); }
 .lx-ak-more ol, .lx-ak-more ul { margin: 4px 0; padding-left: 1.4em; line-height: 1.6; }
 .lx-ak-transfer { background: #fafaf5; border-radius: var(--r-sm); padding: 0 10px; }
 
+/* รายงานจุดอ่อน (หน้าผู้ปกครอง) */
+.lx-weak { list-style: none; padding: 0; margin: 6px 0 4px; }
+.lx-weak-row { display: grid; grid-template-columns: 8.5em minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--card-edge); }
+.lx-wbar { height: 16px; background: #eee6f5; border-radius: 999px; overflow: hidden; }
+.lx-wbar i { display: block; height: 100%; background: var(--green-dark); border-radius: 999px; }
+.lx-weak-low .lx-wbar i { background: var(--orange); }
+.lx-weak-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lx-weak-flag { grid-column: 1 / -1; color: var(--orange-dark); font-weight: 700; font-size: .95rem; }
+.lx-mistakes small { color: var(--ink-soft); }
+
 /* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
 body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {

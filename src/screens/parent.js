@@ -1,6 +1,6 @@
 /* หน้าผู้ปกครอง: ตั้งค่า + สรุปผลแบบย่อ (แยกก่อนสอน/หลังสอน ฟังซ้ำ คำใบ้) — ไม่จัดอันดับ ไม่ส่งข้อมูลออก */
 import { SETS, getSet } from '../content/sets/index.js';
-import { summarize } from '../core/summary.js';
+import { summarize, weakSpots, frequentMistakes } from '../core/summary.js';
 import { $, esc, on, confirmBox } from '../ui.js';
 import { sessionUsable } from './home.js';
 
@@ -31,6 +31,34 @@ function sessionReport(session) {
     <div class="lx-subjects">${Object.values(sum.bySubject).map((s) => `<span class="lx-subject-chip">${esc(s.name)} ${s.correct}/${s.total}</span>`).join('')}</div>`;
 }
 
+const clip = (text, max = 70) => (text.length > max ? `${text.slice(0, max)}…` : text);
+const LOW = 0.6;      // ต่ำกว่านี้ (และมีข้อมูลพอ) = ควรฝึกเพิ่ม
+const ENOUGH = 4;     // ข้อน้อยกว่านี้ในหมวด ยังไม่ตัดสิน
+
+/** จุดอ่อน: ความแม่นคำตอบแรกแยกหมวด + ข้อที่ยังพลาดบ่อย (คำนวณจากประวัติ ไม่ต้องเก็บข้อมูลเพิ่ม) */
+function weakReport(state) {
+  const { sessions, questions, subjects } = weakSpots(state, sessionUsable);
+  if (!questions) return '<p class="lx-small">ยังไม่มีคำตอบที่ส่งแล้ว ทำข้อสอบสักชุด รายงานจะขึ้นที่นี่</p>';
+  const low = subjects.filter((s) => s.n >= ENOUGH && s.ok / s.n < LOW);
+  const mistakes = frequentMistakes(state);
+  return `
+    <p class="lx-small">นับ "คำตอบแรก" ก่อนได้เห็นเฉลย จากที่ส่งแล้ว ${questions} ข้อ ใน ${sessions} ชุดล่าสุด (ไม่นับชุดทบทวน)${questions < 12 ? ' · ข้อมูลยังน้อย ทำอีกสองสามชุดแล้วจะแม่นขึ้น' : ''}</p>
+    <p class="lx-lead">${low.length ? `ควรฝึกเพิ่ม: <b>${low.map((s) => esc(s.name)).join(', ')}</b>` : 'ตอนนี้ยังไม่พบหมวดที่ตอบผิดมาก'}</p>
+    <ul class="lx-weak">${subjects.map((s) => {
+      const pct = Math.round((s.ok / s.n) * 100);
+      const flagged = s.n >= ENOUGH && s.ok / s.n < LOW;
+      return `<li class="lx-weak-row${flagged ? ' lx-weak-low' : ''}">
+        <span class="lx-weak-name">${esc(s.name)}</span>
+        <span class="lx-wbar" role="img" aria-label="${esc(s.name)} ถูก ${s.ok} จาก ${s.n} ข้อ"><i style="width:${pct}%"></i></span>
+        <span class="lx-weak-num">${s.ok}/${s.n} · ${pct}%</span>
+        ${flagged ? '<span class="lx-weak-flag">ควรฝึกเพิ่ม</span>' : ''}
+      </li>`;
+    }).join('')}</ul>
+    ${mistakes.length ? `<h3 class="lx-h3">ข้อที่ยังพลาดบ่อย</h3>
+      <ul class="lx-history lx-mistakes">${mistakes.map((m) => `<li><b>${esc(m.setTitle)}</b> · ${esc(m.subjectName)} · “${esc(clip(m.prompt))}” <small>พลาด ${m.misses} ครั้ง</small></li>`).join('')}</ul>
+      <p class="lx-small">ฝึกซ้ำได้ที่หน้าเลือกชุด → "ทบทวนข้อที่เคยตอบผิด" (ตอบถูกแล้วข้อนั้นจะหายจากรายการ)</p>` : ''}`;
+}
+
 export function mountParent(root, ctx) {
   const { store, signal } = ctx;
   const render = () => {
@@ -52,6 +80,8 @@ export function mountParent(root, ctx) {
               <div class="lx-seg" data-key="mode"><button data-v="buddy" type="button">มีเพื่อนและฉาก</button><button data-v="plain" type="button">เรียบง่าย</button></div></div>
           </section>
           <div class="lx-row"><button class="lx-btn lx-btn-soft" id="lx-answers" type="button">📋 ตรวจเฉลยทุกข้อของแต่ละชุด</button></div>
+          <h2 class="lx-h2">จุดที่ควรฝึกเพิ่ม</h2>
+          ${weakReport(state)}
           <h2 class="lx-h2">ผลล่าสุด ${latest ? `· ${esc(getSet(latest.setId)?.title || latest.setId)} · เริ่ม ${date(latest.startedAt)}${latest.abandoned ? ' (เลิกกลางคัน)' : latest.phase === 'done' ? ' (ทำครบ)' : ' (กำลังทำ)'}` : ''}</h2>
           ${latest ? sessionReport(latest) : '<p class="lx-small">ยังไม่มีผล</p>'}
           <h2 class="lx-h2">ผลรายชุด</h2>

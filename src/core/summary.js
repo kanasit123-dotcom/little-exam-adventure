@@ -2,7 +2,7 @@
  * สรุปผลสำหรับผู้ปกครอง — แยกคำตอบครั้งแรก (ก่อนสอน) กับผลหลังเรียน (โจทย์ลองใหม่)
  * ไม่ตีความจำนวนการฟังซ้ำว่าเข้าใจหรือไม่เข้าใจ แค่รายงานตัวเลข
  */
-import { getItem, OPTION_LABELS, SUBJECTS } from '../content/sets/index.js';
+import { SETS, getItem, getSet, OPTION_LABELS, SUBJECTS } from '../content/sets/index.js';
 import { UNSURE, submittedAnswer } from './state.js';
 
 export function answerStatus(item, answer) {
@@ -66,4 +66,54 @@ export function summarize(session, set) {
       baselineTotal: rows.filter((row) => !row.exposed).length,
     },
   };
+}
+
+/**
+ * รายงานจุดอ่อนสำหรับผู้ปกครอง: ความแม่นของ "คำตอบครั้งแรก" แยกตามหมวด รวมจากชุดที่ทำล่าสุด (ประวัติเก็บ 10 ครั้ง + ชุดที่กำลังทำ)
+ * ไม่นับชุดทบทวน (ข้อเดิมซ้ำ) ไม่นับข้อที่ยังไม่ได้ส่ง และไม่นับข้อที่เคยได้เรียนทักษะเดียวกันในเฉลยช่วงก่อนของชุดเดียวกัน
+ * usable(session) = session นี้ยังตรงกับเนื้อหาปัจจุบันไหม (ส่งมาจากหน้าจอ เพื่อไม่ให้ core อ้างถึง screens)
+ */
+export function weakSpots(state, usable = () => true) {
+  const sessions = [];
+  const seen = new Set();
+  for (const session of [state.session, ...(state.history || [])]) {
+    if (!session || seen.has(session.id)) continue;
+    seen.add(session.id);
+    sessions.push(session);
+  }
+  const bySubject = {};
+  let used = 0;
+  for (const session of sessions) {
+    if (session.setId === 'practice') continue;
+    const set = getSet(session.setId);
+    if (!set || !usable(session)) continue;
+    let counted = 0;
+    for (const row of summarize(session, set).rows) {
+      if (row.status === 'none' || row.exposed) continue;
+      const entry = (bySubject[row.subject] ||= { id: row.subject, name: row.subjectName, n: 0, ok: 0 });
+      entry.n++;
+      if (row.status === 'correct') entry.ok++;
+      counted++;
+    }
+    if (counted) used++;
+  }
+  const subjects = Object.values(bySubject).sort((a, b) => a.ok / a.n - b.ok / b.n || b.n - a.n);
+  return { sessions: used, questions: subjects.reduce((sum, s) => sum + s.n, 0), subjects };
+}
+
+/** ข้อที่เคยตอบผิด/ไม่แน่ใจและยังไม่ตอบถูกในชุดทบทวน เรียงจากพลาดบ่อยสุด (เท่ากัน = พลาดล่าสุดก่อน) */
+export function frequentMistakes(state, limit = 8) {
+  const practice = getSet('practice');
+  return Object.entries(state.mistakes || {})
+    .map(([id, m]) => ({ id, misses: m.misses, at: m.at, item: getItem(practice, id) }))
+    .filter((entry) => entry.item?.type === 'main')
+    .sort((a, b) => b.misses - a.misses || b.at - a.at)
+    .slice(0, limit)
+    .map(({ id, misses, item }) => ({
+      id,
+      misses,
+      subjectName: SUBJECTS[item.subject] || '',
+      setTitle: SETS.find((set) => set.items.some((x) => x.id === id))?.title || '',
+      prompt: item.prompt.text.replace(/\s*\n\s*/g, ' '),
+    }));
 }

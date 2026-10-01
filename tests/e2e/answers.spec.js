@@ -1,6 +1,6 @@
 // หน้าตรวจเฉลยของผู้ปกครอง: ทุกชุดแสดงครบทุกข้อ ทุกข้อมีเฉลยเดียวและตรงกับข้อมูล รูปโหลดครบ ไม่ล้นจอ ปุ่มกดได้
 import { test, expect } from '@playwright/test';
-import { freshStart, noHorizontalOverflow } from './helpers.js';
+import { freshStart, startSet, answerAndSubmitBlock, noHorizontalOverflow } from './helpers.js';
 import { SETS, OPTION_LABELS } from '../../src/content/sets/index.js';
 
 test.beforeEach(({}, info) => test.skip(info.project.name !== 'mobile-chrome', 'ตรวจครั้งเดียวพอ'));
@@ -53,4 +53,24 @@ test('answer key: reachable from the parent page, jump keys work, back returns',
   expect(Math.abs(top)).toBeLessThan(40);
   await page.locator('#lx-ak-back').click();
   await expect(page.locator('#lx-answers')).toBeVisible();
+});
+
+test('weak-spot report: after a submitted block the parent page shows per-subject accuracy and missed questions', async ({ page }) => {
+  await freshStart(page);
+  await page.locator('#lx-parent').click();
+  await expect(page.locator('.lx-parent')).toContainText('ยังไม่มีคำตอบที่ส่งแล้ว');
+  await page.locator('#lx-back').click();
+  await startSet(page);
+  await answerAndSubmitBlock(page, () => 'unsure');
+  await page.reload();
+  await page.locator('#lx-parent').click();
+  const rows = await page.locator('.lx-weak-row').count();
+  expect(rows).toBeGreaterThan(0);
+  await expect(page.locator('.lx-parent')).toContainText('ข้อที่ยังพลาดบ่อย');
+  expect(await page.locator('.lx-mistakes li').count()).toBe(5);
+  expect(await noHorizontalOverflow(page)).toBe(true);
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 700 });
+    expect(await noHorizontalOverflow(page), `parent page overflows at ${width}`).toBe(true);
+  }
 });
