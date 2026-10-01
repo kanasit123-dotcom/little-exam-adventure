@@ -9,13 +9,14 @@
 
 The user's latest pasted specification and approved plan supersede the earlier draft. The missing attachment named Lily_Exam_Game_Work_Handoff.md is NOT a blocker.
 
-## Current State (2026-09-30) — read docs/ADDING-A-SET.md next
+## Current State (2026-10-01) — read docs/ADDING-A-SET.md next
 
 - Working directory: C:\Users\KANASIT\Documents\Codex\little-exam-adventure. Public repo `kanasit123-dotcom/little-exam-adventure`, GitHub Pages from `main`; deploy with `gh workflow run pages.yml --ref main` (pushes alone do not trigger it).
-- 14 sets are live. Sets 1-11: 12 questions (5+5+2). Sets 12-14: the newer 15-question format (one five-question story, a picture board, then single questions; picture-only options may have four choices). Parent rule: do not change sets 1-11.
+- 17 sets are live. Sets 1-11: 12 questions (5+5+2). Sets 12-17: the newer 15-question format (one five-question story or picture board per block; picture-only options may have four choices). Parent rule: do not change sets 1-11.
+- Layout rule (parent, 2026-09-30): a question and its answers must fit one screen on iPhone and iPad (no scrolling); `tests/e2e/fit.spec.js` enforces it for every question of every set.
 - Also live: mock exam (30 questions drawn from every set, stories kept whole), mistakes practice, growable friend stickers, reopenable reviews, per-set progress, recorded Premwadee voice at two speeds with phrase pauses (commas between phrases, approved by the parent on iPhone).
-- Pictures: Gemini sheets A-G cut into `public/assets/pictures/`, registered in `src/core/assets.js`. Code-drawn visuals in `src/visuals/visuals.js` (grid, board, figure-row, etc.).
-- Pending gates: parent review of sets 2-14 (`reviewStatus: 'draft'`), real iPad Safari test.
+- Pictures: Gemini sheets A-H cut into `public/assets/pictures/`, registered in `src/core/assets.js`. Code-drawn visuals in `src/visuals/visuals.js` (grid, board, figure-row, etc.).
+- Pending gates: parent review of sets 2-17 (`reviewStatus: 'draft'`), real iPad Safari test.
 - How to add a set, gotchas, and the ranked list of next tasks: **docs/ADDING-A-SET.md**.
 
 The assignment below was the brief for that slice. Keep its constraints for later work.
