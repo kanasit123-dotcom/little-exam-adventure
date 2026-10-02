@@ -95,6 +95,13 @@ const PICTURES = {
   'body-knee': 'เข่า',
   'body-elbow': 'ศอก',
   'body-hair': 'ผม',
+  // แผ่น L M N (design/PROMPTS-gemini-11.md) — เด็กทั้งตัว (ตัดพื้น), ภาพเรียงลำดับ 4 เรื่อง และสถานที่ในชุมชน 12 แห่ง (อยู่ในกรอบ)
+  'child-girl': 'เด็กหญิง', 'child-boy': 'เด็กชาย',
+  'seq-dress-1': 'ภาพเหตุการณ์', 'seq-dress-2': 'ภาพเหตุการณ์', 'seq-dress-3': 'ภาพเหตุการณ์', 'seq-dress-4': 'ภาพเหตุการณ์',
+  'seq-fish-1': 'ภาพเหตุการณ์', 'seq-fish-2': 'ภาพเหตุการณ์', 'seq-fish-3': 'ภาพเหตุการณ์', 'seq-fish-4': 'ภาพเหตุการณ์',
+  'seq-tree-1': 'ภาพเหตุการณ์', 'seq-tree-2': 'ภาพเหตุการณ์', 'seq-tree-3': 'ภาพเหตุการณ์', 'seq-tree-4': 'ภาพเหตุการณ์',
+  'seq-egg-1': 'ภาพเหตุการณ์', 'seq-egg-2': 'ภาพเหตุการณ์', 'seq-egg-3': 'ภาพเหตุการณ์', 'seq-egg-4': 'ภาพเหตุการณ์',
+  'place-hospital': 'ภาพสถานที่', 'place-police': 'ภาพสถานที่', 'place-fire': 'ภาพสถานที่', 'place-post': 'ภาพสถานที่', 'place-library': 'ภาพสถานที่', 'place-supermarket': 'ภาพสถานที่', 'place-bus': 'ภาพสถานที่', 'place-bank': 'ภาพสถานที่', 'place-bakery': 'ภาพสถานที่', 'place-gas': 'ภาพสถานที่', 'place-park': 'ภาพสถานที่', 'place-pharmacy': 'ภาพสถานที่',
 };
 export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',

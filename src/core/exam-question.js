@@ -15,6 +15,7 @@ function copySvg(svg) {
   if (svg.figure) return { figure: { ...svg.figure } };
   if (svg.count) return { count: { asset: svg.count.asset, n: svg.count.n } };
   if (svg.venn) return { venn: svg.venn };
+  if (svg.piece) return { piece: { asset: svg.piece.asset, cell: svg.piece.cell } };
   return null;
 }
 
@@ -38,6 +39,10 @@ export function copyVisual(visual) {
     case 'equivalence': return { type: 'equivalence', rows: visual.rows.map((r) => ({ left: r.left, right: r.right, count: r.count })) };
     case 'scatter': return { type: 'scatter', items: visual.items.map((i) => ({ asset: i.asset, count: i.count })) };
     case 'stack': return { type: 'stack', columns: visual.columns.slice() };
+    case 'jigsaw': return { type: 'jigsaw', asset: visual.asset, missing: visual.missing };
+    case 'calendar': return { type: 'calendar', month: visual.month, start: visual.start, days: visual.days, marks: (visual.marks || []).slice() };
+    case 'labeled': return { type: 'labeled', asset: visual.asset, marks: visual.marks.map((m) => (m.lx === undefined ? { n: m.n, x: m.x, y: m.y } : { n: m.n, x: m.x, y: m.y, lx: m.lx, ly: m.ly })) };
+    case 'distance': return { type: 'distance', items: visual.items.map((item) => ({ asset: item.asset, size: item.size })) };
     case 'grid': return { type: 'grid', rows: visual.rows.map((r) => r.slice()) };
     case 'board': return { type: 'board', items: visual.items.slice() };
     case 'figure-row': return { type: 'figure-row', items: visual.items.map(copyFigure) };
@@ -73,6 +78,7 @@ export function toExamQuestion(set, item, order = item.options.map((option) => o
     promptSpeech: promptSpeech(item),
     visual: copyVisual(item.visual),
     compact: !!item.compact,
+    scene: !!item.scene,
     options,
   };
 }

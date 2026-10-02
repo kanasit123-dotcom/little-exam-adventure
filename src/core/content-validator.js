@@ -2,7 +2,8 @@ import { SUBJECTS } from '../content/sets/index.js';
 
 const TYPES = new Set(['main', 'transfer']);
 const PROVENANCE = new Set(['original', 'official', 'third-party-practice']);
-const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack', 'grid', 'board', 'figure-row', 'figure-grid']);
+const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack', 'grid', 'board', 'figure-row', 'figure-grid', 'jigsaw', 'calendar', 'distance', 'labeled']);
+export const PIECE_CELLS = new Set(['tl', 'tr', 'bl', 'br']);
 export const ARROWS = new Set(['up', 'right', 'down', 'left']);
 export const HALVES = new Set(['tl', 'tr', 'br', 'bl']);
 export const SHAPES = new Set(['circle', 'square', 'triangle', 'hexagon', 'diamond']);
@@ -70,6 +71,7 @@ function validSvg(svg, assetIds) {
   if (svg.fold) return FOLD_SHAPES.has(svg.fold);
   if (svg.cut) return CAKE_CUTS.has(svg.cut);
   if (svg.figure) return validFigure(svg.figure);
+  if (svg.piece) return !!svg.piece && typeof svg.piece.asset === 'string' && (!assetIds || assetIds.has(svg.piece.asset)) && PIECE_CELLS.has(svg.piece.cell);
   return false;
 }
 
@@ -109,6 +111,15 @@ export function validateVisual(visual, assetIds) {
   if (visual.type === 'board' && !(Array.isArray(visual.items) && visual.items.length >= 6 && visual.items.length <= 12 && new Set(visual.items).size === visual.items.length && visual.items.every(known))) errors.push('board needs 6-12 different known pictures');
   if (visual.type === 'figure-row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 5 && visual.items.filter((x) => x === '?').length === 1 && visual.items.every((x) => x === '?' || validFigure(x)))) errors.push('figure-row needs 3-5 figures with exactly one ?');
   if (visual.type === 'figure-grid' && !(Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 3 && visual.rows.every((r) => Array.isArray(r) && r.length === visual.rows[0].length && r.length >= 2 && r.length <= 3) && visual.rows.flat().filter((x) => x === '?').length === 1 && visual.rows.flat().every((x) => x === '?' || validFigure(x)))) errors.push('figure-grid needs 2-3 rows of 2-3 figures with exactly one ?');
+  if (visual.type === 'jigsaw' && !(known(visual.asset) && PIECE_CELLS.has(visual.missing))) errors.push('jigsaw needs a known picture and a missing cell tl, tr, bl or br');
+  if (visual.type === 'calendar' && !(visual.month && Number.isInteger(visual.start) && visual.start >= 0 && visual.start <= 6 && Number.isInteger(visual.days) && visual.days >= 28 && visual.days <= 31
+    && Math.ceil((visual.start + visual.days) / 7) <= 5 && (visual.marks || []).every((d) => Number.isInteger(d) && d >= 1 && d <= visual.days))) errors.push('calendar needs month, start 0-6, days 28-31, at most 5 weeks and marks inside the month');
+  if (visual.type === 'labeled' && !(known(visual.asset) && Array.isArray(visual.marks) && visual.marks.length >= 2 && visual.marks.length <= 8
+    && visual.marks.every((m) => Number.isInteger(m.n) && m.n >= 1 && m.n <= 9 && typeof m.x === 'number' && m.x >= 0 && m.x <= 100 && typeof m.y === 'number' && m.y >= 0 && m.y <= 100
+      && (m.lx === undefined ? m.ly === undefined : typeof m.lx === 'number' && m.lx >= 0 && m.lx <= 100 && typeof m.ly === 'number' && m.ly >= 0 && m.ly <= 100))
+    && new Set(visual.marks.map((m) => m.n)).size === visual.marks.length)) errors.push('labeled needs a known picture and 2-8 marks with different numbers 1-9, x, y (and optional lx, ly together) in 0-100');
+  if (visual.type === 'distance' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 4 && visual.items.every((i) => known(i.asset) && typeof i.size === 'number' && i.size >= 0.2 && i.size <= 1)
+    && new Set(visual.items.map((i) => i.size)).size === visual.items.length)) errors.push('distance needs 3-4 items with a known picture and different sizes 0.2-1');
   if (visual.type === 'clock' && !(Number.isInteger(visual.hour) && visual.hour >= 1 && visual.hour <= 12 && [0, 30].includes(visual.minute))) errors.push('clock needs hour 1-12 and minute 0 or 30');
   if (visual.type === 'table' && !(visual.unit && Array.isArray(visual.rows) && visual.rows.length >= 2 && visual.rows.length <= 5 && visual.rows.every((r) => r.name && Number.isInteger(r.count) && r.count >= 0 && r.count <= 99))) errors.push('table needs a unit and 2-5 rows of name and count 0-99');
   if (visual.type === 'number-row' && !(Array.isArray(visual.items) && visual.items.length >= 3 && visual.items.length <= 7 && visual.items.filter((x) => x === '?').length === 1 && visual.items.every((x) => x === '?' || Number.isInteger(x)))) errors.push('number-row needs 3-7 numbers with exactly one ?');

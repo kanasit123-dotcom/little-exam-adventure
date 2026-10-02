@@ -139,7 +139,7 @@ export function mountExam(root, ctx) {
             <p class="lx-qtext">${esc(q.promptText).replace(/\n/g, '<br>')}</p>
             <button class="lx-listen lx-listen-main" data-say="prompt" type="button" aria-label="ฟังโจทย์อีกครั้ง"><span class="lx-ico">🔊</span><span class="lx-lbl"> ฟังโจทย์อีกครั้ง</span></button>
           </div>
-          <div class="lx-options${hasImages ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}${q.compact ? ' lx-options-short' : ''}" role="group" aria-label="ตัวเลือก">
+          <div class="lx-options${hasImages ? ' lx-options-pics' : ''}${q.options.length === 4 ? ' lx-options-4' : ''}${q.compact ? ' lx-options-short' : ''}${q.scene ? ' lx-options-scene' : ''}" role="group" aria-label="ตัวเลือก">
             ${q.options.map((option, i) => `
               <div class="lx-opt">
                 <button class="lx-pick" data-i="${i}" type="button" aria-pressed="false">

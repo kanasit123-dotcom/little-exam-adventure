@@ -578,6 +578,46 @@ button.lx-fcard:active { transform: translateY(2px); }
 
 .lx-pre { white-space: pre-line; overflow-wrap: anywhere; }
 
+/* ปฏิทิน ใกล้-ไกล จิ๊กซอว์ (ชุด 28) */
+.lx-piece { display: block; background-repeat: no-repeat; background-size: 200% 200%; background-color: #fffdf8; border: 3px solid var(--card-edge); border-radius: 12px; box-sizing: border-box; }
+.lx-jig-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; width: min(60vw, 200px); margin: 4px auto; }
+.lx-jig-cell { aspect-ratio: 1; width: 100%; }
+.lx-jig-blank { display: grid; place-items: center; border: 3px dashed #7a5cff; border-radius: 12px; background: #f7f3ff; color: #7a5cff; font-size: 2rem; font-weight: 700; box-sizing: border-box; }
+.lx-calendar { width: min(100%, 340px); margin: 4px auto; background: #fff; border: 3px solid var(--card-edge); border-radius: 14px; overflow: hidden; }
+.lx-cal-title { background: var(--purple-dark); color: #fff; text-align: center; font-weight: 700; padding: 2px 8px; }
+.lx-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+.lx-cal-head, .lx-cal-cell { padding: 2px 0; font-size: 1rem; line-height: 1.5; border-top: 1px solid #f0e8f4; font-variant-numeric: tabular-nums; }
+.lx-cal-head { background: #f3ecff; font-weight: 700; border-top: 0; }
+.lx-cal-sun { color: #d6405f; }
+.lx-cal-mark { background: #fff1b8; border-radius: 50%; font-weight: 700; box-shadow: 0 0 0 2px #e0a800 inset; }
+.lx-distance { width: min(100%, 360px); margin: 4px auto; }
+.lx-dist-scene { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; border: 3px solid var(--card-edge); background: linear-gradient(#cfeaff 0 38%, #c6e8ae 38% 100%); }
+.lx-dist-item { position: absolute; transform: translateX(-50%); aspect-ratio: 1; }
+.lx-dist-pic { height: 100%; width: auto; display: block; }
+.lx-dist-nums { position: relative; width: 100%; height: 1.9rem; }
+.lx-dist-nums b { position: absolute; transform: translateX(-50%); top: 2px; min-width: 1.6rem; text-align: center; background: var(--purple-dark); color: #fff; border-radius: 999px; font-size: 1rem; line-height: 1.6rem; }
+.lx-compact .lx-jig-grid { width: min(48vw, clamp(120px, 22dvh, 190px)); }
+.lx-compact .lx-calendar { width: min(100%, 320px); }
+.lx-compact .lx-cal-head, .lx-compact .lx-cal-cell { font-size: clamp(.78rem, 2dvh, .95rem); line-height: 1.25; padding: 0; }
+/* จอเตี้ย (iPhone): ชื่อเดือนมีอยู่ในประโยคนำหรือในโจทย์แล้ว ซ่อนแถบชื่อเดือนเพื่อให้โจทย์กับตัวเลือกอยู่ในหน้าเดียว */
+@media (max-height: 760px) { .lx-compact .lx-cal-title { display: none; } }
+.lx-compact .lx-distance { width: min(100%, clamp(220px, 46dvh, 330px)); }
+
+/* รูปมีเลขชี้ */
+.lx-labeled-box { position: relative; display: inline-block; line-height: 0; }
+.lx-labeled-pic { height: min(46vh, 300px); width: auto; display: block; }
+.lx-labeled-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.lx-labeled-lines line { stroke: var(--purple-dark); stroke-width: 2; stroke-linecap: round; }
+.lx-labeled-lines circle { fill: var(--purple-dark); stroke: #fff; stroke-width: 1.5; }
+.lx-mark { position: absolute; transform: translate(-50%, -50%); min-width: 1.6rem; height: 1.6rem; line-height: 1.6rem; text-align: center; border-radius: 50%; background: var(--purple-dark); color: #fff; border: 2px solid #fff; font-size: 1rem; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+.lx-compact .lx-labeled-pic { height: clamp(160px, 34dvh, 300px); }
+
+/* ตัวเลือกเป็นภาพสถานที่ (item.scene: true): ภาพมีรายละเอียดมาก จึงให้ใหญ่กว่าปกติ เลขกับปุ่มฟังอยู่แถวบนของการ์ด */
+.lx-compact .lx-options.lx-options-scene .lx-pick { min-height: 0; padding: 44px 4px 6px; }
+.lx-compact .lx-options.lx-options-scene .lx-pick .lx-num { top: 8px; left: 12px; }
+.lx-compact .lx-options.lx-options-scene .lx-opt .lx-say { position: absolute; top: 2px; bottom: auto; right: 2px; transform: none; }
+.lx-compact .lx-options.lx-options-scene .lx-opt-pic { height: clamp(78px, 17dvh, 180px); width: auto; }
+
 /* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
 body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {

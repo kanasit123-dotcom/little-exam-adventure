@@ -306,9 +306,69 @@ function board(v) {
   </figure>`;
 }
 
-/** ตัวเลือกที่วาดด้วยโค้ด (รูปพับครึ่ง เค้กตัดแบ่ง หรือรูปเรขาคณิต) */
+// ชิ้นส่วนของภาพ 2x2 (จิ๊กซอว์): ครอปจากรูปที่มีอยู่ด้วย CSS ไม่ต้องสร้างรูปใหม่
+const PIECE_POS = { tl: '0% 0%', tr: '100% 0%', bl: '0% 100%', br: '100% 100%' };
+const pieceStyle = (asset, cell) => `background-image:url('${esc(asset_src(asset))}');background-position:${PIECE_POS[cell]}`;
+
+/** ตัวเลือกชิ้นส่วนภาพ: เด็กต้องดูว่าชิ้นไหนเป็นของภาพที่ขาดไป */
+export function renderPiece({ asset, cell }) {
+  return `<span class="lx-figure lx-piece" style="${pieceStyle(asset, cell)}" role="img" aria-label="ชิ้นส่วนของภาพ"></span>`;
+}
+
+// จิ๊กซอว์: ภาพ 2x2 ขาดหนึ่งช่อง ให้หาชิ้นที่ใส่ได้
+function jigsaw(v) {
+  const cell = (c) => (c === v.missing
+    ? '<span class="lx-jig-cell lx-jig-blank">?</span>'
+    : `<span class="lx-jig-cell lx-piece" style="${pieceStyle(v.asset, c)}"></span>`);
+  return `<figure class="lx-visual lx-jigsaw" aria-label="ภาพที่ขาดไปหนึ่งชิ้น">
+    <div class="lx-jig-grid">${['tl', 'tr', 'bl', 'br'].map(cell).join('')}</div>
+  </figure>`;
+}
+
+// รูปมีเลขชี้ (ส่วนของร่างกาย ฯลฯ): จุดชี้อยู่ที่ x, y เป็น % ของรูป — เด็กตอบว่าเลขนี้ชี้ส่วนใด
+// ถ้าใส่ lx, ly เลขจะอยู่ที่ตำแหน่งนั้น (ขอบรูป) แล้วลากเส้นไปที่จุดชี้ ไม่บังส่วนเล็กๆ เช่น หู; ไม่ใส่ เลขวางทับที่จุดชี้เลย
+function labeled(v) {
+  const led = v.marks.filter((m) => m.lx !== undefined);
+  const lines = led.map((m) => `<line x1="${m.x}%" y1="${m.y}%" x2="${m.lx}%" y2="${m.ly}%"/><circle cx="${m.x}%" cy="${m.y}%" r="3.5"/>`).join('');
+  return `<figure class="lx-visual lx-labeled" aria-label="รูปที่มีเลขชี้">
+    <div class="lx-labeled-box">${img(v.asset, 'lx-labeled-pic')}${lines ? `<svg class="lx-labeled-lines" aria-hidden="true">${lines}</svg>` : ''}${v.marks.map((m) => `<b class="lx-mark" style="left:${m.lx ?? m.x}%;top:${m.ly ?? m.y}%">${m.n}</b>`).join('')}</div>
+  </figure>`;
+}
+
+// ปฏิทินหนึ่งเดือน: start = วันของวันที่ 1 (0 = อาทิตย์ ... 6 = เสาร์) อาทิตย์เป็นตัวเลขสีแดงเหมือนปฏิทินจริง
+const WEEKDAY_ABBR = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+function calendar(v) {
+  const marks = new Set(v.marks || []);
+  const blanks = Array.from({ length: v.start }, () => '<span class="lx-cal-cell lx-cal-empty"></span>').join('');
+  const days = Array.from({ length: v.days }, (_, i) => {
+    const sunday = (v.start + i) % 7 === 0;
+    return `<span class="lx-cal-cell${sunday ? ' lx-cal-sun' : ''}${marks.has(i + 1) ? ' lx-cal-mark' : ''}">${i + 1}</span>`;
+  }).join('');
+  const head = WEEKDAY_ABBR.map((d, i) => `<b class="lx-cal-head${i === 0 ? ' lx-cal-sun' : ''}">${d}</b>`).join('');
+  return `<figure class="lx-visual lx-calendar" aria-label="ปฏิทินเดือน${esc(v.month)}">
+    <div class="lx-cal-title">เดือน${esc(v.month)}</div>
+    <div class="lx-cal-grid">${head}${blanks}${days}</div>
+  </figure>`;
+}
+
+// ใกล้-ไกล: รูปเดียวกันหลายรูป ยิ่งไกลยิ่งเล็กและอยู่สูงขึ้นใกล้ขอบฟ้า (size 0.2-1, 1 = ใกล้สุด) มีเลขกำกับด้านล่าง
+function distance(v) {
+  const n = v.items.length;
+  const at = (i) => ((i + 0.5) / n) * 100;
+  return `<figure class="lx-visual lx-distance" aria-label="รูปที่อยู่ใกล้และไกลต่างกัน">
+    <div class="lx-dist-scene">${v.items.map((item, i) => {
+      const height = 20 + item.size * 40;
+      const bottom = 6 + (1 - item.size) * 30;
+      return `<span class="lx-dist-item" style="left:${at(i)}%;bottom:${bottom}%;height:${height}%">${img(item.asset, 'lx-dist-pic')}</span>`;
+    }).join('')}</div>
+    <div class="lx-dist-nums">${v.items.map((_, i) => `<b style="left:${at(i)}%">${i + 1}</b>`).join('')}</div>
+  </figure>`;
+}
+
+/** ตัวเลือกที่วาดด้วยโค้ด (รูปพับครึ่ง เค้กตัดแบ่ง รูปเรขาคณิต หรือชิ้นส่วนภาพ) */
 export function renderOptionSvg(svg) {
   if (!svg) return '';
+  if (svg.piece) return renderPiece(svg.piece);
   if (svg.fold) return renderFold(svg.fold);
   if (svg.cut) return renderCake(svg.cut);
   if (svg.figure) return renderFigure(svg.figure);
@@ -354,6 +414,10 @@ export function renderVisual(visual) {
     case 'equivalence': return equivalence(visual);
     case 'scatter': return scatter(visual);
     case 'stack': return stack(visual);
+    case 'jigsaw': return jigsaw(visual);
+    case 'calendar': return calendar(visual);
+    case 'distance': return distance(visual);
+    case 'labeled': return labeled(visual);
     default: return '';
   }
 }
