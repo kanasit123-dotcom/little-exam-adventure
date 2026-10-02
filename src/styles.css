@@ -566,6 +566,16 @@ button.lx-fcard:active { transform: translateY(2px); }
 .lx-ak-flag.lx-on { background: #ffe9d6; border-color: var(--orange); font-weight: 700; }
 .lx-ak-flagtext { width: 100%; font: inherit; font-size: .95rem; border: 2px solid var(--card-edge); border-radius: var(--r-sm); padding: 8px; background: #fff; }
 
+/* โหมดสอบจริง (ฟัง 2 รอบ): ปุ่มฟังเป็นป้ายบอกรอบ ไม่มีปุ่มฟังรายตัวเลือก */
+.lx-twice .lx-say { display: none !important; }
+.lx-twice .lx-listen:disabled { opacity: 1; cursor: default; color: inherit; }
+/* ป้ายรอบกว้างเท่าปุ่มฟังเดิม (ไอคอนบน เลขรอบล่าง) ข้อความโจทย์จึงไม่ถูกบีบจนขึ้นบรรทัดใหม่ */
+.lx-twice .lx-listen { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; padding: 4px; min-width: 48px; }
+.lx-twice .lx-listen .lx-ico { font-size: 1rem; }
+.lx-twice .lx-listen .lx-cnt { font-size: .72rem; font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+.lx-twice .lx-listen.lx-rounds-done { background: #f1ecf6; box-shadow: 0 0 0 3px var(--card-edge) inset; }
+.lx-pick.lx-reading { box-shadow: 0 0 0 5px var(--blue); }
+
 /* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
 body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {

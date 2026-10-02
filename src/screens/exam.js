@@ -13,6 +13,9 @@ import { $, $$, buddyHTML, esc, on, picture, markSpeaking, sleep } from '../ui.j
 
 // ช่วงเงียบระหว่างหัวข้อตอน เรื่อง และคำถาม
 export const PAUSE_MS = 800;
+// โหมดสอบจริง: ครูอ่านโจทย์ 2 รอบ (รอบหนึ่ง = โจทย์ + ตัวเลือกทุกข้อ)
+export const ROUNDS = 2;
+const ROUND_GAP_MS = 1500;
 
 // จำว่าได้ยินอะไรไปแล้วในการเปิดแอปครั้งนี้ (หัวข้อตอน/เรื่อง) จะได้ไม่อ่านซ้ำทุกข้อ
 const heard = new Set();
@@ -25,7 +28,7 @@ export function mountExam(root, ctx) {
   let shownQid = null;
 
   root.innerHTML = `
-    <div class="lx-screen lx-exam lx-compact">
+    <div class="lx-screen lx-exam lx-compact${store.state.settings.listen === 'twice' ? ' lx-twice' : ''}">
       <header class="lx-bar">
         <button class="lx-btn lx-btn-small lx-btn-ghost" id="lx-pause" type="button" aria-label="พัก"><span class="lx-ico">⏸</span><span class="lx-lbl"> พัก</span></button>
         ${session().submitted.length ? '<button class="lx-btn lx-btn-small lx-btn-soft" id="lx-see-review" type="button" aria-label="ดูเฉลย"><span class="lx-ico">📖</span><span class="lx-lbl"> เฉลย</span></button>' : ''}
@@ -43,8 +46,30 @@ export function mountExam(root, ctx) {
     </div>`;
 
   const paper = $(root, '#lx-paper');
-  const unsubscribeSpeaking = audio.onChange((request) => markSpeaking(root, request));
+  const twice = () => store.state.settings.listen === 'twice';
+  const unsubscribeSpeaking = audio.onChange((request) => {
+    markSpeaking(root, request);
+    // โหมดสอบจริง: ไม่มีปุ่มฟังรายตัวเลือก ให้กรอบตัวเลือกที่กำลังอ่านเรืองแสงแทน (เหมือนครูชี้ทีละข้อ)
+    if (twice()) $$(paper, '.lx-pick').forEach((b) => b.classList.toggle('lx-reading', !!request && request.key === `opt-${b.dataset.i}`));
+  });
   signal.addEventListener('abort', () => { unsubscribeSpeaking(); qCtrl?.abort(); }, { once: true });
+
+  const roundsDone = (key) => session().replays[key]?.round || 0;
+
+  /** โหมดสอบจริง: ปุ่มฟังกลายเป็นป้ายบอกรอบที่ฟังแล้ว (กดไม่ได้) reading = { q|story: รอบที่กำลังอ่าน } */
+  function showRounds(q, reading = {}) {
+    if (!twice()) return;
+    const mark = (button, key, now) => {
+      if (!button) return;
+      const done = roundsDone(key);
+      const shown = now ?? done;
+      button.disabled = true;
+      button.classList.toggle('lx-rounds-done', done >= ROUNDS);
+      button.innerHTML = `<span class="lx-ico">🔊</span><span class="lx-cnt">${shown}/${ROUNDS}${done >= ROUNDS && now == null ? ' ✓' : ''}</span>`;
+    };
+    mark($(paper, '[data-say="prompt"]'), q.id, reading.q);
+    if (q.stimulus) mark($(paper, '[data-say="stimulus"]'), `story:${q.stimulus.id}`, reading.story);
+  }
 
   function question() {
     const s = session();
@@ -141,6 +166,7 @@ export function mountExam(root, ctx) {
     const qSignal = qCtrl.signal;
     nextReady = !store.state.settings.sound;
     renderBar();
+    if (twice() && store.state.settings.sound) { readTwice(q, qSignal); return; }
     const s = session();
     const seq = [];
     const blockKey = `${s.id}:block:${s.block}`;
@@ -171,7 +197,74 @@ export function mountExam(root, ctx) {
     renderBar();
   }
 
+  /**
+   * โหมดสอบจริง: อ่านเองครบ 2 รอบเหมือนครู — คำสั่งช่วง/ตอน (ครั้งเดียว) → เรื่องที่ใช้ร่วม 2 รอบ (ครั้งแรกของเรื่อง) → โจทย์ + ตัวเลือกทุกข้อ 2 รอบ
+   * นับรอบเมื่ออ่านจบรอบนั้นจริง (เก็บใน session จึงรีโหลดแล้วไม่ได้ฟังเพิ่ม) ข้อที่ฟังครบแล้วไม่อ่านซ้ำ
+   */
+  async function readTwice(q, qSignal) {
+    const s = session();
+    showRounds(q);
+    const stale = () => signal.aborted || qSignal.aborted;
+    const pause = async (ms) => { await sleep(ms, qSignal); return !stale(); };
+    const finish = () => { nextReady = true; renderBar(); };
+    // คืน 'ok' | 'stop' (ออกจากข้อนี้แล้ว) | 'error' (เปิดเสียงไม่ได้)
+    const read = async (text, key) => {
+      const role = key.startsWith('opt-') ? 'option' : 'prompt';
+      const result = await audio.play({ text, role, qid: q.id, key }, { signal: qSignal });
+      if (result.status === 'done' || result.status === 'muted') return 'ok';
+      return stale() || result.status === 'cancelled' ? 'stop' : 'error';
+    };
+    const fail = () => {
+      if (stale()) return;
+      $(root, '#lx-note').textContent = 'เปิดเสียงไม่ได้ ให้ผู้ปกครองอ่านโจทย์ให้ฟังแทนได้';
+      finish();
+    };
+    if (roundsDone(q.id) >= ROUNDS) { finish(); return; }
+
+    const intro = [];
+    const blockKey = `${s.id}:block:${s.block}`;
+    if (!heard.has(blockKey)) { intro.push(blockStart(s.block + 1)); heard.add(blockKey); }
+    const index = s.questionIds.indexOf(q.id);
+    const prev = index > 0 ? getItem(set, s.questionIds[index - 1]) : null;
+    const newSection = s.cursor === 0 || !prev || sectionOf(set, prev) !== q.section || (q.stimulus && prev.stimulus !== q.stimulus.id);
+    const sectionKey = `${s.id}:section:${q.id}`;
+    if (newSection && !heard.has(sectionKey)) { intro.push(q.section); heard.add(sectionKey); }
+    for (const [i, text] of intro.entries()) {
+      if (i > 0 && !(await pause(PAUSE_MS))) return;
+      const r = await read(text, 'intro');
+      if (r !== 'ok') { if (r === 'error') fail(); return; }
+    }
+
+    if (q.stimulus) {
+      const key = `story:${q.stimulus.id}`;
+      while (roundsDone(key) < ROUNDS) {
+        if (!(await pause(PAUSE_MS))) return;
+        showRounds(q, { story: roundsDone(key) + 1 });
+        const r = await read(q.stimulus.speech, 'stimulus');
+        if (r !== 'ok') { if (r === 'error') fail(); return; }
+        store.dispatch({ type: 'replay', role: 'round', qid: key });
+        showRounds(q);
+      }
+    }
+
+    const parts = [{ text: q.promptSpeech, key: 'prompt' }, ...q.options.map((option, i) => ({ text: option.speech, key: `opt-${i}` }))];
+    while (roundsDone(q.id) < ROUNDS) {
+      if (!(await pause(roundsDone(q.id) === 0 ? PAUSE_MS : ROUND_GAP_MS))) return;
+      showRounds(q, { q: roundsDone(q.id) + 1 });
+      for (const [i, part] of parts.entries()) {
+        if (i > 0 && !(await pause(i === 1 ? 700 : 450))) return;
+        const r = await read(part.text, part.key);
+        if (r !== 'ok') { if (r === 'error') fail(); return; }
+      }
+      store.dispatch({ type: 'replay', role: 'round', qid: q.id });
+      showRounds(q);
+    }
+    if (stale()) return;
+    finish();
+  }
+
   function listen(key) {
+    if (twice()) return;
     const q = question();
     nextReady = true;
     renderBar();

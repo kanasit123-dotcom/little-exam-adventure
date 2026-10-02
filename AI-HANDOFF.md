@@ -45,7 +45,7 @@ Do not build a replacement game from scratch or recreate working arithmetic algo
 - No sibling-runtime imports, shared storage keys, shared Service Worker caches or progress migration.
 - No timer; pause/resume every phase.
 - No hints, scratchpad, answer feedback or correctness-dependent buddy behavior during exam.
-- Replay prompt and individual options without limits or penalties. Listening to an option must not select it.
+- Replay prompt and individual options without limits or penalties (default). Listening to an option must not select it. Exception, opt-in only: the parent setting "การฟังโจทย์ในข้อสอบ = แบบสอบจริง 2 รอบ" (`settings.listen === 'twice'`) makes the game read each question twice itself and removes replay in the exam screen (not in review) — see docs/DECISIONS.md.
 - Review only submitted blocks; don't overwrite original answers with learned answers.
 - One voice at a time across all roles. Explicit replay cancels old speech; automatic flow waits for completion.
 - Calm buddy stays still/silent while listening or thinking. More animation belongs in review/break/rewards.

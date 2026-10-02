@@ -31,6 +31,7 @@ export function normalize(raw) {
     if (['normal', 'slow'].includes(raw.settings.rate)) settings.rate = raw.settings.rate;
     if (typeof raw.settings.buddy === 'string') settings.buddy = raw.settings.buddy;
     if (['buddy', 'plain'].includes(raw.settings.mode)) settings.mode = raw.settings.mode;
+    if (['free', 'twice'].includes(raw.settings.listen)) settings.listen = raw.settings.listen;
   }
   const friends = {};
   if (isObj(raw.rewards?.friends)) for (const [id, n] of Object.entries(raw.rewards.friends)) if (Number.isInteger(n) && n > 0) friends[id] = n;

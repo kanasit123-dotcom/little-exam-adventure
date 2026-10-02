@@ -6,12 +6,13 @@
 export const STATE_VERSION = 1;
 export const HISTORY_LIMIT = 10;
 export const UNSURE = 'unsure';
-export const REPLAY_ROLES = ['prompt', 'option', 'hint', 'explanation', 'transfer'];
+// round = ครบหนึ่งรอบที่ "ครู" อ่านโจทย์ในโหมดสอบจริง (ฟัง 2 รอบ) นับรายข้อ และรายเรื่อง (qid = story:<รหัสเรื่อง>)
+export const REPLAY_ROLES = ['prompt', 'option', 'hint', 'explanation', 'transfer', 'round'];
 
 export function initialState() {
   return {
     version: STATE_VERSION,
-    settings: { sound: true, rate: 'normal', buddy: null, mode: 'buddy' },
+    settings: { sound: true, rate: 'normal', buddy: null, mode: 'buddy', listen: 'free' },
     session: null,
     // friends: รหัสเพื่อน -> จำนวนครั้งที่เลือก (ใช้คิดขนาด เล็ก กลาง ใหญ่ ใหญ่มาก)
     rewards: { stars: 0, stickers: [], friends: {}, claimed: {} },
@@ -30,6 +31,8 @@ const SETTINGS = {
   rate: (v) => v === 'normal' || v === 'slow',
   buddy: (v) => v === null || typeof v === 'string',
   mode: (v) => v === 'buddy' || v === 'plain',
+  // free = ฟังโจทย์ซ้ำได้ไม่จำกัด (ฝึก) · twice = แบบสอบจริง ครูอ่านโจทย์และตัวเลือก 2 รอบแล้วฟังซ้ำไม่ได้
+  listen: (v) => v === 'free' || v === 'twice',
 };
 
 export const currentBlockIds = (session) => session?.blocks[session.block] || [];

@@ -76,9 +76,12 @@ export function mountParent(root, ctx) {
               <div class="lx-seg" data-key="sound"><button data-v="true" type="button">เปิด</button><button data-v="false" type="button">ปิด</button></div></div>
             <div class="lx-field"><label>ความเร็วเสียง</label>
               <div class="lx-seg" data-key="rate"><button data-v="normal" type="button">ปกติ</button><button data-v="slow" type="button">ช้าลง</button></div></div>
+            <div class="lx-field"><label>การฟังโจทย์ในข้อสอบ</label>
+              <div class="lx-seg" data-key="listen"><button data-v="free" type="button">ฟังซ้ำได้</button><button data-v="twice" type="button">แบบสอบจริง 2 รอบ</button></div></div>
             <div class="lx-field"><label>หน้าจอ</label>
               <div class="lx-seg" data-key="mode"><button data-v="buddy" type="button">มีเพื่อนและฉาก</button><button data-v="plain" type="button">เรียบง่าย</button></div></div>
           </section>
+          <p class="lx-small">แบบสอบจริง 2 รอบ: เหมือนห้องสอบที่ครูอ่านโจทย์ให้ฟังแค่ 2 รอบ — เกมอ่านโจทย์พร้อมตัวเลือกให้ฟัง 2 รอบเอง (เรื่องที่ใช้ร่วมกันอ่าน 2 รอบก่อนข้อแรก) แล้วฟังซ้ำไม่ได้ ต้องอ่านตัวหนังสือในโจทย์ช่วย ส่วนหน้าเฉลยฟังซ้ำได้ตามปกติ</p>
           <div class="lx-row"><button class="lx-btn lx-btn-soft" id="lx-answers" type="button">📋 ตรวจเฉลยทุกข้อของแต่ละชุด</button></div>
           <h2 class="lx-h2">จุดที่ควรฝึกเพิ่ม</h2>
           ${weakReport(state)}

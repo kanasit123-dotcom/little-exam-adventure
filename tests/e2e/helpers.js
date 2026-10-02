@@ -11,13 +11,13 @@ export function quietState(extra = {}) {
 }
 
 /** เปิดเกมใหม่แบบไม่มีข้อมูลเก่า (ปิดเสียงไว้ เพื่อให้ test ไม่ต้องรอเสียงอ่าน) */
-export async function freshStart(page, { sound = false, others = {} } = {}) {
+export async function freshStart(page, { sound = false, listen = 'free', others = {} } = {}) {
   await page.goto('/');
   await page.evaluate(({ key, state, others }) => {
     localStorage.clear();
     for (const [k, v] of Object.entries(others)) localStorage.setItem(k, v);
     localStorage.setItem(key, JSON.stringify(state));
-  }, { key: KEY, state: quietState({ settings: { sound } }), others });
+  }, { key: KEY, state: quietState({ settings: { sound, listen } }), others });
   await page.reload();
 }
 
