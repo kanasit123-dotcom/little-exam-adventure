@@ -82,6 +82,19 @@ const PICTURES = {
   'manner-grab': 'เด็กสองคน',
   'manner-tap': 'เด็กที่อ่างล้างหน้า',
   'manner-sneeze': 'เด็กสองคน',
+  // แผ่น K (design/PROMPTS-gemini-10.md) — ส่วนของร่างกาย 12 ภาพ (ตา หู มือ เท้า วาดเป็นคู่ จมูก ปาก ลิ้น อย่างละหนึ่ง มือข้างเดียวเห็นนิ้ว 5 นิ้ว)
+  'body-eyes': 'ตา',
+  'body-ears': 'หู',
+  'body-nose': 'จมูก',
+  'body-mouth': 'ปาก',
+  'body-hands': 'มือ',
+  'body-feet': 'เท้า',
+  'body-teeth': 'ฟัน',
+  'body-tongue': 'ลิ้น',
+  'body-hand5': 'มือข้างเดียว',
+  'body-knee': 'เข่า',
+  'body-elbow': 'ศอก',
+  'body-hair': 'ผม',
 };
 export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',

@@ -1,0 +1,390 @@
+/*
+ * ชุดที่ 23 — ภาพมารยาท (แผ่นรูป J: design/PROMPTS-gemini-9.md) แบบ 15 ข้อ
+ * ช่วง 1 แผ่นภาพเด็กๆ 12 ภาพ (ทำถูก 6 ทำไม่ถูก 6) ถาม 5 ข้อ: จับคู่การกระทำที่ดี นับภาพที่ทำไม่ถูก ใครเดือดร้อน ความหมายคำ เหตุผลของการปิดปากตอนจาม
+ * ช่วง 2 ข้อเดี่ยวที่ตอบเป็นภาพ 4 ตัวเลือก (ภาพใดถูกต้อง / ช่วยผู้สูงอายุ / ไม่ควรทำในห้องสมุด) + คำเตือน + คำขอโทษ
+ * ช่วง 3 ข้อเดี่ยว: ลำดับที่ในแถว ประหยัดน้ำ ภาพต่อเนื่องวงแปดช่อง (ก้าวละ 3) ดาวในวงกลมเท่านั้น คำพูดที่ไม่เข้าพวก
+ * แต่งใหม่ทั้งหมด ตั้งชื่อตัวละคร สถานที่ และตัวเลขใหม่ตามแนวข้อสอบเก่า
+ * (ผู้ปกครองรายงาน 2026-10-02: ข้อสอบจริงมีโจทย์เป็นตัวหนังสือให้เด็กดูด้วย — ทุกข้อในชุดนี้อ่านรู้เรื่องจากตัวหนังสือได้)
+ */
+const R = { provenance: 'original', rights: 'แต่งใหม่ทั้งหมด (ข้อความ ตัวเลข ภาพ) เผยแพร่ใน repo นี้ได้', reviewStatus: 'draft' };
+const SRC = 'src-a24-compilation';
+const KIDS = 'ดูภาพเด็กๆ แล้วตอบคำถามให้ถูกต้อง';
+const LOOK = 'ดูรูปภาพแล้วตอบคำถามให้ถูกต้อง';
+const WORDS = 'ตอบคำถามเกี่ยวกับคำให้ถูกต้อง';
+const FIGURES = 'ภาพต่อเนื่อง ภาพที่หายไปควรเป็นภาพใด';
+const pic = (id, name) => ({ id, image: `pic-manner-${name}` });
+const fig = (id, figure) => ({ id, svg: { figure } });
+const venn = (id, where) => ({ id, svg: { venn: where } });
+const BOARD = { type: 'board', items: ['pic-manner-wai', 'pic-manner-queue', 'pic-manner-seat', 'pic-manner-bin', 'pic-manner-help', 'pic-manner-share', 'pic-manner-litter', 'pic-manner-cut', 'pic-manner-shout', 'pic-manner-grab', 'pic-manner-tap', 'pic-manner-sneeze'] };
+const BOARD_TEXT = 'ในภาพมีเด็กๆ 12 ภาพ คือ ไหว้คุณครู ต่อแถวซื้อขนม ให้ที่นั่งคุณยายบนรถโดยสาร ทิ้งกระดาษลงถังขยะ ช่วยคุณลุงถือของ แบ่งขนมให้เพื่อน ทิ้งห่อขนมลงพื้น แทรกแถวซื้อขนม ตะโกนเสียงดังในห้องสมุด แย่งของเล่นจากเพื่อน ปล่อยน้ำก๊อกไหลทิ้งไว้ และจามใส่เพื่อนโดยไม่ปิดปาก';
+
+export default {
+  id: 'set-23',
+  version: 1,
+  title: 'ชุดที่ 23',
+  note: 'ภาพมารยาท ไหว้ ต่อแถว ให้ที่นั่ง ห้องสมุด ประหยัดน้ำ',
+  order: [
+    'g-manner-pair', 'm-manner-count', 'r-manner-harm', 'th-manner-word', 'sc-manner-sneeze',
+    'g-manner-good', 'g-manner-seat', 'g-manner-library', 'th-warning-sign', 'th-say-sorry',
+    'm-queue-position', 'sc-water-save', 'sp-wheel-three', 'sp-star-circle', 'r-odd-polite',
+  ],
+  stimuli: {
+    kids: { section: KIDS, text: BOARD_TEXT, visual: BOARD },
+  },
+  items: [
+    // ---------------------------------------------------------------- ช่วงที่ 1: แผ่นภาพมารยาท 5 ข้อ
+    {
+      id: 'g-manner-pair', type: 'main', subject: 'general', skillIds: ['manners'], familyId: 'board-manners', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'kids',
+      prompt: { text: 'การกระทำสองอย่างใดเป็นมารยาทที่ดีทั้งคู่' },
+      options: [{ id: 'a', text: 'ไหว้คุณครู, ต่อแถวซื้อขนม' }, { id: 'b', text: 'แทรกแถว, ตะโกนในห้องสมุด' }, { id: 'c', text: 'แย่งของเล่น, ทิ้งห่อขนมลงพื้น' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องมารยาทที่ดี',
+      review: {
+        summary: 'ไหว้ครูและต่อแถว เป็นมารยาทที่ดี',
+        hints: ['ข้อไหนที่ไม่ทำให้ใครเดือดร้อน และแสดงความเคารพ'],
+        steps: ['แทรกแถว ตะโกนในห้องสมุด แย่งของเล่น และทิ้งขยะลงพื้น ทำให้คนอื่นเดือดร้อน', 'ไหว้คุณครูและต่อแถวรอคิว เป็นมารยาทที่ดี ตอบข้อ 1'],
+        transferIds: ['g-manner-pair-t'],
+      },
+    },
+    {
+      id: 'm-manner-count', type: 'main', subject: 'math', skillIds: ['classify-count'], familyId: 'board-count', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'kids',
+      prompt: { text: 'ในภาพมีเด็กที่ทำไม่ถูกต้องกี่ภาพ' },
+      options: [{ id: 'a', text: '4 ภาพ' }, { id: 'b', text: '6 ภาพ' }, { id: 'c', text: '8 ภาพ' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการจัดกลุ่มแล้วนับ',
+      review: {
+        summary: 'ทิ้งห่อขนม แทรกแถว ตะโกน แย่งของเล่น ปล่อยน้ำทิ้ง และจามไม่ปิดปาก รวม 6 ภาพ',
+        hints: ['เลือกเฉพาะภาพที่ทำไม่ถูกต้อง แล้วนับทีละภาพ'],
+        steps: ['ภาพที่ทำถูกมี ไหว้ครู ต่อแถว ให้ที่นั่ง ทิ้งขยะลงถัง ช่วยถือของ และแบ่งขนม ไม่นับ', 'ภาพที่ทำไม่ถูกต้องคือ ทิ้งห่อขนม แทรกแถว ตะโกน แย่งของเล่น ปล่อยน้ำทิ้ง และจามไม่ปิดปาก รวม 6 ภาพ ตอบข้อ 2'],
+        transferIds: ['m-manner-count-t'],
+      },
+    },
+    {
+      id: 'r-manner-harm', type: 'main', subject: 'reasoning', skillIds: ['classify'], familyId: 'board-classify', difficulty: 3,
+      sourceId: SRC, ...R, stimulus: 'kids',
+      prompt: { text: 'การกระทำสองอย่างใดทำให้เพื่อนเสียใจหรือเดือดร้อนทั้งคู่' },
+      options: [{ id: 'a', text: 'ไหว้คุณครู, แบ่งขนม' }, { id: 'b', text: 'ช่วยถือของ, ทิ้งขยะลงถัง' }, { id: 'c', text: 'แทรกแถว, แย่งของเล่น' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดการจัดกลุ่มตามผลที่เกิดกับผู้อื่น',
+      review: {
+        summary: 'แทรกแถวและแย่งของเล่น ทำให้เพื่อนเดือดร้อนและเสียใจ',
+        hints: ['ข้อไหนที่เพื่อนต้องเสียเปรียบหรือเสียใจ'],
+        steps: ['ไหว้ครู แบ่งขนม ช่วยถือของ และทิ้งขยะลงถัง เป็นการทำดี ไม่ทำให้ใครเดือดร้อน', 'แทรกแถวทำให้คนที่ต่อแถวเสียเปรียบ แย่งของเล่นทำให้เพื่อนเสียใจ ตอบข้อ 3'],
+        transferIds: ['r-manner-harm-t'],
+      },
+    },
+    {
+      id: 'th-manner-word', type: 'main', subject: 'thai', skillIds: ['word-meaning'], familyId: 'word-in-story', difficulty: 3,
+      sourceId: SRC, ...R, stimulus: 'kids',
+      prompt: { text: 'คำว่า เสียสละ หมายความว่าอย่างไร' },
+      options: [{ id: 'a', text: 'ให้สิ่งของหรือที่นั่งแก่ผู้อื่นที่ต้องการมากกว่า' }, { id: 'b', text: 'แย่งของจากคนอื่น' }, { id: 'c', text: 'ไม่สนใจใคร' }],
+      correctOptionId: 'a',
+      narration: 'ฟังตัวเลือกได้ วัดความเข้าใจความหมายคำ (เกี่ยวกับภาพที่ให้ที่นั่งผู้สูงอายุ)',
+      review: {
+        summary: 'เสียสละ คือยอมให้สิ่งที่เรามีแก่คนที่ต้องการมากกว่า',
+        hints: ['เด็กที่ให้ที่นั่งคุณยายบนรถ ทำอย่างไรกับที่นั่งของตัวเอง'],
+        steps: ['เด็กลุกให้ที่นั่งแก่คุณยายบนรถโดยสาร ทั้งที่ตัวเองก็นั่งได้', 'นี่คือการเสียสละ คือให้สิ่งของหรือที่นั่งแก่ผู้ที่ต้องการมากกว่า ตอบข้อ 1'],
+        transferIds: ['th-manner-word-t'],
+      },
+    },
+    {
+      id: 'sc-manner-sneeze', type: 'main', subject: 'science', skillIds: ['hygiene-reason'], familyId: 'hygiene-reason', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'kids',
+      prompt: { text: 'เวลาจามหรือไอ ควรปิดปาก เพราะเหตุใด' },
+      options: [{ id: 'a', text: 'เพราะจะได้จามเสียงดัง' }, { id: 'b', text: 'ป้องกันไม่ให้เชื้อโรคกระจายไปหาผู้อื่น' }, { id: 'c', text: 'เพราะปากจะได้ไม่แห้ง' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องสุขอนามัย',
+      review: {
+        summary: 'ละอองจามมีเชื้อโรค การปิดปากช่วยไม่ให้ติดคนอื่น',
+        hints: ['เวลาจามมีอะไรออกมาจากปาก และไปโดนใคร'],
+        steps: ['การจามไม่ได้ทำให้เสียงดังขึ้นหรือทำให้ปากไม่แห้ง', 'ละอองที่จามออกมามีเชื้อโรค ต้องปิดปากเพื่อไม่ให้ติดผู้อื่น ตอบข้อ 2'],
+        transferIds: ['sc-manner-sneeze-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- ช่วงที่ 2: ภาพ 4 ตัวเลือก คำเตือน คำขอโทษ
+    {
+      id: 'g-manner-good', type: 'main', subject: 'general', skillIds: ['manners'], familyId: 'picture-manners', difficulty: 1,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ภาพใดเป็นการกระทำที่ถูกต้อง' },
+      options: [pic('a', 'litter'), pic('b', 'cut'), pic('c', 'bin'), pic('d', 'grab')],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการตัดสินการกระทำที่ถูกต้องจากภาพ',
+      review: {
+        summary: 'ทิ้งกระดาษลงถังขยะ เป็นการกระทำที่ถูกต้อง',
+        hints: ['ภาพไหนที่ไม่ทำให้ที่สาธารณะสกปรกและไม่ทำให้ใครเดือดร้อน'],
+        steps: ['ภาพที่ทิ้งห่อขนมลงพื้น แทรกแถว และแย่งของเล่น เป็นการกระทำที่ไม่ถูกต้อง', 'ภาพที่ทิ้งกระดาษลงถังขยะถูกต้อง ตอบข้อ 3'],
+        transferIds: ['g-manner-good-t'],
+      },
+    },
+    {
+      id: 'g-manner-seat', type: 'main', subject: 'general', skillIds: ['manners'], familyId: 'picture-manners', difficulty: 1,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'เมื่อเห็นผู้สูงอายุยืนอยู่บนรถโดยสาร ควรทำตามภาพใด' },
+      options: [pic('a', 'tap'), pic('b', 'seat'), pic('c', 'shout'), pic('d', 'litter')],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดความรู้เรื่องการช่วยเหลือผู้สูงอายุ',
+      review: {
+        summary: 'ลุกให้ที่นั่งแก่ผู้สูงอายุ',
+        hints: ['ผู้สูงอายุยืนนานๆ จะเหนื่อย เราช่วยอะไรได้'],
+        steps: ['ปล่อยน้ำทิ้ง ตะโกน และทิ้งขยะ ไม่เกี่ยวกับการช่วยผู้สูงอายุ', 'ภาพที่ลุกให้ที่นั่งคุณยายคือข้อ 2'],
+        transferIds: ['g-manner-seat-t'],
+      },
+    },
+    {
+      id: 'g-manner-library', type: 'main', subject: 'general', skillIds: ['manners'], familyId: 'picture-manners', difficulty: 1,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ที่ห้องสมุด ไม่ควรทำตามภาพใด' },
+      options: [pic('a', 'queue'), pic('b', 'share'), pic('c', 'shout'), pic('d', 'wai')],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดความรู้เรื่องมารยาทในห้องสมุด',
+      review: {
+        summary: 'ห้องสมุดต้องเงียบ ไม่ควรตะโกน',
+        hints: ['ที่ห้องสมุดคนอื่นกำลังทำอะไรอยู่'],
+        steps: ['ต่อแถว แบ่งขนม และไหว้ เป็นการกระทำที่ดี', 'การตะโกนในห้องสมุดรบกวนคนที่กำลังอ่านหนังสือ ตอบข้อ 3'],
+        transferIds: ['g-manner-library-t'],
+      },
+    },
+    {
+      id: 'th-warning-sign', type: 'main', subject: 'thai', skillIds: ['sentence-type'], familyId: 'sentence-type', difficulty: 2,
+      sourceId: SRC, ...R, section: WORDS,
+      prompt: { text: 'ข้อใดเป็นคำเตือน' },
+      options: [{ id: 'a', text: 'ระวังพื้นลื่น' }, { id: 'b', text: 'วันนี้อากาศดีจัง' }, { id: 'c', text: 'หนูอยากกินขนม' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดการแยกประเภทประโยค',
+      review: {
+        summary: 'ระวังพื้นลื่น เตือนให้ระวังอันตราย',
+        hints: ['คำเตือนบอกให้เราระวังอะไรบางอย่าง'],
+        steps: ['วันนี้อากาศดีจังเป็นประโยคบอกความรู้สึก และหนูอยากกินขนมเป็นประโยคบอกความต้องการ', 'ระวังพื้นลื่นเตือนให้ระวังอันตราย เป็นคำเตือน ตอบข้อ 1'],
+        transferIds: ['th-warning-sign-t'],
+      },
+    },
+    {
+      id: 'th-say-sorry', type: 'main', subject: 'thai', skillIds: ['manners-words'], familyId: 'manners-words', difficulty: 1,
+      sourceId: SRC, ...R, section: WORDS,
+      prompt: { text: 'เมื่อเดินชนเพื่อนโดยไม่ตั้งใจ ควรพูดว่าอะไร' },
+      options: [{ id: 'a', text: 'ขอบคุณ' }, { id: 'b', text: 'ขอโทษ' }, { id: 'c', text: 'สวัสดี' }],
+      correctOptionId: 'b',
+      narration: 'ฟังตัวเลือกได้ วัดการเลือกคำพูดที่สุภาพให้เหมาะกับเหตุการณ์',
+      review: {
+        summary: 'ทำให้ผู้อื่นเจ็บหรือเดือดร้อน ต้องพูดขอโทษ',
+        hints: ['เราทำให้เพื่อนเจ็บ ควรพูดคำใด'],
+        steps: ['ขอบคุณใช้เมื่อมีคนช่วยเรา และสวัสดีใช้ทักทาย', 'เมื่อเราเดินชนเพื่อน ควรพูดขอโทษ ตอบข้อ 2'],
+        transferIds: ['th-say-sorry-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- ช่วงที่ 3: ลำดับที่ในแถว ประหยัดน้ำ ภาพต่อเนื่อง
+    {
+      id: 'm-queue-position', type: 'main', subject: 'math', skillIds: ['order-position'], familyId: 'queue-position', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'เด็ก 5 คนต่อแถวซื้อขนม น้องใบอยู่คนที่ 3 ของแถว มีเด็กยืนอยู่ข้างหน้าน้องใบกี่คน' },
+      options: [{ id: 'a', text: '2 คน' }, { id: 'b', text: '3 คน' }, { id: 'c', text: '4 คน' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดความเข้าใจลำดับที่ในแถว',
+      review: {
+        summary: 'น้องใบเป็นคนที่ 3 ข้างหน้าจึงมี 2 คน',
+        hints: ['คนที่ 1 และคนที่ 2 อยู่ข้างหน้าคนที่ 3'],
+        steps: ['น้องใบเป็นคนที่ 3 ข้างหน้ามีคนที่ 1 กับคนที่ 2', 'จึงมีเด็กอยู่ข้างหน้า 2 คน ตอบข้อ 1'],
+        transferIds: ['m-queue-position-t'],
+      },
+    },
+    {
+      id: 'sc-water-save', type: 'main', subject: 'science', skillIds: ['environment'], familyId: 'environment', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ข้อใดช่วยประหยัดน้ำ' },
+      options: [{ id: 'a', text: 'เปิดก๊อกน้ำทิ้งไว้ตอนแปรงฟัน' }, { id: 'b', text: 'ใช้น้ำล้างรถทุกวัน' }, { id: 'c', text: 'ปิดก๊อกน้ำทุกครั้งหลังใช้เสร็จ' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องการประหยัดทรัพยากร',
+      review: {
+        summary: 'ปิดก๊อกน้ำหลังใช้ น้ำจะไม่ไหลทิ้งเปล่าๆ',
+        hints: ['ข้อไหนที่ไม่ปล่อยให้น้ำไหลทิ้ง'],
+        steps: ['เปิดก๊อกทิ้งไว้และล้างรถทุกวัน ใช้น้ำเปลืองมาก', 'ปิดก๊อกน้ำทุกครั้งหลังใช้เสร็จ ช่วยประหยัดน้ำ ตอบข้อ 3'],
+        transferIds: ['sc-water-save-t'],
+      },
+    },
+    {
+      id: 'sp-wheel-three', type: 'main', subject: 'spatial', skillIds: ['figure-sequence'], familyId: 'wheel-sequence', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'ช่องสีดำเลื่อนไปตามเข็มนาฬิกาทีละเท่ากัน ภาพในช่อง ? ควรเป็นภาพใด' },
+      visual: { type: 'figure-row', items: [{ wheel: 0 }, { wheel: 3 }, { wheel: 6 }, '?'] },
+      options: [fig('a', { wheel: 7 }), fig('b', { wheel: 2 }), fig('c', { wheel: 1 }), fig('d', { wheel: 4 })],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการหาจำนวนช่องที่เลื่อนแล้วต่อภาพ',
+      review: {
+        summary: 'ช่องสีดำเลื่อนตามเข็มนาฬิกาทีละ 3 ช่อง',
+        hints: ['นับว่าช่องสีดำเลื่อนไปกี่ช่องในแต่ละภาพ'],
+        steps: ['ภาพแรกช่องสีดำอยู่ด้านบน ภาพที่สองเลื่อนไปอยู่ด้านล่างขวา ภาพที่สามเลื่อนไปอยู่ด้านซ้าย', 'เลื่อนต่ออีก 3 ช่อง จะผ่านด้านบนไปอยู่ช่องบนขวา ตอบข้อ 3'],
+        transferIds: ['sp-wheel-three-t'],
+      },
+    },
+    {
+      id: 'sp-star-circle', type: 'main', subject: 'spatial', skillIds: ['region-overlap'], familyId: 'star-region', difficulty: 3,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ดาวอยู่ในวงกลมเท่านั้น ไม่อยู่ในสี่เหลี่ยม ภาพใดถูกต้อง' },
+      options: [venn('a', 'circle'), venn('b', 'square'), venn('c', 'both'), venn('d', 'none')],
+      correctOptionId: 'a',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการมองว่าดาวอยู่ในรูปใด',
+      review: {
+        summary: 'ดาวอยู่ในวงกลม แต่ไม่ซ้อนกับสี่เหลี่ยม',
+        hints: ['ดาวต้องอยู่ในวงกลม แต่อยู่ห่างจากสี่เหลี่ยม'],
+        steps: ['ข้อที่ดาวอยู่ในสี่เหลี่ยม อยู่ตรงที่รูปซ้อนกัน หรืออยู่นอกรูปทั้งสอง ไม่ถูก', 'ดาวอยู่ทางซ้ายในวงกลมเท่านั้น ตอบข้อ 1'],
+        transferIds: ['sp-star-both-t'],
+      },
+    },
+    {
+      id: 'r-odd-polite', type: 'main', subject: 'reasoning', skillIds: ['odd-one-out'], familyId: 'odd-one-out', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ข้อใดไม่เข้าพวกกับข้ออื่น' },
+      options: [{ id: 'a', text: 'ขอบคุณ' }, { id: 'b', text: 'ตะโกนใส่เพื่อน' }, { id: 'c', text: 'ขอโทษ' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการแยกคำพูดสุภาพออกจากคำพูดที่ไม่สุภาพ',
+      review: {
+        summary: 'ขอบคุณและขอโทษเป็นคำสุภาพ ตะโกนใส่เพื่อนไม่สุภาพ',
+        hints: ['สองข้อแรกเป็นคำที่ควรพูด ส่วนอีกข้อไม่ควรทำ'],
+        steps: ['ขอบคุณและขอโทษ เป็นคำพูดสุภาพที่ควรใช้', 'ตะโกนใส่เพื่อนเป็นการกระทำที่ไม่สุภาพ จึงไม่เข้าพวก ตอบข้อ 2'],
+        transferIds: ['r-odd-polite-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- โจทย์ลองใหม่ (เปิดในหน้าเฉลย ไม่นับเป็นข้อสอบ)
+    {
+      id: 'g-manner-pair-t', type: 'transfer', subject: 'general', skillIds: ['manners'], familyId: 'board-manners', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'การกระทำสองอย่างใดเป็นมารยาทที่ดีทั้งคู่' },
+      options: [{ id: 'a', text: 'ให้ที่นั่งผู้สูงอายุ, ช่วยถือของ' }, { id: 'b', text: 'ทิ้งขยะลงพื้น, ตะโกนในห้องเรียน' }, { id: 'c', text: 'แทรกแถว, แย่งของเล่น' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ให้ที่นั่งและช่วยถือของ เป็นการช่วยเหลือผู้อื่น', hints: [], steps: ['ทิ้งขยะลงพื้น ตะโกน แทรกแถว และแย่งของ ทำให้ผู้อื่นเดือดร้อน', 'ให้ที่นั่งผู้สูงอายุและช่วยถือของเป็นมารยาทที่ดี'] },
+    },
+    {
+      id: 'm-manner-count-t', type: 'transfer', subject: 'math', skillIds: ['classify-count'], familyId: 'board-count', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'เด็ก 8 คนเข้าแถวหน้าเสาธง เด็ก 5 คนยืนตรงดี ที่เหลือเล่นกัน มีเด็กที่เล่นกันกี่คน' },
+      options: [{ id: 'a', text: '3 คน' }, { id: 'b', text: '4 คน' }, { id: 'c', text: '13 คน' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: '8 ลบ 5 เท่ากับ 3 คน', hints: [], steps: ['เด็กทั้งหมด 8 คน ยืนตรงดี 5 คน ต้องเอา 5 ไปลบออกจาก 8', '8 ลบ 5 เท่ากับ 3'], column: { a: 8, op: '-', b: 5 } },
+    },
+    {
+      id: 'r-manner-harm-t', type: 'transfer', subject: 'reasoning', skillIds: ['classify'], familyId: 'board-classify', difficulty: 3,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ข้อใดทำให้คนอื่นเดือดร้อน' },
+      options: [{ id: 'a', text: 'ช่วยเก็บของเข้าที่' }, { id: 'b', text: 'เปิดเพลงเสียงดังตอนเพื่อนอ่านหนังสือ' }, { id: 'c', text: 'พูดเบาๆ ในห้องสมุด' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'เสียงดังรบกวนเพื่อนที่กำลังอ่านหนังสือ', hints: [], steps: ['เก็บของเข้าที่และพูดเบาๆ ไม่รบกวนใคร', 'เปิดเพลงเสียงดังทำให้เพื่อนอ่านหนังสือไม่ได้'] },
+    },
+    {
+      id: 'th-manner-word-t', type: 'transfer', subject: 'thai', skillIds: ['word-meaning'], familyId: 'word-in-story', difficulty: 3,
+      sourceId: SRC, ...R,
+      prompt: { text: 'คำว่า มีน้ำใจ หมายความว่าอย่างไร' },
+      options: [{ id: 'a', text: 'เห็นแก่ตัวเสมอ' }, { id: 'b', text: 'ชอบอยู่คนเดียว' }, { id: 'c', text: 'ช่วยเหลือและแบ่งปันผู้อื่น' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'มีน้ำใจ คือช่วยเหลือและแบ่งปันผู้อื่น', hints: [], steps: ['เห็นแก่ตัวคือคิดถึงแต่ตัวเอง ซึ่งตรงข้ามกับมีน้ำใจ', 'คนมีน้ำใจช่วยเหลือและแบ่งปันผู้อื่น'] },
+    },
+    {
+      id: 'sc-manner-sneeze-t', type: 'transfer', subject: 'science', skillIds: ['hygiene-reason'], familyId: 'hygiene-reason', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ทำไมต้องล้างมือหลังเข้าห้องน้ำ' },
+      options: [{ id: 'a', text: 'เพื่อล้างเชื้อโรคออกจากมือ' }, { id: 'b', text: 'เพื่อให้มือใหญ่ขึ้น' }, { id: 'c', text: 'เพื่อให้ผมยาวเร็ว' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ล้างมือเพื่อล้างเชื้อโรคออก จะได้ไม่ป่วย', hints: [], steps: ['มือที่สัมผัสห้องน้ำอาจมีเชื้อโรค', 'ล้างมือให้สะอาดจะได้ไม่ท้องเสีย'] },
+    },
+    {
+      id: 'g-manner-good-t', type: 'transfer', subject: 'general', skillIds: ['manners'], familyId: 'picture-manners', difficulty: 1,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ภาพใดเป็นการกระทำที่ถูกต้อง' },
+      options: [pic('a', 'tap'), pic('b', 'share'), pic('c', 'cut'), pic('d', 'grab')],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'แบ่งขนมให้เพื่อน เป็นการกระทำที่ถูกต้อง', hints: [], steps: ['ปล่อยน้ำทิ้ง แทรกแถว และแย่งของ ไม่ถูกต้อง', 'ภาพที่แบ่งขนมให้เพื่อนคือข้อ 2'] },
+    },
+    {
+      id: 'g-manner-seat-t', type: 'transfer', subject: 'general', skillIds: ['manners'], familyId: 'picture-manners', difficulty: 1,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ภาพใดเป็นการช่วยเหลือผู้อื่น' },
+      options: [pic('a', 'litter'), pic('b', 'help'), pic('c', 'shout'), pic('d', 'sneeze')],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'ช่วยคุณลุงถือของ เป็นการช่วยเหลือผู้อื่น', hints: [], steps: ['ทิ้งขยะ ตะโกน และจามไม่ปิดปาก ไม่ใช่การช่วยเหลือ', 'ภาพที่ช่วยคุณลุงถือของคือข้อ 2'] },
+    },
+    {
+      id: 'g-manner-library-t', type: 'transfer', subject: 'general', skillIds: ['manners'], familyId: 'picture-manners', difficulty: 1,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ภาพใดทำให้คนที่อยู่รอบข้างเดือดร้อน' },
+      options: [pic('a', 'bin'), pic('b', 'wai'), pic('c', 'sneeze'), pic('d', 'queue')],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'จามใส่เพื่อนโดยไม่ปิดปาก อาจแพร่เชื้อโรค', hints: [], steps: ['ทิ้งขยะลงถัง ไหว้ และต่อแถว ไม่ทำให้ใครเดือดร้อน', 'จามใส่เพื่อนโดยไม่ปิดปาก ทำให้เพื่อนเดือดร้อนและอาจติดเชื้อ'] },
+    },
+    {
+      id: 'th-warning-sign-t', type: 'transfer', subject: 'thai', skillIds: ['sentence-type'], familyId: 'sentence-type', difficulty: 2,
+      sourceId: SRC, ...R, section: WORDS,
+      prompt: { text: 'ข้อใดเป็นคำเตือน' },
+      options: [{ id: 'a', text: 'วันนี้ไปตลาด' }, { id: 'b', text: 'ขอบคุณมาก' }, { id: 'c', text: 'ระวังบันไดลื่น' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ระวังบันไดลื่น เตือนให้ระวังอันตราย', hints: [], steps: ['วันนี้ไปตลาดบอกเรื่องที่จะทำ และขอบคุณมากคือคำขอบคุณ', 'ระวังบันไดลื่นเตือนให้ระวังอันตราย'] },
+    },
+    {
+      id: 'th-say-sorry-t', type: 'transfer', subject: 'thai', skillIds: ['manners-words'], familyId: 'manners-words', difficulty: 1,
+      sourceId: SRC, ...R, section: WORDS,
+      prompt: { text: 'เมื่อมีคนช่วยหยิบของให้ ควรพูดว่าอะไร' },
+      options: [{ id: 'a', text: 'ขอบคุณ' }, { id: 'b', text: 'ขอโทษ' }, { id: 'c', text: 'ลาก่อน' }],
+      correctOptionId: 'a',
+      narration: 'ฟังตัวเลือกได้',
+      review: { summary: 'มีคนช่วยเรา ต้องพูดขอบคุณ', hints: [], steps: ['ขอโทษใช้เมื่อเราทำผิด และลาก่อนใช้ตอนจากกัน', 'เมื่อมีคนช่วย ควรพูดขอบคุณ'] },
+    },
+    {
+      id: 'm-queue-position-t', type: 'transfer', subject: 'math', skillIds: ['order-position'], familyId: 'queue-position', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'เด็ก 6 คนต่อแถวซื้อน้ำ น้องมีนอยู่คนที่ 4 ของแถว มีเด็กยืนอยู่ข้างหลังน้องมีนกี่คน' },
+      options: [{ id: 'a', text: '3 คน' }, { id: 'b', text: '2 คน' }, { id: 'c', text: '4 คน' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: '6 ลบ 4 เท่ากับ 2 คน', hints: [], steps: ['แถวมี 6 คน น้องมีนเป็นคนที่ 4 คนที่อยู่หลังคือคนที่ 5 และคนที่ 6', 'จึงมีเด็กอยู่ข้างหลัง 2 คน'], column: { a: 6, op: '-', b: 4 } },
+    },
+    {
+      id: 'sc-water-save-t', type: 'transfer', subject: 'science', skillIds: ['environment'], familyId: 'environment', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ข้อใดช่วยประหยัดไฟฟ้า' },
+      options: [{ id: 'a', text: 'เปิดไฟทิ้งไว้ทั้งคืน' }, { id: 'b', text: 'ปิดไฟเมื่อไม่ใช้' }, { id: 'c', text: 'เปิดพัดลมไว้ตอนไม่อยู่ห้อง' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ปิดไฟเมื่อไม่ใช้ ช่วยประหยัดไฟฟ้า', hints: [], steps: ['เปิดไฟหรือพัดลมทิ้งไว้ ใช้ไฟฟ้าเปล่าๆ', 'ปิดไฟเมื่อไม่ใช้ ช่วยประหยัดไฟฟ้า'] },
+    },
+    {
+      id: 'sp-wheel-three-t', type: 'transfer', subject: 'spatial', skillIds: ['figure-sequence'], familyId: 'wheel-sequence', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'ช่องสีดำเลื่อนไปตามเข็มนาฬิกาทีละเท่ากัน ภาพในช่อง ? ควรเป็นภาพใด' },
+      visual: { type: 'figure-row', items: [{ wheel: 1 }, { wheel: 4 }, { wheel: 7 }, '?'] },
+      options: [fig('a', { wheel: 0 }), fig('b', { wheel: 2 }), fig('c', { wheel: 5 }), fig('d', { wheel: 6 })],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'ช่องสีดำเลื่อนทีละ 3 ช่อง', hints: [], steps: ['จากช่อง 1 เลื่อน 3 ช่องไปช่อง 4 แล้วไปช่อง 7', 'เลื่อนต่ออีก 3 ช่อง ผ่านช่องบนสุดไปอยู่ช่องขวาบน'] },
+    },
+    {
+      id: 'sp-star-both-t', type: 'transfer', subject: 'spatial', skillIds: ['region-overlap'], familyId: 'star-region', difficulty: 3,
+      sourceId: SRC, ...R, section: LOOK,
+      prompt: { text: 'ดาวอยู่ทั้งในวงกลมและในสี่เหลี่ยม ภาพใดถูกต้อง' },
+      options: [venn('a', 'none'), venn('b', 'both'), venn('c', 'circle'), venn('d', 'square')],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'ดาวอยู่ตรงที่วงกลมกับสี่เหลี่ยมซ้อนกัน', hints: [], steps: ['ดาวต้องอยู่ในทั้งสองรูปพร้อมกัน คือตรงส่วนที่ซ้อนกัน', 'ภาพที่ดาวอยู่ตรงกลางส่วนซ้อนคือข้อ 2'] },
+    },
+    {
+      id: 'r-odd-polite-t', type: 'transfer', subject: 'reasoning', skillIds: ['odd-one-out'], familyId: 'odd-one-out', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ข้อใดไม่เข้าพวกกับข้ออื่น' },
+      options: [{ id: 'a', text: 'สวัสดีค่ะ' }, { id: 'b', text: 'ขอบคุณครับ' }, { id: 'c', text: 'ตะโกนด่าเพื่อน' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'สวัสดีและขอบคุณเป็นคำสุภาพ การตะโกนด่าไม่สุภาพ', hints: [], steps: ['สวัสดีค่ะและขอบคุณครับ เป็นคำพูดสุภาพ', 'ตะโกนด่าเพื่อนไม่สุภาพ จึงไม่เข้าพวก'] },
+    },
+  ],
+};

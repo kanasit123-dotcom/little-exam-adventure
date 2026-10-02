@@ -23,8 +23,12 @@ import set18 from './set-18.js';
 import set19 from './set-19.js';
 import set20 from './set-20.js';
 import set21 from './set-21.js';
+import set22 from './set-22.js';
+import set23 from './set-23.js';
+import set24 from './set-24.js';
+import set25 from './set-25.js';
 
-export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19, set20, set21];
+export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19, set20, set21, set22, set23, set24, set25];
 
 // ตัวเลือกในข้อสอบจริงใช้หมายเลข 1 2 3 (ไม่ใช่ ก ข ค)
 export const OPTION_LABELS = ['1', '2', '3', '4'];

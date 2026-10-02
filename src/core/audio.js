@@ -166,6 +166,7 @@ export function createAudio({
             source.onended = () => { if (generation === gen) finish('done'); };
             current.source = source;
             via = 'clip';
+            lastError = '';   // เล่นคลิปสำเร็จ: ล้างเหตุขัดข้องเก่า (เช่น ครั้งแรกบนหน้าแรกที่ยังไม่ได้แตะ)
             source.start(0, offset, duration);
             // บางครั้ง iOS ไม่ยิง onended — กันปุ่มค้าง
             watchdog = timers.setTimeout(() => { if (generation === gen) finish('done'); }, (duration + 1.5) * 1000);
