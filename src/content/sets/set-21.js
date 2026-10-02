@@ -1,0 +1,395 @@
+/*
+ * ชุดที่ 21 — รูปแบบใหม่ 15 ข้อ (ดู docs/QUESTION-TYPES.md หัวข้อ "รูปแบบชุด 12 ขึ้นไป")
+ * ช่วง 1 ประกาศของโรงเรียน (งานวันกีฬา) ถาม 5 ข้อ: ที่ไหน ต้องนำอะไรมา ซ้อมกีฬาวันที่เท่าไร ความหมายคำ ข้อใดกล่าวไม่ถูกต้อง
+ * ช่วง 2 แผ่นภาพอาชีพ เครื่องมือ และยานพาหนะ 12 อย่าง ถาม 5 ข้อ (แจ้งใคร จับคู่อาชีพกับเครื่องมือ นับอาชีพ คำเรียกรวม หน้าที่รถพยาบาล)
+ * ช่วง 3 ข้อเดี่ยว: ลิตร ลมช่วยเคลื่อนที่ ส่วนของพืชที่กิน ตัดขนมแบ่ง 8 ชิ้น (ภาพวาดด้วยโค้ดแบบใหม่) ภาพต่อเนื่องที่วนเป็นรอบสาม
+ * แต่งใหม่ทั้งหมด ตั้งชื่อตัวละคร สถานที่ และตัวเลขใหม่ตามแนวข้อสอบเก่า; ใช้รูปที่มีอยู่แล้ว ไม่ต้องสร้างรูปใหม่จาก Gemini
+ * (ผู้ปกครองรายงาน 2026-10-02: ข้อสอบจริงมีโจทย์เป็นตัวหนังสือให้เด็กดูด้วย — ทุกข้อในชุดนี้อ่านรู้เรื่องจากตัวหนังสืออย่างเดียวได้)
+ */
+const R = { provenance: 'original', rights: 'แต่งใหม่ทั้งหมด (ข้อความ ตัวเลข ภาพ) เผยแพร่ใน repo นี้ได้', reviewStatus: 'draft' };
+const SRC = 'src-a24-compilation';
+const NOTICE = 'ฟังประกาศแล้วตอบคำถามให้ถูกต้อง';
+const LISTEN = 'ฟังเรื่องแล้วตอบคำถามให้ถูกต้อง';
+const JOBS = 'ดูภาพอาชีพและสิ่งของแล้วตอบคำถามให้ถูกต้อง';
+const FIGURES = 'ภาพต่อเนื่อง ภาพที่หายไปควรเป็นภาพใด';
+const fig = (id, figure) => ({ id, svg: { figure } });
+const cake = (id, cut) => ({ id, svg: { cut } });
+const shape = (name, fill = 'empty') => ({ shape: name, fill });
+const BOARD = { type: 'board', items: ['pic-doctor', 'pic-police', 'pic-firefighter', 'pic-farmer', 'pic-teacher', 'pic-cook', 'pic-stethoscope', 'pic-hoe', 'pic-wok', 'pic-extinguisher', 'pic-firetruck', 'pic-ambulance'] };
+const BOARD_TEXT = 'ในภาพมี 12 อย่าง คือ หมอ ตำรวจ นักดับเพลิง ชาวนา ครู แม่ครัว หูฟังตรวจโรค จอบ กระทะ ถังดับเพลิง รถดับเพลิง และรถพยาบาล';
+
+export default {
+  id: 'set-21',
+  version: 1,
+  title: 'ชุดที่ 21',
+  note: 'ประกาศงานวันกีฬา อาชีพและเครื่องมือ ลิตร ตัดขนม 8 ชิ้น',
+  order: [
+    'th-notice-where', 'g-notice-bring', 'm-notice-date', 'th-word-notice', 'r-notice-wrong',
+    'g-job-fire', 'r-job-pair', 'm-job-count', 'th-job-group', 'g-job-ambulance',
+    'm-liter-bottles', 'sc-wind-things', 'sc-carrot-root', 'sp-cake-eight', 'sp-shape-cycle',
+  ],
+  stimuli: {
+    notice: {
+      section: NOTICE,
+      text: 'ประกาศจากโรงเรียน วันเสาร์ที่ 12 ตุลาคม เวลา 9 โมงเช้า โรงเรียนจัดงานวันกีฬาที่สนามหน้าอาคารเรียน นักเรียนทุกคนแต่งชุดกีฬามาโรงเรียน และนำน้ำดื่มมาเอง ผู้ปกครองมาเชียร์ได้ที่ข้างสนาม',
+    },
+    jobs: { section: JOBS, text: BOARD_TEXT, visual: BOARD },
+  },
+  items: [
+    // ---------------------------------------------------------------- ช่วงที่ 1: ประกาศ 5 ข้อ
+    {
+      id: 'th-notice-where', type: 'main', subject: 'thai', skillIds: ['listening-comprehension'], familyId: 'story-where', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'notice',
+      prompt: { text: 'งานวันกีฬาจัดที่ไหน' },
+      options: [{ id: 'a', text: 'ที่สนามหน้าอาคารเรียน' }, { id: 'b', text: 'ในห้องสมุด' }, { id: 'c', text: 'ที่ตลาด' }],
+      correctOptionId: 'a',
+      narration: 'ฟังประกาศและตัวเลือกได้ วัดการฟังจับสถานที่',
+      review: {
+        summary: 'งานวันกีฬาจัดที่สนามหน้าอาคารเรียน',
+        hints: ['ฟังประโยคที่บอกว่าโรงเรียนจัดงานที่ไหน'],
+        steps: ['ประกาศบอกว่า โรงเรียนจัดงานวันกีฬาที่สนามหน้าอาคารเรียน', 'ห้องสมุดและตลาดไม่มีในประกาศ ตอบข้อ 1'],
+        transferIds: ['th-notice-where-t'],
+      },
+    },
+    {
+      id: 'g-notice-bring', type: 'main', subject: 'general', skillIds: ['listening-detail'], familyId: 'story-what', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'notice',
+      prompt: { text: 'นักเรียนต้องนำอะไรมาเอง' },
+      options: [{ id: 'a', text: 'อาหารกลางวัน' }, { id: 'b', text: 'น้ำดื่ม' }, { id: 'c', text: 'ผ้าห่ม' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการฟังจับรายละเอียดว่าต้องเตรียมอะไร',
+      review: {
+        summary: 'นักเรียนต้องนำน้ำดื่มมาเอง',
+        hints: ['ฟังประโยคที่พูดถึงสิ่งที่นักเรียนต้องเตรียมมา'],
+        steps: ['ประกาศบอกว่า นักเรียนทุกคนแต่งชุดกีฬา และนำน้ำดื่มมาเอง', 'อาหารกลางวันและผ้าห่มไม่มีในประกาศ ตอบข้อ 2'],
+        transferIds: ['g-notice-bring-t'],
+      },
+    },
+    {
+      id: 'm-notice-date', type: 'main', subject: 'math', skillIds: ['date-difference'], familyId: 'date-gap', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'notice',
+      prompt: { text: 'ครูให้นักเรียนซ้อมกีฬาก่อนวันงาน 3 วัน นักเรียนซ้อมกีฬาวันที่เท่าไร' },
+      options: [{ id: 'a', text: 'วันที่ 15' }, { id: 'b', text: 'วันที่ 10' }, { id: 'c', text: 'วันที่ 9' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดการฟังวันที่จัดงานแล้วลบย้อนหลัง',
+      review: {
+        summary: 'งานคือวันที่ 12 ซ้อมก่อนหน้านั้น 3 วัน จึงเป็นวันที่ 9',
+        hints: ['ก่อนวันงาน คือเอาวันที่จัดงานมาลบ'],
+        steps: ['ประกาศบอกว่างานจัดวันที่ 12 ตุลาคม ซ้อมก่อนหน้านั้น 3 วัน ต้องเอา 3 ไปลบออกจาก 12', '12 ลบ 3 เท่ากับ 9 ตอบข้อ 3'],
+        column: { a: 12, op: '-', b: 3 },
+        transferIds: ['m-notice-date-t'],
+      },
+    },
+    {
+      id: 'th-word-notice', type: 'main', subject: 'thai', skillIds: ['word-meaning'], familyId: 'word-in-story', difficulty: 3,
+      sourceId: SRC, ...R, stimulus: 'notice',
+      prompt: { text: 'คำว่า ประกาศ หมายความว่าอย่างไร' },
+      options: [{ id: 'a', text: 'บอกให้ทุกคนรู้' }, { id: 'b', text: 'เก็บไว้เป็นความลับ' }, { id: 'c', text: 'ลืมไปแล้ว' }],
+      correctOptionId: 'a',
+      narration: 'ฟังตัวเลือกได้ วัดความเข้าใจความหมายคำ',
+      review: {
+        summary: 'ประกาศ คือแจ้งให้ทุกคนได้รู้',
+        hints: ['โรงเรียนประกาศเพื่อให้นักเรียนและผู้ปกครองทำอะไร'],
+        steps: ['โรงเรียนประกาศเรื่องงานวันกีฬา เพื่อให้นักเรียนและผู้ปกครองรู้ว่าต้องเตรียมตัวอย่างไร', 'ประกาศจึงหมายถึงบอกให้ทุกคนรู้ ตอบข้อ 1'],
+        transferIds: ['th-word-notice-t'],
+      },
+    },
+    {
+      id: 'r-notice-wrong', type: 'main', subject: 'reasoning', skillIds: ['story-detail'], familyId: 'story-not', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'notice',
+      prompt: { text: 'ข้อใดกล่าวไม่ถูกต้อง' },
+      options: [{ id: 'a', text: 'ผู้ปกครองมาเชียร์ได้' }, { id: 'b', text: 'นักเรียนต้องแต่งชุดกีฬามา' }, { id: 'c', text: 'งานจัดวันอาทิตย์' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดการจำรายละเอียดจากประกาศแล้วหาข้อที่ผิด',
+      review: {
+        summary: 'งานจัดวันเสาร์ ไม่ใช่วันอาทิตย์',
+        hints: ['ตรวจทีละข้อว่าตรงกับประกาศหรือไม่ โดยเฉพาะวัน'],
+        steps: ['ผู้ปกครองมาเชียร์ได้ และนักเรียนต้องแต่งชุดกีฬา ตรงกับประกาศ', 'ประกาศบอกว่างานจัดวันเสาร์ ข้อที่ผิดคือข้อ 3'],
+        transferIds: ['r-notice-wrong-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- ช่วงที่ 2: แผ่นภาพอาชีพ เครื่องมือ ยานพาหนะ 5 ข้อ
+    {
+      id: 'g-job-fire', type: 'main', subject: 'general', skillIds: ['community-helpers'], familyId: 'board-places', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'jobs',
+      prompt: { text: 'ถ้าเกิดไฟไหม้ ควรเรียกใคร' },
+      options: [{ id: 'a', text: 'ชาวนา' }, { id: 'b', text: 'นักดับเพลิง' }, { id: 'c', text: 'แม่ครัว' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องคนที่ช่วยเหลือเมื่อเกิดเหตุ',
+      review: {
+        summary: 'นักดับเพลิงช่วยดับไฟ',
+        hints: ['ใครมีรถและถังสำหรับดับไฟ'],
+        steps: ['ชาวนาปลูกข้าว แม่ครัวทำอาหาร ไม่ได้ดับไฟ', 'นักดับเพลิงมีรถและถังดับเพลิงไว้ดับไฟ ตอบข้อ 2'],
+        transferIds: ['g-job-fire-t'],
+      },
+    },
+    {
+      id: 'r-job-pair', type: 'main', subject: 'reasoning', skillIds: ['relationship'], familyId: 'board-pair', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'jobs',
+      prompt: { text: 'ข้อใดจับคู่อาชีพกับสิ่งที่ใช้ทำงานได้ถูกต้อง' },
+      options: [{ id: 'a', text: 'ชาวนา - จอบ' }, { id: 'b', text: 'หมอ - กระทะ' }, { id: 'c', text: 'แม่ครัว - ถังดับเพลิง' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดการจับคู่อาชีพกับเครื่องมือ',
+      review: {
+        summary: 'ชาวนาใช้จอบพรวนดิน',
+        hints: ['คิดว่าแต่ละอาชีพใช้อะไรทำงานจริงๆ'],
+        steps: ['หมอใช้หูฟังตรวจโรค ไม่ใช้กระทะ และแม่ครัวใช้กระทะ ไม่ใช้ถังดับเพลิง', 'ชาวนาใช้จอบพรวนดิน จับคู่ถูกต้อง ตอบข้อ 1'],
+        transferIds: ['r-job-pair-t'],
+      },
+    },
+    {
+      id: 'm-job-count', type: 'main', subject: 'math', skillIds: ['classify-count'], familyId: 'board-count', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'jobs',
+      prompt: { text: 'ในภาพมีคนทำอาชีพกี่แบบ' },
+      options: [{ id: 'a', text: '5 แบบ' }, { id: 'b', text: '6 แบบ' }, { id: 'c', text: '7 แบบ' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการจัดกลุ่มแล้วนับ (นับเฉพาะคน ไม่นับสิ่งของ)',
+      review: {
+        summary: 'หมอ ตำรวจ นักดับเพลิง ชาวนา ครู และแม่ครัว รวม 6 แบบ',
+        hints: ['เลือกเฉพาะที่เป็นคน แล้วนับทีละแบบ'],
+        steps: ['คนในภาพมี หมอ ตำรวจ นักดับเพลิง ชาวนา ครู และแม่ครัว', 'หูฟังตรวจโรค จอบ กระทะ ถังดับเพลิง รถดับเพลิง และรถพยาบาล เป็นสิ่งของ ไม่นับ รวมเป็น 6 แบบ ตอบข้อ 2'],
+        transferIds: ['m-job-count-t'],
+      },
+    },
+    {
+      id: 'th-job-group', type: 'main', subject: 'thai', skillIds: ['group-words'], familyId: 'group-words', difficulty: 2,
+      sourceId: SRC, ...R, stimulus: 'jobs',
+      prompt: { text: 'จอบ กระทะ ถังดับเพลิง เรียกรวมกันว่าอะไร' },
+      options: [{ id: 'a', text: 'ยานพาหนะ' }, { id: 'b', text: 'เสื้อผ้า' }, { id: 'c', text: 'เครื่องมือทำงาน' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดความเข้าใจคำเรียกรวมของกลุ่มคำ',
+      review: {
+        summary: 'จอบ กระทะ ถังดับเพลิง เป็นเครื่องมือทำงาน',
+        hints: ['สิ่งเหล่านี้คนเอาไว้ใช้ทำอะไร'],
+        steps: ['ยานพาหนะคือของที่พาเราเดินทาง และเสื้อผ้าคือของที่ใส่', 'จอบ กระทะ ถังดับเพลิง ใช้ทำงาน เรียกว่าเครื่องมือทำงาน ตอบข้อ 3'],
+        transferIds: ['th-job-group-t'],
+      },
+    },
+    {
+      id: 'g-job-ambulance', type: 'main', subject: 'general', skillIds: ['vehicle-route'], familyId: 'vehicle-job', difficulty: 1,
+      sourceId: SRC, ...R, stimulus: 'jobs',
+      prompt: { text: 'รถพยาบาลมีไว้ใช้ทำอะไร' },
+      options: [{ id: 'a', text: 'รับส่งผู้ป่วยไปโรงพยาบาล' }, { id: 'b', text: 'ขนส่งข้าวสาร' }, { id: 'c', text: 'พานักเรียนไปโรงเรียน' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องหน้าที่ของยานพาหนะ',
+      review: {
+        summary: 'รถพยาบาลรับคนเจ็บป่วยไปหาหมอ',
+        hints: ['นึกถึงเสียงไซเรนที่ขับไปโรงพยาบาล'],
+        steps: ['ขนข้าวสารใช้รถบรรทุก และรับส่งนักเรียนใช้รถโรงเรียน', 'รถพยาบาลไว้รับส่งผู้ป่วยไปโรงพยาบาล ตอบข้อ 1'],
+        transferIds: ['g-job-ambulance-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- ช่วงที่ 3: ลิตร ลม พืช ตัดขนม ภาพต่อเนื่อง
+    {
+      id: 'm-liter-bottles', type: 'main', subject: 'math', skillIds: ['volume-multiply'], familyId: 'volume-multiply', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'น้ำขวดหนึ่งบรรจุได้ 3 ลิตร ถ้ามีน้ำ 3 ขวด จะบรรจุน้ำได้ทั้งหมดกี่ลิตร' },
+      options: [{ id: 'a', text: '6 ลิตร' }, { id: 'b', text: '9 ลิตร' }, { id: 'c', text: '12 ลิตร' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้ วัดการนับเพิ่มทีละเท่ากันของปริมาตร',
+      review: {
+        summary: 'ขวดละ 3 ลิตร สามขวด เป็น 3 บวก 3 บวก 3',
+        hints: ['นับเพิ่มทีละ 3 ตามจำนวนขวด'],
+        steps: ['ขวดแรก 3 ลิตร ขวดที่สองเพิ่มอีก 3 เป็น 6 ลิตร', 'ขวดที่สามเพิ่มอีก 3 เป็น 9 ลิตร ตอบข้อ 2'],
+        transferIds: ['m-liter-bottles-t'],
+      },
+    },
+    {
+      id: 'sc-wind-things', type: 'main', subject: 'science', skillIds: ['wind-uses'], familyId: 'wind-uses', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'สิ่งของสองอย่างใดใช้ลมช่วยให้เคลื่อนที่ได้' },
+      options: [{ id: 'a', text: 'ก้อนหิน, ดินสอ' }, { id: 'b', text: 'จาน, ช้อน' }, { id: 'c', text: 'ว่าว, เรือใบ' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องประโยชน์ของลม',
+      review: {
+        summary: 'ลมพัดให้ว่าวลอยและพัดให้เรือใบแล่น',
+        hints: ['สิ่งของอะไรที่ต้องมีลมพัดมันถึงจะไปได้'],
+        steps: ['ก้อนหิน ดินสอ จาน และช้อน ลมพัดไม่ไป', 'ว่าวลอยด้วยลม และเรือใบแล่นด้วยลมพัดใบเรือ ตอบข้อ 3'],
+        transferIds: ['sc-wind-things-t'],
+      },
+    },
+    {
+      id: 'sc-carrot-root', type: 'main', subject: 'science', skillIds: ['plant-parts'], familyId: 'plant-parts', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'แครอทที่เรากินเป็นส่วนใดของพืช' },
+      options: [{ id: 'a', text: 'ราก' }, { id: 'b', text: 'ใบ' }, { id: 'c', text: 'ดอก' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้ วัดความรู้เรื่องส่วนของพืชที่กินได้',
+      review: {
+        summary: 'แครอทเป็นรากที่อยู่ใต้ดิน',
+        hints: ['แครอทโตอยู่ที่ไหน บนต้นหรือใต้ดิน'],
+        steps: ['ใบอยู่เหนือดิน และดอกอยู่บนต้น', 'แครอทเติบโตอยู่ใต้ดิน เป็นราก ตอบข้อ 1'],
+        transferIds: ['sc-carrot-root-t'],
+      },
+    },
+    {
+      id: 'sp-cake-eight', type: 'main', subject: 'spatial', skillIds: ['equal-parts'], familyId: 'equal-parts', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'แม่จะแบ่งขนมให้เพื่อน 8 คน คนละเท่าๆ กัน ต้องตัดขนมแบบใด' },
+      options: [cake('a', 'quarters'), cake('b', 'uneven-eighths'), cake('c', 'eighths'), cake('d', 'halves')],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการแบ่งเป็นส่วนเท่ากันตามจำนวนคน',
+      review: {
+        summary: 'ต้องตัดเป็น 8 ชิ้นเท่ากัน',
+        hints: ['นับจำนวนชิ้นที่ตัด และดูว่าทุกชิ้นใหญ่เท่ากันไหม'],
+        steps: ['ตัดสองชิ้นหรือสี่ชิ้นได้ไม่ครบ 8 คน และบางภาพตัดเป็น 8 ชิ้นแต่เล็กใหญ่ไม่เท่ากัน', 'ภาพที่ตัดเป็น 8 ชิ้นเท่ากันทุกชิ้น คือข้อ 3'],
+        transferIds: ['sp-cake-four-t'],
+      },
+    },
+    {
+      id: 'sp-shape-cycle', type: 'main', subject: 'spatial', skillIds: ['figure-sequence'], familyId: 'shape-pattern', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'รูปในช่อง ? ควรเป็นรูปใด' },
+      visual: { type: 'figure-row', items: [shape('diamond'), shape('diamond', 'dots'), shape('diamond', 'solid'), shape('diamond'), '?'] },
+      options: [fig('a', shape('diamond', 'solid')), fig('b', shape('diamond', 'dots')), fig('c', shape('diamond')), fig('d', shape('hexagon', 'dots'))],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ) วัดการหาแบบที่วนซ้ำสามรูป',
+      review: {
+        summary: 'ว่าง มีจุด ทึบ วนซ้ำกันเป็นรอบ',
+        hints: ['ดูว่ากี่รูปถึงจะกลับมาซ้ำรูปแรก'],
+        steps: ['เรียงเป็น ว่าง มีจุด ทึบ แล้วกลับมาว่างอีกครั้ง คือวนรอบละสามรูป', 'ต่อจากรูปว่างตัวที่สองต้องเป็นรูปมีจุด ตอบข้อ 2'],
+        transferIds: ['sp-shape-cycle-t'],
+      },
+    },
+
+    // ---------------------------------------------------------------- โจทย์ลองใหม่ (เปิดในหน้าเฉลย ไม่นับเป็นข้อสอบ)
+    {
+      id: 'th-notice-where-t', type: 'transfer', subject: 'thai', skillIds: ['listening-comprehension'], familyId: 'story-where', difficulty: 1,
+      sourceId: SRC, ...R, section: NOTICE,
+      prompt: { text: 'ประกาศ โรงเรียนจัดงานวันแม่ที่หอประชุมในวันศุกร์ เวลา 8 โมงเช้า งานวันแม่จัดที่ไหน' },
+      options: [{ id: 'a', text: 'ที่สนามเด็กเล่น' }, { id: 'b', text: 'ที่ตลาด' }, { id: 'c', text: 'ที่หอประชุม' }],
+      correctOptionId: 'c',
+      narration: 'ฟังประกาศได้',
+      review: { summary: 'งานวันแม่จัดที่หอประชุม', hints: [], steps: ['ประกาศบอกว่า จัดงานวันแม่ที่หอประชุม', 'สนามเด็กเล่นและตลาดไม่มีในประกาศ'] },
+    },
+    {
+      id: 'g-notice-bring-t', type: 'transfer', subject: 'general', skillIds: ['listening-detail'], familyId: 'story-what', difficulty: 1,
+      sourceId: SRC, ...R, section: NOTICE,
+      prompt: { text: 'ครูบอกว่า พรุ่งนี้ไปทัศนศึกษา ให้ทุกคนนำหมวกมาเอง นักเรียนต้องนำอะไรมาเอง' },
+      options: [{ id: 'a', text: 'หมวก' }, { id: 'b', text: 'ร่ม' }, { id: 'c', text: 'รองเท้าแตะ' }],
+      correctOptionId: 'a',
+      narration: 'ฟังได้',
+      review: { summary: 'ครูให้นำหมวกมาเอง', hints: [], steps: ['ครูบอกว่า ให้ทุกคนนำหมวกมาเอง', 'ร่มและรองเท้าแตะครูไม่ได้พูดถึง'] },
+    },
+    {
+      id: 'm-notice-date-t', type: 'transfer', subject: 'math', skillIds: ['date-difference'], familyId: 'date-gap', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'งานเลี้ยงอยู่วันที่ 20 น้องซื้อของไว้ก่อนวันงาน 5 วัน น้องซื้อของวันที่เท่าไร' },
+      options: [{ id: 'a', text: 'วันที่ 25' }, { id: 'b', text: 'วันที่ 15' }, { id: 'c', text: 'วันที่ 5' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: '20 ลบ 5 เท่ากับ 15', hints: [], steps: ['ก่อนวันงาน 5 วัน ต้องเอา 5 ไปลบจาก 20', '20 ลบ 5 เท่ากับ 15'], column: { a: 20, op: '-', b: 5 } },
+    },
+    {
+      id: 'th-word-notice-t', type: 'transfer', subject: 'thai', skillIds: ['word-meaning'], familyId: 'word-in-story', difficulty: 3,
+      sourceId: SRC, ...R,
+      prompt: { text: 'คำว่า เชียร์ หมายความว่าอย่างไร' },
+      options: [{ id: 'a', text: 'ให้กำลังใจนักกีฬา' }, { id: 'b', text: 'ขัดขวางนักกีฬา' }, { id: 'c', text: 'หนีกลับบ้าน' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'เชียร์ คือให้กำลังใจ', hints: [], steps: ['ผู้ปกครองมาเชียร์ที่ข้างสนาม เพื่อให้กำลังใจเด็กๆ', 'ขัดขวางหรือหนีกลับบ้านไม่ใช่การเชียร์'] },
+    },
+    {
+      id: 'r-notice-wrong-t', type: 'transfer', subject: 'reasoning', skillIds: ['story-detail'], familyId: 'story-not', difficulty: 2,
+      sourceId: SRC, ...R, section: NOTICE,
+      prompt: { text: 'ประกาศ ร้านค้าปิดวันอาทิตย์ เปิดตั้งแต่วันจันทร์ถึงวันเสาร์ ข้อใดกล่าวไม่ถูกต้อง' },
+      options: [{ id: 'a', text: 'ร้านเปิดวันจันทร์' }, { id: 'b', text: 'ร้านปิดวันอาทิตย์' }, { id: 'c', text: 'ร้านเปิดวันอาทิตย์' }],
+      correctOptionId: 'c',
+      narration: 'ฟังประกาศได้',
+      review: { summary: 'ร้านปิดวันอาทิตย์ ไม่ได้เปิด', hints: [], steps: ['ร้านเปิดวันจันทร์ถึงวันเสาร์ และปิดวันอาทิตย์', 'ข้อที่บอกว่าร้านเปิดวันอาทิตย์ จึงผิด'] },
+    },
+    {
+      id: 'g-job-fire-t', type: 'transfer', subject: 'general', skillIds: ['community-helpers'], familyId: 'board-places', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ถ้ามีขโมยเข้าบ้าน ควรแจ้งใคร' },
+      options: [{ id: 'a', text: 'ตำรวจ' }, { id: 'b', text: 'ชาวนา' }, { id: 'c', text: 'ครู' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ตำรวจช่วยจับคนร้าย', hints: [], steps: ['ชาวนาปลูกข้าว ครูสอนหนังสือ', 'ตำรวจดูแลความปลอดภัยและจับคนร้าย'] },
+    },
+    {
+      id: 'r-job-pair-t', type: 'transfer', subject: 'reasoning', skillIds: ['relationship'], familyId: 'board-pair', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ข้อใดจับคู่อาชีพกับสิ่งที่ใช้ทำงานได้ถูกต้อง' },
+      options: [{ id: 'a', text: 'หมอ - จอบ' }, { id: 'b', text: 'ชาวนา - หูฟังตรวจโรค' }, { id: 'c', text: 'ครู - กระดาน' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ครูเขียนบนกระดานตอนสอน', hints: [], steps: ['หมอไม่ใช้จอบ และชาวนาไม่ใช้หูฟังตรวจโรค', 'ครูใช้กระดานเขียนตอนสอน'] },
+    },
+    {
+      id: 'm-job-count-t', type: 'transfer', subject: 'math', skillIds: ['classify-count'], familyId: 'board-count', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ในห้องมี หมอ ครู ถังดับเพลิง และชาวนา ในห้องมีคนทำอาชีพกี่แบบ' },
+      options: [{ id: 'a', text: '2 แบบ' }, { id: 'b', text: '3 แบบ' }, { id: 'c', text: '4 แบบ' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'หมอ ครู และชาวนา เป็นคน รวม 3 แบบ', hints: [], steps: ['ถังดับเพลิงเป็นสิ่งของ ไม่ใช่คน ไม่นับ', 'หมอ ครู ชาวนา รวม 3 แบบ'] },
+    },
+    {
+      id: 'th-job-group-t', type: 'transfer', subject: 'thai', skillIds: ['group-words'], familyId: 'group-words', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ครู หมอ ตำรวจ เรียกรวมกันว่าอะไร' },
+      options: [{ id: 'a', text: 'อาชีพ' }, { id: 'b', text: 'ผลไม้' }, { id: 'c', text: 'สัตว์เลี้ยง' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ครู หมอ ตำรวจ เป็นอาชีพ', hints: [], steps: ['ผลไม้คือของกิน และสัตว์เลี้ยงคือสัตว์', 'ครู หมอ ตำรวจ เป็นงานที่คนทำหาเลี้ยงชีพ เรียกว่าอาชีพ'] },
+    },
+    {
+      id: 'g-job-ambulance-t', type: 'transfer', subject: 'general', skillIds: ['vehicle-route'], familyId: 'vehicle-job', difficulty: 1,
+      sourceId: SRC, ...R,
+      prompt: { text: 'รถดับเพลิงมีไว้ใช้ทำอะไร' },
+      options: [{ id: 'a', text: 'ดับไฟ' }, { id: 'b', text: 'ขายไอศกรีม' }, { id: 'c', text: 'ส่งจดหมาย' }],
+      correctOptionId: 'a',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'รถดับเพลิงมีน้ำไว้ดับไฟ', hints: [], steps: ['ขายไอศกรีมและส่งจดหมายใช้รถอย่างอื่น', 'รถดับเพลิงมีน้ำและถังไว้ดับไฟ'] },
+    },
+    {
+      id: 'm-liter-bottles-t', type: 'transfer', subject: 'math', skillIds: ['volume-multiply'], familyId: 'volume-multiply', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'ถังใบหนึ่งใส่น้ำได้ 2 ลิตร มีถัง 4 ใบ ใส่น้ำได้ทั้งหมดกี่ลิตร' },
+      options: [{ id: 'a', text: '6 ลิตร' }, { id: 'b', text: '2 ลิตร' }, { id: 'c', text: '8 ลิตร' }],
+      correctOptionId: 'c',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ถังละ 2 ลิตร สี่ถัง นับทีละ 2 ได้ 8 ลิตร', hints: [], steps: ['นับเพิ่มทีละ 2 ตามจำนวนถัง ได้ 2 4 6 8', 'ถังสี่ใบ ใส่น้ำได้ 8 ลิตร'] },
+    },
+    {
+      id: 'sc-wind-things-t', type: 'transfer', subject: 'science', skillIds: ['wind-uses'], familyId: 'wind-uses', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'สิ่งของในข้อใดหมุนได้ด้วยแรงลม' },
+      options: [{ id: 'a', text: 'ตู้เย็น' }, { id: 'b', text: 'กังหันลม' }, { id: 'c', text: 'หม้อหุงข้าว' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'ลมพัดให้กังหันลมหมุน', hints: [], steps: ['ตู้เย็นและหม้อหุงข้าวใช้ไฟฟ้า', 'กังหันลมหมุนเมื่อมีลมพัดมา'] },
+    },
+    {
+      id: 'sc-carrot-root-t', type: 'transfer', subject: 'science', skillIds: ['plant-parts'], familyId: 'plant-parts', difficulty: 2,
+      sourceId: SRC, ...R,
+      prompt: { text: 'หัวไชเท้าที่เรากินเป็นส่วนใดของพืช' },
+      options: [{ id: 'a', text: 'ผล' }, { id: 'b', text: 'ราก' }, { id: 'c', text: 'ดอก' }],
+      correctOptionId: 'b',
+      narration: 'อ่านตัวเลือกได้',
+      review: { summary: 'หัวไชเท้าเป็นรากใต้ดิน', hints: [], steps: ['ผลและดอกอยู่บนต้น', 'หัวไชเท้าโตอยู่ใต้ดิน จึงเป็นราก'] },
+    },
+    {
+      id: 'sp-cake-four-t', type: 'transfer', subject: 'spatial', skillIds: ['equal-parts'], familyId: 'equal-parts', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'แม่จะแบ่งขนมให้เพื่อน 4 คน คนละเท่าๆ กัน ต้องตัดขนมแบบใด' },
+      options: [cake('a', 'uneven-quarters'), cake('b', 'quarters'), cake('c', 'halves'), cake('d', 'eighths')],
+      correctOptionId: 'b',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'ต้องตัดเป็น 4 ชิ้นเท่ากัน', hints: [], steps: ['สองชิ้นน้อยเกินไป แปดชิ้นมากเกินไป และบางภาพเล็กใหญ่ไม่เท่ากัน', 'ภาพที่ตัดเป็น 4 ชิ้นเท่ากันทุกชิ้นคือข้อ 2'] },
+    },
+    {
+      id: 'sp-shape-cycle-t', type: 'transfer', subject: 'spatial', skillIds: ['figure-sequence'], familyId: 'shape-pattern', difficulty: 3,
+      sourceId: SRC, ...R, section: FIGURES,
+      prompt: { text: 'รูปในช่อง ? ควรเป็นรูปใด' },
+      visual: { type: 'figure-row', items: [shape('hexagon', 'solid'), shape('hexagon'), shape('hexagon', 'dots'), shape('hexagon', 'solid'), '?'] },
+      options: [fig('a', shape('hexagon', 'solid')), fig('b', shape('hexagon', 'dots')), fig('c', shape('hexagon')), fig('d', shape('diamond'))],
+      correctOptionId: 'c',
+      narration: 'ไม่อ่านตัวเลือก (เป็นภาพ)',
+      review: { summary: 'ทึบ ว่าง มีจุด วนซ้ำกันเป็นรอบ', hints: [], steps: ['เรียงเป็น ทึบ ว่าง มีจุด แล้วกลับมาทึบอีกครั้ง คือวนรอบละสามรูป', 'ต่อจากรูปทึบตัวที่สองต้องเป็นรูปว่าง'] },
+    },
+  ],
+};

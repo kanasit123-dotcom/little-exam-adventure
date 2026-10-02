@@ -2,6 +2,7 @@
 import { SETS, getSet } from '../content/sets/index.js';
 import { summarize, weakSpots, frequentMistakes } from '../core/summary.js';
 import { $, esc, on, confirmBox } from '../ui.js';
+import { SAY } from '../content/copy.js';
 import { sessionUsable } from './home.js';
 
 const STATUS = { correct: 'ถูก', incorrect: 'ยังไม่ถูก', unsure: 'ยังไม่แน่ใจ', none: 'ยังไม่ส่ง' };
@@ -60,7 +61,7 @@ function weakReport(state) {
 }
 
 export function mountParent(root, ctx) {
-  const { store, signal } = ctx;
+  const { store, audio, signal } = ctx;
   const render = () => {
     const state = store.state;
     const st = state.settings;
@@ -81,6 +82,8 @@ export function mountParent(root, ctx) {
             <div class="lx-field"><label>หน้าจอ</label>
               <div class="lx-seg" data-key="mode"><button data-v="buddy" type="button">มีเพื่อนและฉาก</button><button data-v="plain" type="button">เรียบง่าย</button></div></div>
           </section>
+          <div class="lx-row lx-row-left"><button class="lx-btn lx-btn-soft" id="lx-audiotest" type="button">🔊 ทดสอบเสียงของเครื่องนี้</button></div>
+          <p class="lx-small lx-pre" id="lx-audioresult" aria-live="polite"></p>
           <p class="lx-small">แบบสอบจริง 2 รอบ: เหมือนห้องสอบที่ครูอ่านโจทย์ให้ฟังแค่ 2 รอบ — เกมอ่านโจทย์พร้อมตัวเลือกให้ฟัง 2 รอบเอง (เรื่องที่ใช้ร่วมกันอ่าน 2 รอบก่อนข้อแรก) แล้วฟังซ้ำไม่ได้ ต้องอ่านตัวหนังสือในโจทย์ช่วย ส่วนหน้าเฉลยฟังซ้ำได้ตามปกติ</p>
           <div class="lx-row"><button class="lx-btn lx-btn-soft" id="lx-answers" type="button">📋 ตรวจเฉลยทุกข้อของแต่ละชุด</button></div>
           <h2 class="lx-h2">จุดที่ควรฝึกเพิ่ม</h2>
@@ -130,6 +133,22 @@ export function mountParent(root, ctx) {
     }
     if (event.target.closest('#lx-back')) { ctx.go('home'); return; }
     if (event.target.closest('#lx-answers')) { ctx.go('answers'); return; }
+    if (event.target.closest('#lx-audiotest')) {
+      const out = $(root, '#lx-audioresult');
+      if (!store.state.settings.sound) { out.textContent = 'เสียงอ่านปิดอยู่ในการตั้งค่า (เปิดที่ "เสียงอ่าน" ด้านบนก่อน)'; return; }
+      audio.unlock();
+      out.textContent = 'กำลังเล่นเสียงทดสอบ…';
+      const result = await audio.play({ text: SAY.welcome, role: 'ui' });
+      const d = audio.diagnose();
+      const detail = `ผลทดสอบ: ${result.status}${result.via ? ` · ${result.via}` : ''} · ctx ${d.context} · ${d.sampleRate ?? '-'} Hz · session ${d.audioSession}${d.lastError ? ` · ${d.lastError}` : ''}`;
+      const advice = result.status === 'done' && result.via === 'clip'
+        ? 'เล่นเสียงที่อัดไว้แล้ว ถ้าได้ยิน ถือว่าปกติ ถ้าไม่ได้ยินเลย ให้เปิดเสียงเครื่อง (ปุ่มด้านข้าง หรือปุ่มกระดิ่งในศูนย์ควบคุม) แล้วเพิ่มระดับเสียง จากนั้นกดทดสอบใหม่'
+        : result.status === 'done'
+          ? 'เล่นด้วยเสียงของเครื่อง (ไม่ใช่เสียงที่อัดไว้) เสียงอาจต่างจากปกติ'
+          : 'เล่นเสียงไม่ได้ — ส่งบรรทัดผลทดสอบด้านล่างให้ผู้ช่วยดู';
+      out.textContent = `${advice}\n${detail}`;
+      return;
+    }
     if (event.target.closest('#lx-abandon')) {
       const ok = await confirmBox(root, { text: 'เลิกชุดที่ทำค้างใช่ไหม ผลที่ส่งแล้วจะเก็บไว้ในประวัติ', yes: 'เลิกชุดนี้', no: 'ไม่ใช่' }, signal);
       if (ok) { store.dispatch({ type: 'abandon', now: Date.now() }); render(); }

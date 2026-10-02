@@ -68,8 +68,10 @@ store.subscribe((state, prev) => {
 });
 
 // iPad: ต้องปลดล็อกเสียงจากการแตะของผู้ใช้ และปลุกเสียงอีกครั้งหลังสลับแอป
-window.addEventListener('pointerdown', () => audio.unlock(), { capture: true });
-window.addEventListener('keydown', () => audio.unlock(), { capture: true });
+// iOS นับเฉพาะ touchend/click (และ pointerup ของนิ้ว) เป็นการแตะที่ปลดล็อกเสียงได้ — pointerdown อย่างเดียวบน iPad อาจไม่พอ
+for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) {
+  window.addEventListener(type, () => audio.unlock(), { capture: true, passive: true });
+}
 document.addEventListener('visibilitychange', () => { if (document.hidden) audio.stop(); });
 
 // URL เต็ม: url() แบบสัมพัทธ์ในตัวแปร CSS จะอิงโฟลเดอร์ของไฟล์ CSS (บน Pages กลายเป็น assets/assets/...)

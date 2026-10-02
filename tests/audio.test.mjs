@@ -152,3 +152,49 @@ test('clip URLs also carry the pause style so re-recorded pacing is not served f
   await done;
 });
 
+test('iPad: a context that never resumes does not hang the question — play() gives up with an error and says why', async () => {
+  const { ctx } = fakeContext();
+  ctx.state = 'suspended';
+  ctx.resume = () => new Promise(() => {});   // iOS บางครั้งไม่ตอบเมื่อไม่ได้เรียกจากการแตะ
+  const audio = createAudio({
+    base: '/x/',
+    loadManifest: async () => manifest,
+    fetchArrayBuffer: async () => new ArrayBuffer(8),
+    createContext: () => ctx,
+    timers: { setTimeout: (fn) => globalThis.setTimeout(fn, 5), clearTimeout: globalThis.clearTimeout },
+  });
+  audio.unlock();
+  const result = await audio.play({ text: 'สวัสดี', role: 'prompt' });
+  assert.equal(result.status, 'error');
+  assert.match(audio.diagnose().lastError, /audio context suspended/);
+  assert.equal(audio.diagnose().context, 'suspended');
+});
+
+test('unlocking asks iOS to play sound even when the ringer is muted (audio session = playback)', () => {
+  const session = { type: 'auto' };
+  const { ctx } = fakeContext();
+  const audio = createAudio({ loadManifest: async () => manifest, createContext: () => ctx, audioSession: session, timers });
+  audio.unlock();
+  assert.equal(session.type, 'playback');
+  assert.equal(audio.diagnose().audioSession, 'playback');
+  // เครื่องที่ไม่มี audioSession (รุ่นเก่า) ต้องไม่พัง
+  const old = createAudio({ loadManifest: async () => manifest, createContext: () => fakeContext().ctx, audioSession: undefined, timers });
+  assert.doesNotThrow(() => old.unlock());
+});
+
+test('device speech picks a Thai voice explicitly, and reports an error when the device has no Thai voice', async () => {
+  class Utt { constructor(text) { this.text = text; } }
+  const spoken = [];
+  const withVoices = (voices) => ({
+    getVoices: () => voices,
+    speak: (u) => { spoken.push(u); u.onend(); },
+    cancel: () => {},
+  });
+  const thai = { lang: 'th-TH', name: 'Kanya' };
+  const a = setup({ speech: withVoices([{ lang: 'en-US', name: 'Alex' }, thai]), Utterance: Utt });
+  assert.deepEqual(await a.audio.play({ text: 'ไม่มีคลิปนี้', role: 'prompt' }), { status: 'done', via: 'tts' });
+  assert.equal(spoken[0].voice, thai);
+  const b = setup({ speech: withVoices([{ lang: 'en-US', name: 'Alex' }]), Utterance: Utt });
+  assert.equal((await b.audio.play({ text: 'ไม่มีคลิปนี้', role: 'prompt' })).status, 'error');
+  assert.equal(b.audio.diagnose().lastError, 'no Thai voice');
+});

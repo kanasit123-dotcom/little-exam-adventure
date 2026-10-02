@@ -29,6 +29,7 @@ export function createAudio({
   speech = globalThis.speechSynthesis,
   Utterance = globalThis.SpeechSynthesisUtterance,
   timers = globalThis,
+  audioSession = globalThis.navigator?.audioSession,
 } = {}) {
   let ctx = null;
   let manifest = null;
@@ -38,6 +39,7 @@ export function createAudio({
   let generation = 0;
   let current = null;   // { gen, source, finish, request }
   let last = null;      // คำขอล่าสุด ไว้กดฟังซ้ำ
+  let lastError = '';   // เหตุที่เล่นไม่ได้ครั้งล่าสุด (ไว้ให้ปุ่ม "ทดสอบเสียง" ในหน้าผู้ปกครองรายงาน)
   const buffers = new Map();
   const listeners = new Set();
 
@@ -61,8 +63,26 @@ export function createAudio({
     return `${base}voice/th/${rate}/${hash}.mp3${version}`;
   }
 
-  /** เรียกจาก event ที่ผู้ใช้แตะ (pointerdown/click) — iPad ต้องปลดล็อกเสียงจาก gesture */
+  /**
+   * iPhone/iPad: ปุ่มปิดเสียงด้านข้าง / ปุ่มปิดเสียงในศูนย์ควบคุมทำให้ Web Audio เงียบสนิท (วิดีโอยังมีเสียง) —
+   * ตั้ง audio session เป็น playback เพื่อให้เสียงอ่านดังแม้ปิดเสียงเรียกเข้า (Safari 16.4 ขึ้นไป; รุ่นเก่าไม่มีก็ข้ามไป)
+   */
+  function playbackSession() {
+    try { if (audioSession && audioSession.type !== 'playback') audioSession.type = 'playback'; } catch { /* ไม่รองรับ */ }
+  }
+
+  /** resume() บน iOS อาจค้างไม่จบถ้าไม่ได้เรียกจากการแตะ — รอได้แค่นี้ แล้วถือว่าเล่นไม่ได้ (ไม่ปล่อยให้ข้อสอบค้างรอเสียง) */
+  const RESUME_WAIT_MS = 1500;
+  function resumeBounded() {
+    return Promise.race([
+      Promise.resolve(ctx.resume?.()).catch(() => {}),
+      new Promise((resolve) => timers.setTimeout(resolve, RESUME_WAIT_MS)),
+    ]);
+  }
+
+  /** เรียกจาก event ที่ผู้ใช้แตะ (pointerdown/touchend/click) — iPad ต้องปลดล็อกเสียงจาก gesture */
   function unlock() {
+    playbackSession();
     try {
       if (!ctx) ctx = createContext();
       if (ctx.state !== 'running') ctx.resume?.();
@@ -136,8 +156,9 @@ export function createAudio({
           try {
             const buffer = await decode(url);
             if (generation !== gen) return finish('cancelled');
-            if (ctx.state !== 'running') await ctx.resume?.();
+            if (ctx.state !== 'running') await resumeBounded();
             if (generation !== gen) return finish('cancelled');
+            if (ctx.state !== 'running') throw new Error(`audio context ${ctx.state}`);
             const { offset, duration } = trimRange(buffer);
             const source = ctx.createBufferSource();
             source.buffer = buffer;
@@ -149,8 +170,9 @@ export function createAudio({
             // บางครั้ง iOS ไม่ยิง onended — กันปุ่มค้าง
             watchdog = timers.setTimeout(() => { if (generation === gen) finish('done'); }, (duration + 1.5) * 1000);
             return undefined;
-          } catch {
+          } catch (error) {
             if (generation !== gen) return finish('cancelled');
+            lastError = String(error?.message || error).slice(0, 80);
             // โหลดคลิปไม่ได้ → ลองเสียงเครื่องด้านล่าง
           }
         }
@@ -158,6 +180,11 @@ export function createAudio({
           via = 'tts';
           const utterance = new Utterance(request.text);
           utterance.lang = 'th-TH';
+          // iPhone/iPad ไม่สนใจ lang ถ้าไม่ตั้ง voice เอง (ข้อความไทยถูกอ่านด้วยเสียงอังกฤษแล้วเงียบ) และถ้าเครื่องไม่มีเสียงไทยเลยให้บอกว่าเล่นไม่ได้
+          const voices = (() => { try { return speech.getVoices?.() || []; } catch { return []; } })();
+          const thai = voices.find((v) => /^th/i.test(v.lang));
+          if (voices.length && !thai) { lastError = 'no Thai voice'; return finish('error'); }
+          if (thai) utterance.voice = thai;
           utterance.rate = rate === 'slow' ? 0.65 : 0.8;
           utterance.onend = () => { if (generation === gen) finish('done'); };
           utterance.onerror = () => { if (generation === gen) finish('error'); };
@@ -165,6 +192,7 @@ export function createAudio({
           watchdog = timers.setTimeout(() => { if (generation === gen) finish('done'); }, 4000 + request.text.length * 220);
           return undefined;
         }
+        lastError = lastError || 'no clip and no device speech';
         return finish('error');
       });
     });
@@ -179,6 +207,19 @@ export function createAudio({
     setRate(value) { rate = value === 'slow' ? 'slow' : 'normal'; },
     get playing() { return current ? current.request : null; },
     get unlocked() { return !!ctx && ctx.state === 'running'; },
+    /** สถานะเสียงของเครื่องนี้ (แสดงในปุ่มทดสอบเสียงของหน้าผู้ปกครอง) */
+    diagnose() {
+      let voices = [];
+      try { voices = speech?.getVoices?.() || []; } catch { /* ไม่มี */ }
+      return {
+        context: ctx ? ctx.state : 'none',
+        sampleRate: ctx?.sampleRate ?? null,
+        audioSession: audioSession ? audioSession.type : 'n/a',
+        deviceSpeech: !!speech,
+        thaiVoice: voices.some((v) => /^th/i.test(v.lang)),
+        lastError,
+      };
+    },
     hasClip: async (text) => !!clipUrl(await getManifest(), text),
     onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
     /** เสียงสั้นตอนแตะ — เหมือนกันทุกตัวเลือก ไม่บอกถูกผิด */

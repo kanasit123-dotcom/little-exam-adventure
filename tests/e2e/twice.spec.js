@@ -50,3 +50,19 @@ test('twice mode: a question already read twice is not read again and the child 
   await page.locator('#lx-next').click();
   await expect(page.locator('.lx-qnum')).toHaveText('2.');
 });
+
+test('the parent page has a sound test that reports how this device played the sample', async ({ page }) => {
+  await freshStart(page, { sound: true });
+  await page.locator('#lx-parent').click();
+  await page.locator('#lx-audiotest').click();
+  await expect(page.locator('#lx-audioresult')).toContainText('ผลทดสอบ', { timeout: 15_000 });
+  await expect(page.locator('#lx-audioresult')).toContainText('ctx');
+  expect(await noHorizontalOverflow(page)).toBe(true);
+});
+
+test('with sound off the sound test says so instead of playing', async ({ page }) => {
+  await freshStart(page);
+  await page.locator('#lx-parent').click();
+  await page.locator('#lx-audiotest').click();
+  await expect(page.locator('#lx-audioresult')).toContainText('เสียงอ่านปิดอยู่');
+});

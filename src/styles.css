@@ -576,6 +576,8 @@ button.lx-fcard:active { transform: translateY(2px); }
 .lx-twice .lx-listen.lx-rounds-done { background: #f1ecf6; box-shadow: 0 0 0 3px var(--card-edge) inset; }
 .lx-pick.lx-reading { box-shadow: 0 0 0 5px var(--blue); }
 
+.lx-pre { white-space: pre-line; overflow-wrap: anywhere; }
+
 /* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
 body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {
