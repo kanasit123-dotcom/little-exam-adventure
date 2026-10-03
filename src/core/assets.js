@@ -95,6 +95,10 @@ const PICTURES = {
   'body-knee': 'เข่า',
   'body-elbow': 'ศอก',
   'body-hair': 'ผม',
+  // แผ่น O P Q (design/PROMPTS-gemini-12.md) — วันสำคัญ 8 วัน (ในกรอบ), สัตว์กับลูกสัตว์ 6 คู่ (ตัดพื้น), ความปลอดภัยบนถนน 8 ภาพ (ในกรอบ)
+  'day-songkran': 'ภาพวันสำคัญ', 'day-loy': 'ภาพวันสำคัญ', 'day-mother': 'ภาพวันสำคัญ', 'day-children': 'ภาพวันสำคัญ', 'day-newyear': 'ภาพวันสำคัญ', 'day-teacher': 'ภาพวันสำคัญ', 'day-lent': 'ภาพวันสำคัญ', 'day-father': 'ภาพวันสำคัญ',
+  'animal-cow': 'ภาพสัตว์', 'animal-calf': 'ภาพสัตว์', 'animal-dog': 'ภาพสัตว์', 'animal-puppy': 'ภาพสัตว์', 'animal-cat': 'ภาพสัตว์', 'animal-kitten': 'ภาพสัตว์', 'animal-duck': 'ภาพสัตว์', 'animal-duckling': 'ภาพสัตว์', 'animal-pig': 'ภาพสัตว์', 'animal-piglet': 'ภาพสัตว์', 'animal-sheep': 'ภาพสัตว์', 'animal-lamb': 'ภาพสัตว์',
+  'road-red': 'ภาพบนถนน', 'road-yellow': 'ภาพบนถนน', 'road-green': 'ภาพบนถนน', 'road-zebra': 'ภาพบนถนน', 'road-bridge': 'ภาพบนถนน', 'road-helmet': 'ภาพบนถนน', 'road-belt': 'ภาพบนถนน', 'road-ball': 'ภาพบนถนน',
   // แผ่น L M N (design/PROMPTS-gemini-11.md) — เด็กทั้งตัว (ตัดพื้น), ภาพเรียงลำดับ 4 เรื่อง และสถานที่ในชุมชน 12 แห่ง (อยู่ในกรอบ)
   'child-girl': 'เด็กหญิง', 'child-boy': 'เด็กชาย',
   'seq-dress-1': 'ภาพเหตุการณ์', 'seq-dress-2': 'ภาพเหตุการณ์', 'seq-dress-3': 'ภาพเหตุการณ์', 'seq-dress-4': 'ภาพเหตุการณ์',
