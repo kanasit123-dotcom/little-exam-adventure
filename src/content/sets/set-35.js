@@ -36,7 +36,7 @@ export default {
   items: [
     // ================================================================ ช่วงที่ 1: ลูกบาศก์ชุด ก
     {
-      id: 'm-cube-count-a', type: 'main', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
+      id: 'm-cube-count-a', compact: true, type: 'main', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
       sourceId: SRC, ...R, stimulus: 'a',
       prompt: { text: 'ลูกบาศก์ในภาพมีทั้งหมดกี่ก้อน' },
       options: words('6 ก้อน', '7 ก้อน', '8 ก้อน'),
@@ -79,7 +79,7 @@ export default {
       },
     },
     {
-      id: 'm-cube-back-a', type: 'main', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
+      id: 'm-cube-back-a', compact: true, type: 'main', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
       sourceId: SRC, ...R, stimulus: 'a',
       prompt: { text: 'ลูกบาศก์แถวหลังมีกี่ก้อน' },
       options: words('4 ก้อน', '5 ก้อน', '6 ก้อน'),
@@ -93,7 +93,7 @@ export default {
       },
     },
     {
-      id: 'm-cube-ten-a', type: 'main', subject: 'math', skillIds: ['word-problem-sub'], familyId: 'make-ten', difficulty: 3,
+      id: 'm-cube-ten-a', compact: true, type: 'main', subject: 'math', skillIds: ['word-problem-sub'], familyId: 'make-ten', difficulty: 3,
       sourceId: SRC, ...R, stimulus: 'a',
       prompt: { text: 'ต้องเพิ่มลูกบาศก์อีกกี่ก้อน จึงจะมีครบ 10 ก้อน' },
       options: words('3 ก้อน', '4 ก้อน', '2 ก้อน'),
@@ -110,7 +110,7 @@ export default {
 
     // ================================================================ ช่วงที่ 2: ลูกบาศก์ชุด ข
     {
-      id: 'm-cube-count-b', type: 'main', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
+      id: 'm-cube-count-b', compact: true, type: 'main', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
       sourceId: SRC, ...R, stimulus: 'b',
       prompt: { text: 'ลูกบาศก์ในภาพมีทั้งหมดกี่ก้อน' },
       options: words('9 ก้อน', '7 ก้อน', '8 ก้อน'),
@@ -153,7 +153,7 @@ export default {
       },
     },
     {
-      id: 'r-cube-add-b', type: 'main', subject: 'reasoning', skillIds: ['multi-step-picture'], familyId: 'cube-add', difficulty: 3,
+      id: 'r-cube-add-b', compact: true, type: 'main', subject: 'reasoning', skillIds: ['multi-step-picture'], familyId: 'cube-add', difficulty: 3,
       sourceId: SRC, ...R, stimulus: 'b',
       prompt: { text: 'ถ้าวางลูกบาศก์เพิ่มบนกองที่เตี้ยที่สุดของแถวหลังอีก 2 ก้อน กองนั้นจะสูงกี่ก้อน' },
       options: words('2 ก้อน', '3 ก้อน', '4 ก้อน'),
@@ -183,7 +183,7 @@ export default {
 
     // ================================================================ ช่วงที่ 3: ข้อเดี่ยว
     {
-      id: 'sp-cube-stairs', type: 'main', subject: 'spatial', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
+      id: 'sp-cube-stairs', compact: true, type: 'main', subject: 'spatial', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'บันไดลูกบาศก์นี้มีลูกบาศก์ทั้งหมดกี่ก้อน' },
       visual: cubes([1, 2, 3]),
@@ -240,7 +240,7 @@ export default {
       },
     },
     {
-      id: 'm-cube-layers', type: 'main', subject: 'math', skillIds: ['repeated-addition'], familyId: 'repeated-addition', difficulty: 2,
+      id: 'm-cube-layers', compact: true, type: 'main', subject: 'math', skillIds: ['repeated-addition'], familyId: 'repeated-addition', difficulty: 2,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ลูกบาศก์วางเรียงแถวละ 4 ก้อน ซ้อนกัน 2 ชั้น มีลูกบาศก์ทั้งหมดกี่ก้อน' },
       visual: cubes([2, 2, 2, 2]),
@@ -258,7 +258,7 @@ export default {
 
     // ================================================================ โจทย์ลองใหม่ (เปิดในหน้าเฉลย ไม่นับเป็นข้อสอบ)
     {
-      id: 'm-cube-count-a-t', type: 'transfer', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
+      id: 'm-cube-count-a-t', compact: true, type: 'transfer', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ลูกบาศก์ในภาพมีทั้งหมดกี่ก้อน' },
       visual: cubes([1, 2], [1, 1]),
@@ -288,7 +288,7 @@ export default {
       review: { summary: 'แถวหลังมี 2 ช่อง แถวหน้ามีช่องซ้ายช่องเดียว', hints: [], steps: ['มองจากด้านบน แถวหลังอยู่ด้านบนของภาพ', 'แถวหน้ามีลูกบาศก์แค่ช่องซ้าย'] },
     },
     {
-      id: 'm-cube-back-a-t', type: 'transfer', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
+      id: 'm-cube-back-a-t', compact: true, type: 'transfer', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ลูกบาศก์แถวหน้ามีกี่ก้อน' },
       visual: cubes([2, 1, 2], [1, 1, 1]),
@@ -298,7 +298,7 @@ export default {
       review: { summary: 'แถวหน้ามีกองละ 1 ก้อน 3 กอง รวม 3 ก้อน', hints: [], steps: ['แถวหน้าคือแถวที่อยู่ใกล้เรา อยู่ล่างสุดของภาพ', 'มี 3 กอง กองละ 1 ก้อน รวม 3 ก้อน'] },
     },
     {
-      id: 'm-cube-ten-a-t', type: 'transfer', subject: 'math', skillIds: ['word-problem-sub'], familyId: 'make-ten', difficulty: 3,
+      id: 'm-cube-ten-a-t', compact: true, type: 'transfer', subject: 'math', skillIds: ['word-problem-sub'], familyId: 'make-ten', difficulty: 3,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ต้องเพิ่มลูกบาศก์อีกกี่ก้อน จึงจะมีครบ 10 ก้อน' },
       visual: cubes([2, 2], [1, 1]),
@@ -308,7 +308,7 @@ export default {
       review: { summary: 'ในภาพมี 6 ก้อน ขาดอีก 4 ก้อนจึงครบ 10', hints: [], steps: ['แถวหลังมี 4 ก้อน แถวหน้ามี 2 ก้อน รวม 6 ก้อน', '10 ลบ 6 เท่ากับ 4'], column: { a: 10, op: '-', b: 6 } },
     },
     {
-      id: 'm-cube-count-b-t', type: 'transfer', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
+      id: 'm-cube-count-b-t', compact: true, type: 'transfer', subject: 'math', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 3,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ลูกบาศก์ในภาพมีทั้งหมดกี่ก้อน' },
       visual: cubes([3, 1], [2, 1]),
@@ -338,7 +338,7 @@ export default {
       review: { summary: 'แถวหลังมี 3 ช่อง แถวหน้ามีช่องซ้ายช่องเดียว', hints: [], steps: ['แถวหลังมีครบ 3 แนว', 'แถวหน้ามีแค่แนวซ้าย'] },
     },
     {
-      id: 'r-cube-add-b-t', type: 'transfer', subject: 'reasoning', skillIds: ['multi-step-picture'], familyId: 'cube-add', difficulty: 3,
+      id: 'r-cube-add-b-t', compact: true, type: 'transfer', subject: 'reasoning', skillIds: ['multi-step-picture'], familyId: 'cube-add', difficulty: 3,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ถ้าหยิบลูกบาศก์ออกจากกองที่สูงที่สุด 1 ก้อน กองนั้นจะเหลือกี่ก้อน' },
       visual: cubes([3, 1, 2]),
@@ -358,7 +358,7 @@ export default {
       review: { summary: 'กองที่สูง 3 ก้อนอยู่ทางขวาของภาพ', hints: [], steps: ['กองสูง 1 2 3 จากซ้ายไปขวา', 'กองที่สูงที่สุดอยู่ทางขวา'] },
     },
     {
-      id: 'sp-cube-stairs-t', type: 'transfer', subject: 'spatial', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
+      id: 'sp-cube-stairs-t', compact: true, type: 'transfer', subject: 'spatial', skillIds: ['count-blocks'], familyId: 'count-cubes', difficulty: 2,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ลูกบาศก์ในภาพมีทั้งหมดกี่ก้อน' },
       visual: cubes([1, 2, 3], [1, 1, 1]),
@@ -395,7 +395,7 @@ export default {
       review: { summary: 'เรียง คือวางต่อกันเป็นแถว', hints: [], steps: ['วางทับกันขึ้นไปคือซ้อน ไม่ใช่เรียง', 'เรียงเป็นแถวยาว คือวางต่อกันไปทีละก้อน'] },
     },
     {
-      id: 'm-cube-layers-t', type: 'transfer', subject: 'math', skillIds: ['repeated-addition'], familyId: 'repeated-addition', difficulty: 2,
+      id: 'm-cube-layers-t', compact: true, type: 'transfer', subject: 'math', skillIds: ['repeated-addition'], familyId: 'repeated-addition', difficulty: 2,
       sourceId: SRC, ...R, section: CUBES,
       prompt: { text: 'ลูกบาศก์วางเรียงแถวละ 3 ก้อน ซ้อนกัน 3 ชั้น มีลูกบาศก์ทั้งหมดกี่ก้อน' },
       visual: cubes([3, 3, 3]),
