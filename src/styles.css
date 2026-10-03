@@ -618,6 +618,10 @@ button.lx-fcard:active { transform: translateY(2px); }
 .lx-compact .lx-options.lx-options-scene .lx-opt .lx-say { position: absolute; top: 2px; bottom: auto; right: 2px; transform: none; }
 .lx-compact .lx-options.lx-options-scene .lx-opt-pic { height: clamp(78px, 17dvh, 180px); width: auto; }
 
+/* ลูกบาศก์ (ชุด 35) */
+.lx-cubes svg { width: min(70vw, 250px); height: auto; display: block; margin: 0 auto; }
+.lx-compact .lx-cubes svg { width: auto; max-width: min(70vw, 260px); height: clamp(110px, 24dvh, 210px); }
+
 /* ---------------------------------------------------------------- โหมดเรียบง่าย และลดการเคลื่อนไหว */
 body.lx-plain .lx-buddy { display: none; }
 @media (prefers-reduced-motion: reduce) {

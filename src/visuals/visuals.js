@@ -366,8 +366,67 @@ function distance(v) {
 }
 
 /** ตัวเลือกที่วาดด้วยโค้ด (รูปพับครึ่ง เค้กตัดแบ่ง รูปเรขาคณิต หรือชิ้นส่วนภาพ) */
+// ---------------------------------------------------------------- ลูกบาศก์ (ชุด 35)
+// rows = แถวจากหลังไปหน้า แต่ละแถวคือความสูง (จำนวนก้อน) ของกองจากซ้ายไปขวา
+// วาดแบบเฉียง: หน้าลูกบาศก์เป็นสี่เหลี่ยมจัตุรัสจริง เห็นด้านบนและด้านขวา แถวหลังเลื่อนขึ้นไปทางขวา
+const CUBE_FILL = { front: '#ffd27a', top: '#ffeec4', side: '#e9b04f' };
+export const frontView = (rows) => rows[0].map((_, c) => Math.max(...rows.map((r) => r[c])));
+export const topView = (rows) => rows.map((r) => r.map((h) => (h > 0 ? 1 : 0)));
+export const cubeCount = (rows) => rows.flat().reduce((a, b) => a + b, 0);
+
+function cubes(v) {
+  const S = 34;
+  const D = 15;
+  const rows = v.rows;
+  const R = rows.length;
+  const C = rows[0].length;
+  const H = Math.max(...rows.flat());
+  const w = C * S + R * D + 8;
+  const h = H * S + R * D + 8;
+  const base = h - 4;
+  const parts = [];
+  for (let i = 0; i < R; i++) {          // แถวหลังก่อน (ถูกแถวหน้าทับ)
+    const k = R - 1 - i;                 // ระยะลึก: แถวหน้า = 0
+    for (let c = 0; c < C; c++) {
+      for (let z = 0; z < rows[i][c]; z++) {
+        const x = 4 + c * S + k * D;
+        const y = base - (z + 1) * S - k * D;
+        parts.push(`<path d="M${x} ${y}h${S}l${D} ${-D}h${-S}z" fill="${CUBE_FILL.top}"/>`
+          + `<path d="M${x + S} ${y}l${D} ${-D}v${S}l${-D} ${D}z" fill="${CUBE_FILL.side}"/>`
+          + `<rect x="${x}" y="${y}" width="${S}" height="${S}" fill="${CUBE_FILL.front}"/>`);
+      }
+    }
+  }
+  return `<figure class="lx-visual lx-cubes" aria-label="ลูกบาศก์วางซ้อนกัน">
+    <svg viewBox="0 0 ${w} ${h}" stroke="#4a3b52" stroke-width="2" stroke-linejoin="round">${parts.join('')}</svg>
+  </figure>`;
+}
+
+/** ตัวเลือก: ภาพที่เห็นเมื่อมองจากด้านหน้า (ความสูงแต่ละกองจากซ้ายไปขวา) */
+function renderFront(cols) {
+  const H = Math.max(...cols, 1);
+  const cell = Math.min(84 / cols.length, 84 / H);
+  const left = 50 - (cols.length * cell) / 2;
+  const bottom = 50 + (H * cell) / 2;
+  const squares = cols.flatMap((n, c) => Array.from({ length: n }, (_, z) => `<rect x="${left + c * cell}" y="${bottom - (z + 1) * cell}" width="${cell}" height="${cell}"/>`));
+  return `<svg class="lx-figure lx-cubeview" viewBox="0 0 100 100" aria-hidden="true"><g fill="${CUBE_FILL.front}" stroke="#4a3b52" stroke-width="2.5">${squares.join('')}</g></svg>`;
+}
+
+/** ตัวเลือก: ภาพที่เห็นเมื่อมองจากด้านบน (แถวหลังอยู่บน แถวหน้าอยู่ล่าง) */
+function renderTop(grid) {
+  const R = grid.length;
+  const C = grid[0].length;
+  const cell = Math.min(84 / C, 84 / R);
+  const left = 50 - (C * cell) / 2;
+  const top = 50 - (R * cell) / 2;
+  const squares = grid.flatMap((row, r) => row.map((on, c) => (on ? `<rect x="${left + c * cell}" y="${top + r * cell}" width="${cell}" height="${cell}"/>` : '')));
+  return `<svg class="lx-figure lx-cubeview" viewBox="0 0 100 100" aria-hidden="true"><g fill="${CUBE_FILL.top}" stroke="#4a3b52" stroke-width="2.5">${squares.join('')}</g></svg>`;
+}
+
 export function renderOptionSvg(svg) {
   if (!svg) return '';
+  if (svg.front) return renderFront(svg.front);
+  if (svg.top) return renderTop(svg.top);
   if (svg.piece) return renderPiece(svg.piece);
   if (svg.fold) return renderFold(svg.fold);
   if (svg.cut) return renderCake(svg.cut);
@@ -417,6 +476,7 @@ export function renderVisual(visual) {
     case 'jigsaw': return jigsaw(visual);
     case 'calendar': return calendar(visual);
     case 'distance': return distance(visual);
+    case 'cubes': return cubes(visual);
     case 'labeled': return labeled(visual);
     default: return '';
   }

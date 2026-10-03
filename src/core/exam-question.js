@@ -16,6 +16,8 @@ function copySvg(svg) {
   if (svg.count) return { count: { asset: svg.count.asset, n: svg.count.n } };
   if (svg.venn) return { venn: svg.venn };
   if (svg.piece) return { piece: { asset: svg.piece.asset, cell: svg.piece.cell } };
+  if (svg.front) return { front: [...svg.front] };
+  if (svg.top) return { top: svg.top.map((row) => [...row]) };
   return null;
 }
 
@@ -42,6 +44,7 @@ export function copyVisual(visual) {
     case 'jigsaw': return { type: 'jigsaw', asset: visual.asset, missing: visual.missing };
     case 'calendar': return { type: 'calendar', month: visual.month, start: visual.start, days: visual.days, marks: (visual.marks || []).slice() };
     case 'labeled': return { type: 'labeled', asset: visual.asset, marks: visual.marks.map((m) => (m.lx === undefined ? { n: m.n, x: m.x, y: m.y } : { n: m.n, x: m.x, y: m.y, lx: m.lx, ly: m.ly })) };
+    case 'cubes': return { type: 'cubes', rows: visual.rows.map((row) => [...row]) };
     case 'distance': return { type: 'distance', items: visual.items.map((item) => ({ asset: item.asset, size: item.size })) };
     case 'grid': return { type: 'grid', rows: visual.rows.map((r) => r.slice()) };
     case 'board': return { type: 'board', items: visual.items.slice() };

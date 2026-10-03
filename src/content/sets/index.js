@@ -36,8 +36,14 @@ import set31 from './set-31.js';
 import set32 from './set-32.js';
 import set33 from './set-33.js';
 import set34 from './set-34.js';
+import set35 from './set-35.js';
+import set36 from './set-36.js';
+import set37 from './set-37.js';
+import set38 from './set-38.js';
+import set39 from './set-39.js';
+import set40 from './set-40.js';
 
-export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19, set20, set21, set22, set23, set24, set25, set26, set27, set28, set29, set30, set31, set32, set33, set34];
+export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19, set20, set21, set22, set23, set24, set25, set26, set27, set28, set29, set30, set31, set32, set33, set34, set35, set36, set37, set38, set39, set40];
 
 // ตัวเลือกในข้อสอบจริงใช้หมายเลข 1 2 3 (ไม่ใช่ ก ข ค)
 export const OPTION_LABELS = ['1', '2', '3', '4'];

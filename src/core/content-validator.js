@@ -2,7 +2,7 @@ import { SUBJECTS } from '../content/sets/index.js';
 
 const TYPES = new Set(['main', 'transfer']);
 const PROVENANCE = new Set(['original', 'official', 'third-party-practice']);
-const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack', 'grid', 'board', 'figure-row', 'figure-grid', 'jigsaw', 'calendar', 'distance', 'labeled']);
+const VISUALS = new Set(['image', 'pictograph', 'compass-map', 'dice', 'polygon', 'row', 'clock', 'table', 'number-row', 'shape-count', 'equivalence', 'scatter', 'stack', 'grid', 'board', 'figure-row', 'figure-grid', 'jigsaw', 'calendar', 'distance', 'labeled', 'cubes']);
 export const PIECE_CELLS = new Set(['tl', 'tr', 'bl', 'br']);
 export const ARROWS = new Set(['up', 'right', 'down', 'left']);
 export const HALVES = new Set(['tl', 'tr', 'br', 'bl']);
@@ -72,7 +72,14 @@ function validSvg(svg, assetIds) {
   if (svg.cut) return CAKE_CUTS.has(svg.cut);
   if (svg.figure) return validFigure(svg.figure);
   if (svg.piece) return !!svg.piece && typeof svg.piece.asset === 'string' && (!assetIds || assetIds.has(svg.piece.asset)) && PIECE_CELLS.has(svg.piece.cell);
+  if (svg.front) return Array.isArray(svg.front) && svg.front.length >= 1 && svg.front.length <= 4 && svg.front.every((n) => Number.isInteger(n) && n >= 0 && n <= 4) && svg.front.some((n) => n > 0);
+  if (svg.top) return validTopGrid(svg.top);
   return false;
+}
+
+/** ภาพมองจากด้านบน: 1-3 แถว แถวละ 1-4 ช่อง ค่า 0/1 มีอย่างน้อยหนึ่งช่อง */
+function validTopGrid(grid) {
+  return Array.isArray(grid) && grid.length >= 1 && grid.length <= 3 && grid.every((r) => Array.isArray(r) && r.length === grid[0].length && r.length >= 1 && r.length <= 4 && r.every((x) => x === 0 || x === 1)) && grid.flat().includes(1);
 }
 
 /** ตัวเลือกแบบ "กี่ชิ้น": รูปเดียวกันซ้ำ n ชิ้น (n = 1-10) ให้เด็กนับเอง */
@@ -114,6 +121,17 @@ export function validateVisual(visual, assetIds) {
   if (visual.type === 'jigsaw' && !(known(visual.asset) && PIECE_CELLS.has(visual.missing))) errors.push('jigsaw needs a known picture and a missing cell tl, tr, bl or br');
   if (visual.type === 'calendar' && !(visual.month && Number.isInteger(visual.start) && visual.start >= 0 && visual.start <= 6 && Number.isInteger(visual.days) && visual.days >= 28 && visual.days <= 31
     && Math.ceil((visual.start + visual.days) / 7) <= 5 && (visual.marks || []).every((d) => Number.isInteger(d) && d >= 1 && d <= visual.days))) errors.push('calendar needs month, start 0-6, days 28-31, at most 5 weeks and marks inside the month');
+  // ลูกบาศก์: แถวจากหลังไปหน้า 1-3 แถว แถวละ 1-4 กอง สูง 0-3 ก้อน; กองแถวหลังต้องไม่เตี้ยกว่าแถวหน้า (ไม่มีก้อนถูกบังจนมองไม่เห็นทั้งก้อน)
+  // และไม่มีคอลัมน์หรือแถวที่ว่างทั้งเส้น (ภาพมองจากด้านหน้า/บนจะได้ไม่มีช่องว่างหลอกตา)
+  if (visual.type === 'cubes') {
+    const rows = visual.rows;
+    const shape = Array.isArray(rows) && rows.length >= 1 && rows.length <= 3 && rows.every((r) => Array.isArray(r) && r.length === rows[0].length && r.length >= 1 && r.length <= 4 && r.every((n) => Number.isInteger(n) && n >= 0 && n <= 3));
+    if (!shape) errors.push('cubes needs 1-3 rows of 1-4 stacks, each 0-3 cubes high');
+    else {
+      if (rows.some((r, i) => i > 0 && r.some((n, c) => n > rows[i - 1][c]))) errors.push('cubes: a stack in a front row may not be taller than the stack behind it');
+      if (rows[0].some((_, c) => rows.every((r) => r[c] === 0)) || rows.some((r) => r.every((n) => n === 0))) errors.push('cubes: no empty column or row');
+    }
+  }
   if (visual.type === 'labeled' && !(known(visual.asset) && Array.isArray(visual.marks) && visual.marks.length >= 2 && visual.marks.length <= 8
     && visual.marks.every((m) => Number.isInteger(m.n) && m.n >= 1 && m.n <= 9 && typeof m.x === 'number' && m.x >= 0 && m.x <= 100 && typeof m.y === 'number' && m.y >= 0 && m.y <= 100
       && (m.lx === undefined ? m.ly === undefined : typeof m.lx === 'number' && m.lx >= 0 && m.lx <= 100 && typeof m.ly === 'number' && m.ly >= 0 && m.ly <= 100))

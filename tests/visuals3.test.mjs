@@ -15,7 +15,7 @@ for (const set of SETS) {
 }
 
 test('calendar visuals match the real calendar (October and November 2026)', () => {
-  const real = { ตุลาคม: [2026, 9], พฤศจิกายน: [2026, 10] };
+  const real = { ตุลาคม: [2026, 9], พฤศจิกายน: [2026, 10], ธันวาคม: [2026, 11] };
   assert.ok(calendars.length >= 5);
   for (const { item, visual } of calendars) {
     const [year, month] = real[visual.month];

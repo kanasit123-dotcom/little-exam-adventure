@@ -12,11 +12,11 @@ The user's latest pasted specification and approved plan supersede the earlier d
 ## Current State (2026-10-01) — read docs/ADDING-A-SET.md next
 
 - Working directory: C:\Users\KANASIT\Documents\Codex\little-exam-adventure. Public repo `kanasit123-dotcom/little-exam-adventure`, GitHub Pages from `main`; deploy with `gh workflow run pages.yml --ref main` (pushes alone do not trigger it).
-- 34 sets are live. Sets 1-11: 12 questions (5+5+2). Sets 12-34: the newer 15-question format (one five-question story or picture board per block; picture-only options may have four choices). Parent rule: do not change sets 1-11.
+- 40 sets are live. Sets 1-11: 12 questions (5+5+2). Sets 12-40: the newer 15-question format (one five-question story or picture board per block; picture-only options may have four choices). Parent rule: do not change sets 1-11.
 - Layout rule (parent, 2026-09-30): a question and its answers must fit one screen on iPhone and iPad (no scrolling); `tests/e2e/fit.spec.js` enforces it for every question of every set.
 - Also live: mock exam (30 questions drawn from every set, stories kept whole), mistakes practice, growable friend stickers, reopenable reviews, per-set progress, recorded Premwadee voice at two speeds with phrase pauses (commas between phrases, approved by the parent on iPhone).
 - Pictures: Gemini sheets A-K cut into `public/assets/pictures/`, registered in `src/core/assets.js`. Code-drawn visuals in `src/visuals/visuals.js` (grid, board, figure-row, etc.).
-- Pending gates: parent review of sets 2-34 (`reviewStatus: 'draft'`), real iPad Safari test. The parent page also has a weak-spot report ("จุดที่ควรฝึกเพิ่ม": first-answer accuracy per subject over the last sessions + most-missed questions, computed from history, no extra stored data). The review is now quick: parent page → "ตรวจเฉลยทุกข้อของแต่ละชุด" (`src/screens/answers.js`) lists every question of a set with its answer, reasoning and practice question on one scrolling page (read-only, no audio).
+- Pending gates: parent review of sets 2-40 (`reviewStatus: 'draft'`), real iPad Safari test. The parent page also has a weak-spot report ("จุดที่ควรฝึกเพิ่ม": first-answer accuracy per subject over the last sessions + most-missed questions, computed from history, no extra stored data). The review is now quick: parent page → "ตรวจเฉลยทุกข้อของแต่ละชุด" (`src/screens/answers.js`) lists every question of a set with its answer, reasoning and practice question on one scrolling page (read-only, no audio).
 - How to add a set, gotchas, and the ranked list of next tasks: **docs/ADDING-A-SET.md**.
 
 The assignment below was the brief for that slice. Keep its constraints for later work.
