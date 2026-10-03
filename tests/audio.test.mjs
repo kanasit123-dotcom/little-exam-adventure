@@ -237,3 +237,16 @@ test('iPad home-screen app: a context whose clock stopped is replaced on the nex
   assert.equal(audio.diagnose().contexts, 3);
 });
 
+test('after returning from the lock screen the page can check whether the audio clock really moves', async () => {
+  const { ctx } = fakeContext();
+  const audio = createAudio({ loadManifest: async () => manifest, createContext: () => ctx, timers: { setTimeout: (fn) => globalThis.setTimeout(fn, 1), clearTimeout: globalThis.clearTimeout } });
+  audio.unlock();
+  const moving = audio.checkClock(800);
+  ctx.currentTime = 0.7;   // นาฬิกาเดินระหว่างรอ
+  assert.equal(await moving, true);
+  const stuck = audio.checkClock(800);   // นาฬิกาค้างที่ 0.7
+  assert.equal(await stuck, false);
+  ctx.state = 'suspended';
+  ctx.currentTime = 5;
+  assert.equal(await audio.checkClock(800), false, 'a suspended context is not working sound');
+});

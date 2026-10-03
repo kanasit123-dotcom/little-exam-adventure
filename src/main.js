@@ -69,12 +69,41 @@ store.subscribe((state, prev) => {
 
 // iPad: ต้องปลดล็อกเสียงจากการแตะของผู้ใช้ และปลุกเสียงอีกครั้งหลังสลับแอป
 // iOS นับเฉพาะ touchend/click (และ pointerup ของนิ้ว) เป็นการแตะที่ปลดล็อกเสียงได้ — pointerdown อย่างเดียวบน iPad อาจไม่พอ
-for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) {
-  window.addEventListener(type, () => audio.unlock(), { capture: true, passive: true });
+// iPad/iPhone Safari: ล็อกจอหรือพับแอปแล้วกลับมา เสียงทั้งหน้าอาจเงียบ (ผู้ปกครองเจอ 2026-10-03: รีเฟรชแล้วมีเสียงกลับมา)
+// แตะครั้งแรกหลังกลับมา: audio สร้างระบบเสียงใหม่ แล้วเช็คว่านาฬิกาเสียงเดินไหม ถ้ายังไม่เดิน รีเฟรชหน้าให้เองแล้วกลับไปข้อเดิม
+// (ข้อสอบเก็บข้อที่ทำอยู่และคำตอบไว้ใน localStorage แล้ว) รีเฟรชได้ไม่เกินครั้งละ 1 นาที กันวนซ้ำ ระหว่างนั้นใช้เสียงเครื่องอ่านแทน
+const RELOAD_AT = 'lx-audio-reload-at';
+const RELOAD_VIEW = 'lx-audio-reload-view';
+let returned = false;
+let checking = false;
+function afterReturnTap() {
+  if (!returned || checking || !store.state.settings.sound) return;
+  checking = true;
+  audio.checkClock(800).then((ok) => {
+    checking = false;
+    returned = false;
+    if (ok) return;
+    let last = 0;
+    try { last = Number(sessionStorage.getItem(RELOAD_AT) || 0); } catch { /* ไม่มี sessionStorage */ }
+    if (Date.now() - last < 60_000) return;
+    try {
+      sessionStorage.setItem(RELOAD_AT, String(Date.now()));
+      sessionStorage.setItem(RELOAD_VIEW, view);
+    } catch { return; }
+    window.location.reload();
+  });
 }
-// iPad ที่เปิดจากไอคอนบนหน้าจอโฮม: พับแอปแล้วเสียงเก่าเงียบถาวร — แตะครั้งถัดไปสร้างระบบเสียงใหม่ (ดู audio.js)
-document.addEventListener('visibilitychange', () => { if (document.hidden) { audio.stop(); audio.markStale(); } });
+for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) {
+  window.addEventListener(type, () => { audio.unlock(); afterReturnTap(); }, { capture: true, passive: true });
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) { audio.stop(); audio.markStale(); returned = true; } });
 window.addEventListener('pagehide', () => audio.markStale());
+// กลับมาจากการรีเฟรชเพื่อแก้เสียง: เปิดข้อสอบที่ทำค้างไว้ต่อเลย
+try {
+  const back = sessionStorage.getItem(RELOAD_VIEW);
+  sessionStorage.removeItem(RELOAD_VIEW);
+  if (back === 'play' && store.state.session && sessionUsable(store.state.session)) view = 'play';
+} catch { /* ไม่มี sessionStorage */ }
 
 // URL เต็ม: url() แบบสัมพัทธ์ในตัวแปร CSS จะอิงโฟลเดอร์ของไฟล์ CSS (บน Pages กลายเป็น assets/assets/...)
 document.body.style.setProperty('--lx-scene', `url("${new URL(asset('background-classroom').src, document.baseURI).href}")`);

@@ -245,6 +245,16 @@ export function createAudio({
     replayLast: (options) => (last ? play(last, options) : Promise.resolve({ status: 'error', via: null })),
     /** แอปถูกพับไปพื้นหลัง: แตะครั้งถัดไปจะสร้าง AudioContext ใหม่ (iOS ทำให้ตัวเก่าเงียบ) */
     markStale() { stale = true; },
+    /** รอ ms แล้วดูว่านาฬิกาเสียงเดินจริงไหม (ใช้หลังกลับจากล็อกจอ) — true = เสียงใช้ได้ */
+    checkClock(ms = 800) {
+      const c = ctx;
+      const start = c ? c.currentTime : 0;
+      return new Promise((resolve) => timers.setTimeout(() => {
+        if (!ctx) return resolve(false);
+        const from = ctx === c ? start : 0;
+        resolve(ctx.state === 'running' && ctx.currentTime - from > ms / 4000);
+      }, ms));
+    },
     setEnabled(value) { enabled = !!value; if (!enabled) stop(); },
     setRate(value) { rate = value === 'slow' ? 'slow' : 'normal'; },
     get playing() { return current ? current.request : null; },
