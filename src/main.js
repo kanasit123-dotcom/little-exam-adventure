@@ -72,7 +72,9 @@ store.subscribe((state, prev) => {
 for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) {
   window.addEventListener(type, () => audio.unlock(), { capture: true, passive: true });
 }
-document.addEventListener('visibilitychange', () => { if (document.hidden) audio.stop(); });
+// iPad ที่เปิดจากไอคอนบนหน้าจอโฮม: พับแอปแล้วเสียงเก่าเงียบถาวร — แตะครั้งถัดไปสร้างระบบเสียงใหม่ (ดู audio.js)
+document.addEventListener('visibilitychange', () => { if (document.hidden) { audio.stop(); audio.markStale(); } });
+window.addEventListener('pagehide', () => audio.markStale());
 
 // URL เต็ม: url() แบบสัมพัทธ์ในตัวแปร CSS จะอิงโฟลเดอร์ของไฟล์ CSS (บน Pages กลายเป็น assets/assets/...)
 document.body.style.setProperty('--lx-scene', `url("${new URL(asset('background-classroom').src, document.baseURI).href}")`);

@@ -140,7 +140,7 @@ export function mountParent(root, ctx) {
       out.textContent = 'กำลังเล่นเสียงทดสอบ…';
       const result = await audio.play({ text: SAY.welcome, role: 'ui' });
       const d = audio.diagnose();
-      const detail = `ผลทดสอบ: ${result.status}${result.via ? ` · ${result.via}` : ''} · ctx ${d.context} · ${d.sampleRate ?? '-'} Hz · session ${d.audioSession}${d.lastError ? ` · ${d.lastError}` : ''}`;
+      const detail = `ผลทดสอบ: ${result.status}${result.via ? ` · ${result.via}` : ''} · ctx ${d.context} · ${d.sampleRate ?? '-'} Hz · session ${d.audioSession} · ctx#${d.contexts}${d.lastError ? ` · ${d.lastError}` : ''}`;
       const advice = result.status === 'done' && result.via === 'clip'
         ? 'เล่นเสียงที่อัดไว้แล้ว ถ้าได้ยิน ถือว่าปกติ ถ้าไม่ได้ยินเลย ให้เปิดเสียงเครื่อง (ปุ่มด้านข้าง หรือปุ่มกระดิ่งในศูนย์ควบคุม) แล้วเพิ่มระดับเสียง จากนั้นกดทดสอบใหม่'
         : result.status === 'done'

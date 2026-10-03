@@ -30,8 +30,12 @@ export function createAudio({
   Utterance = globalThis.SpeechSynthesisUtterance,
   timers = globalThis,
   audioSession = globalThis.navigator?.audioSession,
+  now = () => (globalThis.performance?.now ? globalThis.performance.now() : Date.now()),
 } = {}) {
   let ctx = null;
+  let contexts = 0;     // สร้าง AudioContext ไปแล้วกี่ตัว (ไว้ดูในปุ่มทดสอบเสียง)
+  let stale = false;    // แอปเคยถูกพับไปพื้นหลัง: แตะครั้งถัดไปให้สร้าง AudioContext ใหม่
+  let clock = null;     // { time, at } เวลาเสียงตอนแตะครั้งล่าสุด ไว้ดูว่านาฬิกาเสียงเดินจริงไหม
   let manifest = null;
   let manifestPromise = null;
   let enabled = true;
@@ -80,17 +84,35 @@ export function createAudio({
     ]);
   }
 
+  /**
+   * iPad/iPhone ที่เปิดเกมจากไอคอนบนหน้าจอโฮม (iOS 18-26): พับแอปแล้วกลับมา AudioContext ยังบอกว่า running
+   * แต่ไม่มีเสียงและนาฬิกาเสียงไม่เดิน resume() ก็ไม่ช่วย (WebKit bug 291892, 263627) — ทางแก้คือทิ้งตัวเก่าแล้วสร้างใหม่ตอนแตะ
+   */
+  function clockStuck() {
+    if (!ctx || ctx.state !== 'running' || !clock) return false;
+    return now() - clock.at > 400 && ctx.currentTime - clock.time < 0.05;
+  }
+  function freshContext() {
+    const old = ctx;
+    ctx = createContext();
+    contexts++;
+    stale = false;
+    clock = null;
+    if (old) { try { old.close?.(); } catch { /* ปิดไปแล้ว */ } }
+  }
+
   /** เรียกจาก event ที่ผู้ใช้แตะ (pointerdown/touchend/click) — iPad ต้องปลดล็อกเสียงจาก gesture */
   function unlock() {
     playbackSession();
     try {
-      if (!ctx) ctx = createContext();
+      if (!ctx || stale || ctx.state === 'closed' || ctx.state === 'interrupted' || clockStuck()) freshContext();
       if (ctx.state !== 'running') ctx.resume?.();
       const silent = ctx.createBuffer(1, 1, 22050);
       const src = ctx.createBufferSource();
       src.buffer = silent;
       src.connect(ctx.destination);
       src.start(0);
+      clock = { time: ctx.currentTime, at: now() };
     } catch { /* ไม่มี Web Audio: จะใช้เสียงเครื่องแทน */ }
     getManifest();
   }
@@ -145,6 +167,28 @@ export function createAudio({
         resolve({ status, via });
       };
       const onAbort = () => { if (generation === gen) stop(); else finish('cancelled'); };
+      // เสียงอ่านของเครื่อง: ใช้เมื่อไม่มีคลิป หรือคลิปเล่นแล้วเงียบ
+      const speakDevice = () => {
+        if (!(speech && Utterance)) {
+          lastError = lastError || 'no clip and no device speech';
+          return finish('error');
+        }
+        via = 'tts';
+        const utterance = new Utterance(request.text);
+        utterance.lang = 'th-TH';
+        // iPhone/iPad ไม่สนใจ lang ถ้าไม่ตั้ง voice เอง (ข้อความไทยถูกอ่านด้วยเสียงอังกฤษแล้วเงียบ) และถ้าเครื่องไม่มีเสียงไทยเลยให้บอกว่าเล่นไม่ได้
+        const voices = (() => { try { return speech.getVoices?.() || []; } catch { return []; } })();
+        const thai = voices.find((v) => /^th/i.test(v.lang));
+        if (voices.length && !thai) { lastError = 'no Thai voice'; return finish('error'); }
+        if (thai) utterance.voice = thai;
+        utterance.rate = rate === 'slow' ? 0.65 : 0.8;
+        utterance.onend = () => { if (generation === gen) finish('done'); };
+        utterance.onerror = () => { if (generation === gen) finish('error'); };
+        try { speech.speak(utterance); } catch { return finish('error'); }
+        if (watchdog) timers.clearTimeout(watchdog);
+        watchdog = timers.setTimeout(() => { if (generation === gen) finish('done'); }, 4000 + request.text.length * 220);
+        return undefined;
+      };
       signal?.addEventListener?.('abort', onAbort, { once: true });
       current = { gen, source: null, finish, request };
       emit();
@@ -167,9 +211,21 @@ export function createAudio({
             current.source = source;
             via = 'clip';
             lastError = '';   // เล่นคลิปสำเร็จ: ล้างเหตุขัดข้องเก่า (เช่น ครั้งแรกบนหน้าแรกที่ยังไม่ได้แตะ)
+            const playCtx = ctx;   // ถ้าแตะระหว่างเล่นจะได้ context ใหม่ — วัดนาฬิกาของตัวที่เล่นอยู่
+            const startedAt = playCtx.currentTime;
             source.start(0, offset, duration);
             // บางครั้ง iOS ไม่ยิง onended — กันปุ่มค้าง
             watchdog = timers.setTimeout(() => { if (generation === gen) finish('done'); }, (duration + 1.5) * 1000);
+            // นาฬิกาเสียงไม่เดิน = iOS เงียบทั้งที่บอกว่า running: หยุดคลิป อ่านด้วยเสียงเครื่องแทน และแตะครั้งถัดไปสร้าง AudioContext ใหม่
+            timers.setTimeout(() => {
+              if (generation !== gen || current?.source !== source || playCtx.currentTime - startedAt >= 0.05) return;
+              stale = true;
+              lastError = 'audio clock stuck';
+              source.onended = null;
+              try { source.stop(); } catch { /* หยุดไปแล้ว */ }
+              current.source = null;
+              speakDevice();
+            }, 700);
             return undefined;
           } catch (error) {
             if (generation !== gen) return finish('cancelled');
@@ -177,24 +233,7 @@ export function createAudio({
             // โหลดคลิปไม่ได้ → ลองเสียงเครื่องด้านล่าง
           }
         }
-        if (speech && Utterance) {
-          via = 'tts';
-          const utterance = new Utterance(request.text);
-          utterance.lang = 'th-TH';
-          // iPhone/iPad ไม่สนใจ lang ถ้าไม่ตั้ง voice เอง (ข้อความไทยถูกอ่านด้วยเสียงอังกฤษแล้วเงียบ) และถ้าเครื่องไม่มีเสียงไทยเลยให้บอกว่าเล่นไม่ได้
-          const voices = (() => { try { return speech.getVoices?.() || []; } catch { return []; } })();
-          const thai = voices.find((v) => /^th/i.test(v.lang));
-          if (voices.length && !thai) { lastError = 'no Thai voice'; return finish('error'); }
-          if (thai) utterance.voice = thai;
-          utterance.rate = rate === 'slow' ? 0.65 : 0.8;
-          utterance.onend = () => { if (generation === gen) finish('done'); };
-          utterance.onerror = () => { if (generation === gen) finish('error'); };
-          try { speech.speak(utterance); } catch { return finish('error'); }
-          watchdog = timers.setTimeout(() => { if (generation === gen) finish('done'); }, 4000 + request.text.length * 220);
-          return undefined;
-        }
-        lastError = lastError || 'no clip and no device speech';
-        return finish('error');
+        return speakDevice();
       });
     });
   }
@@ -204,6 +243,8 @@ export function createAudio({
     play,
     stop,
     replayLast: (options) => (last ? play(last, options) : Promise.resolve({ status: 'error', via: null })),
+    /** แอปถูกพับไปพื้นหลัง: แตะครั้งถัดไปจะสร้าง AudioContext ใหม่ (iOS ทำให้ตัวเก่าเงียบ) */
+    markStale() { stale = true; },
     setEnabled(value) { enabled = !!value; if (!enabled) stop(); },
     setRate(value) { rate = value === 'slow' ? 'slow' : 'normal'; },
     get playing() { return current ? current.request : null; },
@@ -214,6 +255,8 @@ export function createAudio({
       try { voices = speech?.getVoices?.() || []; } catch { /* ไม่มี */ }
       return {
         context: ctx ? ctx.state : 'none',
+        contexts,
+        stale,
         sampleRate: ctx?.sampleRate ?? null,
         audioSession: audioSession ? audioSession.type : 'n/a',
         deviceSpeech: !!speech,

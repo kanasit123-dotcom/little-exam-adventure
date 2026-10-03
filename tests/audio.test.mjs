@@ -198,3 +198,42 @@ test('device speech picks a Thai voice explicitly, and reports an error when the
   assert.equal((await b.audio.play({ text: 'ไม่มีคลิปนี้', role: 'prompt' })).status, 'error');
   assert.equal(b.audio.diagnose().lastError, 'no Thai voice');
 });
+
+test('iPad home-screen app: a context whose clock stopped is replaced on the next tap, and the stuck clip falls back to device speech', async () => {
+  const contexts = [];
+  const make = () => { const f = fakeContext(); f.ctx.closed = false; f.ctx.close = () => { f.ctx.closed = true; }; contexts.push(f); return f.ctx; };
+  let clockNow = 0;
+  const pending = [];
+  const fakeTimers = { setTimeout: (fn, ms) => { pending.push({ fn, ms }); return pending.length; }, clearTimeout: () => {} };
+  class Utt { constructor(text) { this.text = text; } }
+  const spoken = [];
+  const speech = { getVoices: () => [{ lang: 'th-TH' }], speak: (u) => spoken.push(u), cancel: () => {} };
+  const audio = createAudio({ loadManifest: async () => manifest, fetchArrayBuffer: async () => new ArrayBuffer(8), createContext: make, timers: fakeTimers, now: () => clockNow, speech, Utterance: Utt });
+  audio.unlock();
+  assert.equal(contexts.length, 1);
+  // เล่นคลิป แต่นาฬิกาเสียงไม่เดิน (currentTime ค้างที่ 0) → ตัวตรวจ 700 ms หยุดคลิปแล้วอ่านด้วยเสียงเครื่อง
+  const p = audio.play({ text: 'สวัสดี', role: 'prompt' });
+  for (let i = 0; i < 50 && !pending.some((t) => t.ms === 700); i++) await tick();
+  pending.find((t) => t.ms === 700).fn();
+  assert.equal(spoken.length, 1, 'device speech takes over');
+  assert.equal(contexts[0].sources.at(-1).stopped, true, 'the silent clip is stopped');
+  spoken[0].onend();
+  assert.deepEqual(await p, { status: 'done', via: 'tts' });
+  assert.equal(audio.diagnose().lastError, 'audio clock stuck');
+  // แตะครั้งถัดไป: ทิ้งตัวเก่า สร้างตัวใหม่
+  clockNow = 1000;
+  audio.unlock();
+  assert.equal(contexts.length, 2);
+  assert.equal(contexts[0].ctx.closed, true);
+  // แตะต่อโดยนาฬิกาเดินปกติ: ไม่สร้างใหม่
+  contexts[1].ctx.currentTime = 1;
+  clockNow = 2000;
+  audio.unlock();
+  assert.equal(contexts.length, 2);
+  // พับแอปแล้วกลับมา: แตะครั้งถัดไปสร้างใหม่
+  audio.markStale();
+  audio.unlock();
+  assert.equal(contexts.length, 3);
+  assert.equal(audio.diagnose().contexts, 3);
+});
+
