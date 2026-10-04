@@ -975,3 +975,67 @@ body.lx-plain .lx-buddy { display: none; }
   .lx-review .lx-row-labeled .lx-row-cell { max-width: none; width: auto; }
   .lx-review .lx-row-label { font-size: 1.05rem; }
 }
+
+/* ---------------------------------------------------------------- กระดาษทด (เขียนอิสระ) */
+.lx-btn-scratch { background: #fff6d8; color: var(--ink); box-shadow: 0 0 0 3px var(--yellow) inset, 0 4px 0 var(--yellow-dark); position: relative; }
+.lx-btn-scratch.lx-has-ink::after { content: ''; position: absolute; right: 6px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--orange-dark); border: 2px solid #fff; }
+.lx-compact .lx-nav .lx-btn-scratch { padding: 6px 12px; min-width: 52px; }
+/* จอแคบ (iPhone): ปุ่มกระดาษทดเพิ่มมาอีกหนึ่งปุ่ม จึงบีบช่องไฟแถบล่างให้ยังอยู่แถวเดียว */
+@media (max-width: 420px) {
+  .lx-compact .lx-nav { gap: 4px; }
+  .lx-compact .lx-nav .lx-btn { padding-inline: 10px; }
+  .lx-compact .lx-nav .lx-btn-scratch { min-width: 46px; }
+  .lx-compact .lx-unsure { padding-inline: 12px; }
+}
+.lx-scratch {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  background: var(--cream);
+  width: min(100%, 1040px);
+  margin-inline: auto;
+}
+.lx-scratch-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex: 0 0 auto; }
+.lx-scratch-title { font-size: clamp(1.1rem, 3.4vw, 1.4rem); color: var(--purple-dark); font-weight: 700; }
+.lx-scratch-done { min-height: 48px; padding: 6px 18px; flex-direction: row; }
+.lx-scratch-q { flex: 0 1 auto; max-height: 38dvh; overflow: auto; background: var(--paper); border: 3px solid #f5e2b0; border-radius: var(--r-sm); padding: 6px 10px; }
+.lx-scratch-story { margin: 4px 0; font-size: clamp(.98rem, 2.8vw, 1.15rem); line-height: 1.5; color: var(--ink-soft); }
+.lx-scratch-vis { display: block; text-align: center; zoom: .6; }
+@media (min-height: 860px) { .lx-scratch-vis { zoom: .8; } }
+.lx-scratch-text { margin: 0; font-size: clamp(1.1rem, 3.3vw, 1.45rem); line-height: 1.5; }
+.lx-scratch-board {
+  flex: 1 1 0;
+  min-height: 32dvh;
+  position: relative;
+  border: 3px solid var(--blue);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background-color: #fffdf6;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 39px, #e3eef8 39px, #e3eef8 40px);
+}
+.lx-scratch-canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.lx-scratch-tools { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.lx-scratch-gap { flex: 1 1 auto; }
+.lx-scratch-tool {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--card-edge) inset;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.lx-scratch-tool i { display: block; width: 26px; height: 26px; border-radius: 50%; }
+.lx-scratch-tool[aria-pressed="true"] { box-shadow: 0 0 0 4px var(--purple-dark) inset; background: #f3ecff; }
+.lx-scratch-tool.lx-armed { width: auto; border-radius: 999px; padding: 0 14px; font-size: 1rem; background: var(--orange-dark); color: #fff; box-shadow: none; }

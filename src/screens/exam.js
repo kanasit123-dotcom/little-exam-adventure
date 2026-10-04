@@ -8,6 +8,8 @@ import { SAY, blockStart } from '../content/copy.js';
 import { toExamQuestion } from '../core/exam-question.js';
 import { answerStatus } from '../core/summary.js';
 import { UNSURE, blockComplete, currentBlockIds } from '../core/state.js';
+import { scratchStore } from '../core/scratch-store.js';
+import { mountScratch } from './scratch.js';
 import { renderVisual, renderOptionSvg } from '../visuals/visuals.js';
 import { $, $$, buddyHTML, esc, on, picture, markSpeaking, sleep } from '../ui.js';
 
@@ -40,12 +42,17 @@ export function mountExam(root, ctx) {
       <footer class="lx-nav">
         <p class="lx-nav-note" id="lx-note" aria-live="polite"></p>
         <button class="lx-btn lx-btn-ghost" id="lx-prev" type="button" aria-label="ข้อก่อน"><span class="lx-ico">◀</span><span class="lx-lbl"> ข้อก่อน</span></button>
+        <button class="lx-btn lx-btn-scratch" id="lx-scratch" type="button" aria-label="เปิดกระดาษทด" hidden><span class="lx-ico">✏️</span><span class="lx-lbl"> กระดาษทด</span></button>
         <button class="lx-unsure" id="lx-unsure" type="button" aria-pressed="false">ยังไม่แน่ใจ</button>
         <button class="lx-btn lx-btn-go" id="lx-next" type="button">ข้อต่อไป ▶</button>
       </footer>
     </div>`;
 
   const paper = $(root, '#lx-paper');
+  // กระดาษทด: เส้นที่เขียนเก็บตามรหัสการสอบ + ข้อ (ทิ้งของการสอบเก่า) เปิดเฉพาะข้อที่ต้องทดเลข
+  scratchStore.keepOnly(`${session().id}:`);
+  const scratchKey = (qid) => `${session().id}:${qid}`;
+  const scratchSheet = mountScratch(root, { screenEl: $(root, '.lx-screen'), signal, onChange: () => renderBar() });
   const twice = () => store.state.settings.listen === 'twice';
   const unsubscribeSpeaking = audio.onChange((request) => {
     markSpeaking(root, request);
@@ -87,6 +94,10 @@ export function mountExam(root, ctx) {
       return `<button class="lx-dot${i === s.cursor ? ' lx-here' : ''}${done ? ' lx-done' : ''}" data-go="${i}" type="button" aria-label="ข้อ ${n}${done ? ' ตอบแล้ว' : ''}">${n}</button>`;
     }).join('');
     $(root, '#lx-prev').hidden = s.cursor === 0;
+    const here = question();
+    const scratch = $(root, '#lx-scratch');
+    scratch.hidden = !here.scratch;
+    scratch.classList.toggle('lx-has-ink', scratchStore.count(scratchKey(here.id)) > 0);
     const last = s.cursor === ids.length - 1;
     const next = $(root, '#lx-next');
     next.textContent = last ? 'ส่งคำตอบช่วงนี้ ✓' : 'ข้อต่อไป ▶';
@@ -311,6 +322,17 @@ export function mountExam(root, ctx) {
     if (dot) go(Number(dot.dataset.go));
   }, signal);
   on($(root, '#lx-prev'), 'click', () => go(session().cursor - 1), signal);
+  on($(root, '#lx-scratch'), 'click', () => {
+    const q = question();
+    audio.tap();
+    scratchSheet.open({
+      key: scratchKey(q.id),
+      number: session().questionIds.indexOf(q.id) + 1,
+      text: q.promptText,
+      story: q.stimulus && !q.stimulus.hidden ? q.stimulus.text : '',
+      visuals: `${q.stimulus?.visual ? renderVisual(q.stimulus.visual) : ''}${q.visual ? renderVisual(q.visual) : ''}`,
+    });
+  }, signal);
   on($(root, '#lx-next'), 'click', () => {
     if (!nextReady) { $(root, '#lx-note').textContent = 'ฟังโจทย์ให้จบก่อนนะ'; return; }
     const s = session();

@@ -4,6 +4,7 @@
  * (กันการเผลอแสดงเฉลย ไม่ใช่การเข้ารหัส: เว็บ static ดาวน์โหลดเนื้อหาทั้งหมดอยู่แล้ว)
  */
 import { OPTION_LABELS, SUBJECTS, promptSpeech, optionSpeech, sectionOf, stimulusOf, stimulusSpeech } from '../content/sets/index.js';
+import { needsScratch } from './scratch-store.js';
 
 const copyFigure = (x) => (x === '?' ? '?' : { ...x });
 
@@ -82,6 +83,7 @@ export function toExamQuestion(set, item, order = item.options.map((option) => o
     visual: copyVisual(item.visual),
     compact: !!item.compact,
     scene: !!item.scene,
+    scratch: needsScratch(item),
     options,
   };
 }
