@@ -15,7 +15,7 @@ function eggHTML(id) {
 function kidHTML(id, stage) {
   if (stage === 1) return `<span class="lx-kid lx-kid-egg">${eggHTML(id)}</span>`;
   const art = hasBabyArt(id) ? `friend-baby-${id}` : `friend-${id}`;
-  return `<span class="lx-kid lx-kid-s${stage}">${picture(art, 'lx-kid-img')}<i class="lx-kid-heart" aria-hidden="true">💗</i></span>`;
+  return `<span class="lx-kid lx-kid-s${stage}">${picture(art, 'lx-kid-img')}${hasBabyArt(id) ? '' : '<i class="lx-kid-heart" aria-hidden="true">💗</i>'}</span>`;
 }
 
 /** รูปเพื่อนในกรอบขนาดคงที่ ภาพใหญ่ขึ้นตามขั้น (โตสุดแล้วมีไข่และลูกยืนข้างๆ) + ป้ายตัวเล็กๆ */

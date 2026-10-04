@@ -113,7 +113,7 @@ export const FRIENDS = {
 };
 // ลูกของเพื่อน (design/PROMPTS-gemini-13.md): ใส่รหัสเพื่อนที่มีไฟล์ friends/<id>-baby.png แล้ว
 // ตัวที่ยังไม่มีรูปลูก เกมใช้รูปแม่ย่อเล็กพร้อมหัวใจแทน
-export const BABY_ART = [];
+export const BABY_ART = ['cat', 'rabbit', 'seal', 'penguin', 'turtle', 'unicorn', 'butterfly', 'dolphin', 'fox', 'octopus', 'squirrel'];
 export const hasBabyArt = (id) => BABY_ART.includes(id);
 export const STICKERS = {
   star: 'ดาว', rainbow: 'สายรุ้ง', balloon: 'ลูกโป่ง', blossom: 'ดอกไม้', bow: 'โบว์',
