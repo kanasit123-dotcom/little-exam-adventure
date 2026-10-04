@@ -73,7 +73,9 @@ async def main():
             fresh[speed] = set(progress.read_text(encoding='utf-8').split()) if progress.exists() else set()
         mark.write_text(sig, encoding='utf-8')
     def needed(text, h, speed):
-        if not (OUT / speed / f'{h}.mp3').exists():
+        clip = OUT / speed / f'{h}.mp3'
+        # ไฟล์ว่าง/เล็กผิดปกติ (TTS ตอบกลับมาแต่ไม่มีเสียง) นับว่ายังไม่ได้อัด — เคยหลุดขึ้นเว็บจริง 3 ไฟล์ (2026-10-04)
+        if not clip.exists() or clip.stat().st_size < 1500:
             return True
         # อัดใหม่ทั้งความเร็ว — ยกเว้นประโยคที่เสียงไม่เปลี่ยน (ไม่มีจุดเว้น) ถ้าความเร็วเท่าเดิม
         if speed in fresh and h not in fresh[speed]:

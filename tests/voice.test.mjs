@@ -2,7 +2,7 @@
 // ถ้า test นี้ล้ม: รัน npm run voice
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { allSpeeches } from '../src/content/speeches.js';
 
 const root = new URL('../public/voice/th/', import.meta.url);
@@ -16,6 +16,12 @@ test('every sentence the game can say has a recorded clip at both speeds', () =>
     for (const speed of ['normal', 'slow']) assert.ok(existsSync(new URL(`${speed}/${hash}.mp3`, root)), `${speed}: ${text}`);
   }
   assert.deepEqual(missing, []);
+});
+
+test('no recorded clip is empty or truncated (a 0-byte file decodes to silence and falls back to the device voice)', () => {
+  const tiny = [];
+  for (const speed of ['normal', 'slow']) for (const f of readdirSync(new URL(`${speed}/`, root))) if (statSync(new URL(`${speed}/${f}`, root)).size < 1500) tiny.push(`${speed}/${f}`);
+  assert.deepEqual(tiny, []);
 });
 
 test('no stray voice files and the voice is Premwadee', () => {

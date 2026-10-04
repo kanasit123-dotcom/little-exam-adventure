@@ -42,8 +42,28 @@ import set37 from './set-37.js';
 import set38 from './set-38.js';
 import set39 from './set-39.js';
 import set40 from './set-40.js';
+import set41 from './set-41.js';
+import set42 from './set-42.js';
+import set43 from './set-43.js';
+import set44 from './set-44.js';
+import set45 from './set-45.js';
+import set46 from './set-46.js';
+import set47 from './set-47.js';
+import set48 from './set-48.js';
+import set49 from './set-49.js';
+import set50 from './set-50.js';
+import set51 from './set-51.js';
+import set52 from './set-52.js';
+import set53 from './set-53.js';
+import set54 from './set-54.js';
+import set55 from './set-55.js';
+import set56 from './set-56.js';
+import set57 from './set-57.js';
+import set58 from './set-58.js';
+import set59 from './set-59.js';
+import set60 from './set-60.js';
 
-export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19, set20, set21, set22, set23, set24, set25, set26, set27, set28, set29, set30, set31, set32, set33, set34, set35, set36, set37, set38, set39, set40];
+export const SETS = [set01, set02, set03, set04, set05, set06, set07, set08, set09, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19, set20, set21, set22, set23, set24, set25, set26, set27, set28, set29, set30, set31, set32, set33, set34, set35, set36, set37, set38, set39, set40, set41, set42, set43, set44, set45, set46, set47, set48, set49, set50, set51, set52, set53, set54, set55, set56, set57, set58, set59, set60];
 
 // ตัวเลือกในข้อสอบจริงใช้หมายเลข 1 2 3 (ไม่ใช่ ก ข ค)
 export const OPTION_LABELS = ['1', '2', '3', '4'];

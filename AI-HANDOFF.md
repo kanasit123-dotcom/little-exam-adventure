@@ -2,6 +2,7 @@
 
 ## Read First
 
+0. [docs/WORK-CHECKPOINT.md](docs/WORK-CHECKPOINT.md): latest stop/handoff state (2026-10-04). Read this before the historical vertical-slice brief below; do not rebuild the initial slice.
 1. [PROJECT-PLAN.md](PROJECT-PLAN.md): approved product scope and delivery phases.
 2. [AUDIT-GAME-LILLY.md](AUDIT-GAME-LILLY.md): read-only source audit and reuse constraints.
 3. [Decisions](docs/DECISIONS.md), [Architecture](docs/ARCHITECTURE.md).
@@ -9,15 +10,17 @@
 
 The user's latest pasted specification and approved plan supersede the earlier draft. The missing attachment named Lily_Exam_Game_Work_Handoff.md is NOT a blocker.
 
-## Current State (2026-10-01) — read docs/ADDING-A-SET.md next
+## Current State (2026-10-04) — read docs/ADDING-A-SET.md next
 
 - Working directory: C:\Users\KANASIT\Documents\Codex\little-exam-adventure. Public repo `kanasit123-dotcom/little-exam-adventure`, GitHub Pages from `main`; deploy with `gh workflow run pages.yml --ref main` (pushes alone do not trigger it).
-- 40 sets are live. Sets 1-11: 12 questions (5+5+2). Sets 12-40: the newer 15-question format (one five-question story or picture board per block; picture-only options may have four choices). Parent rule: do not change sets 1-11.
+- 60 sets are live (41-60 were written by another AI and reviewed/fixed 2026-10-04: fixed one ambiguous grid, one too-hard distractor, one ambiguous riddle, three empty audio clips). Sets 1-11: 12 questions (5+5+2). Sets 12-60: the newer 15-question format. Current parent rule: do not change previously completed sets, the voice engine or architecture. See docs/SETS-41-50.md and docs/SETS-51-60.md for PDF provenance, scope and QA.
 - Layout rule (parent, 2026-09-30): a question and its answers must fit one screen on iPhone and iPad (no scrolling); `tests/e2e/fit.spec.js` enforces it for every question of every set.
 - Also live: mock exam (30 questions drawn from every set, stories kept whole), mistakes practice, growable friend stickers, reopenable reviews, per-set progress, recorded Premwadee voice at two speeds with phrase pauses (commas between phrases, approved by the parent on iPhone).
 - Pictures: Gemini sheets A-K cut into `public/assets/pictures/`, registered in `src/core/assets.js`. Code-drawn visuals in `src/visuals/visuals.js` (grid, board, figure-row, etc.).
-- Pending gates: parent review of sets 2-40 (`reviewStatus: 'draft'`), real iPad Safari test. The parent page also has a weak-spot report ("จุดที่ควรฝึกเพิ่ม": first-answer accuracy per subject over the last sessions + most-missed questions, computed from history, no extra stored data). The review is now quick: parent page → "ตรวจเฉลยทุกข้อของแต่ละชุด" (`src/screens/answers.js`) lists every question of a set with its answer, reasoning and practice question on one scrolling page (read-only, no audio).
+- Pending gates: parent review of sets 2-60 (`reviewStatus: 'draft'`), real iPad Safari test. The parent page also has a weak-spot report ("จุดที่ควรฝึกเพิ่ม": first-answer accuracy per subject over the last sessions + most-missed questions, computed from history, no extra stored data). The review is now quick: parent page → "ตรวจเฉลยทุกข้อของแต่ละชุด" (`src/screens/answers.js`) lists every question of a set with its answer, reasoning and practice question on one scrolling page (read-only, no audio).
+- Sets 41-50: 150 main + 150 transfer questions, recorded audio at both speeds; browser decoding passed for all 4,136 clips used by these sets. Three empty MP3 files (sets 20/35) found during that work were re-recorded on 2026-10-04 and `tests/voice.test.mjs` now fails on any clip under 1500 bytes. Local production preview: http://127.0.0.1:5181/ (rebuild after code changes).
 - How to add a set, gotchas, and the ranked list of next tasks: **docs/ADDING-A-SET.md**.
+- Sets 51-60 add 150 main + 150 transfer items using unchanged authoring helpers and visual engines. Both voice speeds are recorded: 2,173 phrases / 4,346 used clips decode successfully in Chromium; 119 unit tests and build pass. Final new-set UI/workflow: 30 passed, 10 duplicate-fit skips; twice-listening fit: 10 passed. Consult docs/SETS-51-60.md for remaining parent/Safari gates before publishing. Preserve sets 1-50 and all pre-existing clips. No remote publication was requested.
 
 The assignment below was the brief for that slice. Keep its constraints for later work.
 
