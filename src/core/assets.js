@@ -111,6 +111,10 @@ export const FRIENDS = {
   cat: 'แมว', rabbit: 'กระต่าย', seal: 'แมวน้ำ', penguin: 'เพนกวิน', turtle: 'เต่า', unicorn: 'ยูนิคอร์น',
   butterfly: 'ผีเสื้อ', dolphin: 'โลมา', fox: 'จิ้งจอก', octopus: 'ปลาหมึก', squirrel: 'กระรอก',
 };
+// ลูกของเพื่อน (design/PROMPTS-gemini-13.md): ใส่รหัสเพื่อนที่มีไฟล์ friends/<id>-baby.png แล้ว
+// ตัวที่ยังไม่มีรูปลูก เกมใช้รูปแม่ย่อเล็กพร้อมหัวใจแทน
+export const BABY_ART = [];
+export const hasBabyArt = (id) => BABY_ART.includes(id);
 export const STICKERS = {
   star: 'ดาว', rainbow: 'สายรุ้ง', balloon: 'ลูกโป่ง', blossom: 'ดอกไม้', bow: 'โบว์',
   fish: 'ปลาน้อย', icecream: 'ไอศกรีม', lollipop: 'อมยิ้ม', strawberry: 'สตรอว์เบอร์รี', sunflower: 'ทานตะวัน',
@@ -119,6 +123,7 @@ export const STICKERS = {
 export const ASSETS = Object.freeze({
   ...Object.fromEntries(Object.entries(PICTURES).map(([id, alt]) => [`pic-${id}`, { file: `pictures/${id}.png`, alt }])),
   ...Object.fromEntries(Object.entries(FRIENDS).map(([id, alt]) => [`friend-${id}`, { file: `friends/${id}.png`, alt }])),
+  ...Object.fromEntries(BABY_ART.map((id) => [`friend-baby-${id}`, { file: `friends/${id}-baby.png`, alt: `ลูก${FRIENDS[id]}` }])),
   ...Object.fromEntries(Object.entries(STICKERS).map(([id, alt]) => [`sticker-${id}`, { file: `stickers/${id}.png`, alt }])),
   'background-classroom': { file: 'backgrounds/classroom.jpg', alt: '', decorative: true },
   'background-rainbow': { file: 'backgrounds/rainbow.jpg', alt: '', decorative: true },

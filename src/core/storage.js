@@ -3,6 +3,7 @@
  * ข้อมูลเสีย → เก็บสำเนาไว้ที่ key สำรอง แล้วเริ่มใหม่ ไม่ลบ key อื่น
  */
 import { initialState, STATE_VERSION, HISTORY_LIMIT } from './state.js';
+import { FAMILY_MAX } from './friends.js';
 
 export const STORAGE_KEY = 'little-exam-adventure-v1';
 export const BACKUP_KEY = 'little-exam-adventure-v1-unreadable';
@@ -34,7 +35,7 @@ export function normalize(raw) {
     if (['free', 'twice'].includes(raw.settings.listen)) settings.listen = raw.settings.listen;
   }
   const friends = {};
-  if (isObj(raw.rewards?.friends)) for (const [id, n] of Object.entries(raw.rewards.friends)) if (Number.isInteger(n) && n > 0) friends[id] = n;
+  if (isObj(raw.rewards?.friends)) for (const [id, n] of Object.entries(raw.rewards.friends)) if (Number.isInteger(n) && n > 0) friends[id] = Math.min(n, FAMILY_MAX);
   const rewards = isObj(raw.rewards) && Number.isInteger(raw.rewards.stars) && Array.isArray(raw.rewards.stickers) && isObj(raw.rewards.claimed)
     ? { stars: raw.rewards.stars, stickers: raw.rewards.stickers.filter((x) => typeof x === 'string'), friends, claimed: raw.rewards.claimed }
     : base.rewards;

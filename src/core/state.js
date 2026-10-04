@@ -3,6 +3,8 @@
  * action ที่ผิดเงื่อนไข (เช่น แก้คำตอบที่ส่งแล้ว เปิดเฉลยช่วงที่ยังไม่ส่ง) คืน state เดิม (อ้างอิงเดิม) ไม่เปลี่ยนอะไร
  * ทุก action ที่ผ่านจะถูกบันทึกทั้งก้อนครั้งเดียว (storage.js) — คำตอบกับตำแหน่งข้อจึงไม่หลุดจากกัน
  */
+import { FAMILY_MAX } from './friends.js';
+
 export const STATE_VERSION = 1;
 export const HISTORY_LIMIT = 10;
 export const UNSURE = 'unsure';
@@ -218,7 +220,8 @@ export function reduce(state, action) {
       // สติกเกอร์เพื่อน: เลือกตัวเดิมซ้ำ = โตขึ้นหนึ่งขั้น
       const friend = typeof action.friend === 'string' ? action.friend : null;
       const friends = { ...(state.rewards.friends || {}) };
-      if (friend) friends[friend] = (friends[friend] || 0) + 1;
+      // นับต่อได้ถึงครอบครัวครบ (โตครบ 4 ขนาด แล้วไข่/ลูกอีก 2 รอบ) หลังจากนั้นไม่นับเพิ่ม
+      if (friend) friends[friend] = Math.min((friends[friend] || 0) + 1, FAMILY_MAX);
       return {
         ...state,
         session: done,

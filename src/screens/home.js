@@ -200,7 +200,7 @@ export function mountAlbum(root, ctx) {
       <main class="lx-paper lx-paper-narrow lx-center">
         <h1 class="lx-h1">สติกเกอร์ของหนู</h1>
         <p class="lx-lead">⭐ ดาวทั้งหมด ${store.state.rewards.stars} ดวง · ทำครบหนึ่งชุด เลือกเพื่อนได้ 1 ตัว</p>
-        <p class="lx-small">เลือกเพื่อนตัวเดิมซ้ำ เพื่อนจะโตขึ้น เล็ก กลาง ใหญ่ ใหญ่มาก</p>
+        <p class="lx-small">เลือกเพื่อนตัวเดิมซ้ำ เพื่อนจะโตขึ้น เล็ก กลาง ใหญ่ ใหญ่มาก พอโตสุดแล้วจะมีไข่และมีลูก</p>
         <div class="lx-friend-pick">${friendIds().map((id) => friendCard(id, friends[id])).join('')}</div>
         ${owned.size ? `<h2 class="lx-h2">สติกเกอร์ที่เคยได้</h2>
         <div class="lx-sticker-pick">${Object.entries(STICKERS).filter(([id]) => owned.has(`sticker-${id}`)).map(([id, name]) => `

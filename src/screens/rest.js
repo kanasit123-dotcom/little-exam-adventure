@@ -1,16 +1,33 @@
 /* พักระหว่างช่วง (ข้ามได้) และรับรางวัลเมื่อจบชุด (ให้จากการทำครบ ไม่ขึ้นกับคะแนน) */
 import { SAY } from '../content/copy.js';
 import { summarize } from '../core/summary.js';
-import { FRIEND_SCALE, friendIds, friendLevel, friendName, isBiggest, sizeName } from '../core/friends.js';
+import { FRIEND_SCALE, PARENT_SCALE_WITH_KIDS, cardLabel, familyOf, friendIds, friendName, headline, isFamilyComplete, pickableFriends, sayKey } from '../core/friends.js';
+import { hasBabyArt } from '../core/assets.js';
 import { $, buddyHTML, esc, on, picture } from '../ui.js';
 
-/** รูปเพื่อนในกรอบขนาดคงที่ ภาพใหญ่ขึ้นตามขั้น + ป้ายขนาดตัวเล็กๆ */
-export function friendCard(id, count, { tag = 'div', extra = '' } = {}) {
-  const level = friendLevel(count);
-  return `<${tag} class="lx-fcard${level ? '' : ' lx-fcard-none'}" ${extra}>
-    <span class="lx-fcard-box">${picture(`friend-${id}`, 'lx-fcard-img').replace('<img ', `<img style="width:${FRIEND_SCALE[level] * 100}%" `)}</span>
+/** ไข่วาดด้วยโค้ด สีพาสเทลต่างกันตามเพื่อน (ไม่ต้องใช้รูป) */
+function eggHTML(id) {
+  const hue = (friendIds().indexOf(id) * 47 + 20) % 360;
+  return `<svg class="lx-egg" viewBox="0 0 40 50" aria-hidden="true" style="--egg:hsl(${hue} 85% 92%);--egg-dot:hsl(${hue} 65% 68%)"><path d="M20 3C11 3 4 19 4 31c0 10 7 17 16 17s16-7 16-17C36 19 29 3 20 3z"/><circle cx="14" cy="26" r="2.6"/><circle cx="25" cy="21" r="2.2"/><circle cx="22" cy="35" r="3"/><circle cx="12" cy="38" r="1.8"/></svg>`;
+}
+
+/** ลูกของเพื่อน: ขั้น 1 = ไข่, 2 = ลูกตัวจิ๋ว, 3 = ลูกโตขึ้น (ยังไม่มีรูปลูกใช้รูปแม่ย่อเล็ก) */
+function kidHTML(id, stage) {
+  if (stage === 1) return `<span class="lx-kid lx-kid-egg">${eggHTML(id)}</span>`;
+  const art = hasBabyArt(id) ? `friend-baby-${id}` : `friend-${id}`;
+  return `<span class="lx-kid lx-kid-s${stage}">${picture(art, 'lx-kid-img')}<i class="lx-kid-heart" aria-hidden="true">💗</i></span>`;
+}
+
+/** รูปเพื่อนในกรอบขนาดคงที่ ภาพใหญ่ขึ้นตามขั้น (โตสุดแล้วมีไข่และลูกยืนข้างๆ) + ป้ายตัวเล็กๆ */
+export function friendCard(id, count, { tag = 'div', extra = '', full = false } = {}) {
+  const { level, kids } = familyOf(count);
+  const family = kids[0] > 0;
+  const width = (family ? PARENT_SCALE_WITH_KIDS : FRIEND_SCALE[level]) * 100;
+  const kidsHTML = family ? `<span class="lx-kids">${kids.map((stage) => (stage ? kidHTML(id, stage) : '')).join('')}</span>` : '';
+  return `<${tag} class="lx-fcard${level ? '' : ' lx-fcard-none'}${family ? ' lx-fcard-family' : ''}${full ? ' lx-fcard-full' : ''}" ${extra}>
+    <span class="lx-fcard-box">${picture(`friend-${id}`, 'lx-fcard-img').replace('<img ', `<img style="width:${width}%" `)}${kidsHTML}</span>
     <span class="lx-fcard-name">${esc(friendName(id))}</span>
-    <small class="lx-fcard-size">${level ? `ขนาด${sizeName(level)}` : 'ยังไม่มี'}</small>
+    <small class="lx-fcard-size">${esc(cardLabel(count))}</small>
   </${tag}>`;
 }
 
@@ -47,18 +64,18 @@ export function mountReward(root, ctx) {
     let body;
     if (claimed?.friend) {
       const count = friends[claimed.friend] || 0;
-      const level = friendLevel(count);
-      const headline = count === 1 ? `ได้${friendName(claimed.friend)}ตัวใหม่แล้ว` : `${friendName(claimed.friend)}โตขึ้นเป็นขนาด${sizeName(level)}แล้ว`;
-      body = `<p class="lx-lead">${esc(headline)}</p>
+      body = `<p class="lx-lead">${esc(headline(claimed.friend, count))}</p>
         <div class="lx-reward-friend">${friendCard(claimed.friend, count)}</div>
         <button class="lx-btn lx-btn-go lx-btn-big" id="lx-home" type="button">กลับหน้าแรก 🏠</button>`;
     } else if (claimed) {
       body = `<p class="lx-lead">รับรางวัลแล้ว</p>
         <button class="lx-btn lx-btn-go lx-btn-big" id="lx-home" type="button">กลับหน้าแรก 🏠</button>`;
     } else {
+      const open = new Set(pickableFriends(friends));
       body = `<p class="lx-lead">ได้ดาว 1 ดวง เลือกสติกเกอร์เพื่อนได้ 1 ตัว</p>
-        <p class="lx-small">ถ้าเลือกตัวเดิม เพื่อนจะโตขึ้น เล็ก กลาง ใหญ่ ใหญ่มาก</p>
-        <div class="lx-friend-pick">${friendIds().map((id) => friendCard(id, friends[id], { tag: 'button', extra: `type="button" data-friend="${esc(id)}" aria-label="${esc(friendName(id))}"` })).join('')}</div>`;
+        <p class="lx-small">ถ้าเลือกตัวเดิม เพื่อนจะโตขึ้น พอโตสุดแล้วจะมีไข่และมีลูก</p>
+        <p class="lx-nav-note lx-full-note" id="lx-full-note" aria-live="polite"></p>
+        <div class="lx-friend-pick">${friendIds().map((id) => friendCard(id, friends[id], { tag: 'button', full: !open.has(id), extra: `type="button" data-friend="${esc(id)}" aria-label="${esc(friendName(id))}${open.has(id) ? '' : ' ครอบครัวครบแล้ว'}"${open.has(id) ? '' : ' aria-disabled="true"'}` })).join('')}</div>`;
     }
     root.innerHTML = `
       <div class="lx-screen lx-reward">
@@ -76,12 +93,18 @@ export function mountReward(root, ctx) {
   on(root, 'click', (event) => {
     const pick = event.target.closest('[data-friend]');
     if (pick) {
-      audio.tap(880);
       const id = pick.dataset.friend;
-      const before = store.state.rewards.friends?.[id] || 0;
+      // ครอบครัวนี้ครบแล้ว (ยังมีตัวอื่นให้เลือก): ไม่รับรางวัล แจ้งให้เลือกตัวอื่น
+      if (!pickableFriends(store.state.rewards.friends).includes(id)) {
+        audio.tap(300);
+        $(root, '#lx-full-note').textContent = `${friendName(id)}มีครอบครัวครบแล้ว เลือกเพื่อนตัวอื่นนะ`;
+        audio.play({ text: SAY.familyFull, role: 'encouragement' }, { signal });
+        return;
+      }
+      audio.tap(880);
       const t = summarize(store.state.session, ctx.set).totals;
       store.dispatch({ type: 'claim', friend: id, result: { correct: t.correct, total: t.questions }, now: Date.now() });
-      audio.play({ text: before === 0 ? SAY.newFriend : isBiggest(before) ? SAY.friendBiggest : SAY.friendGrew, role: 'encouragement' }, { signal });
+      audio.play({ text: SAY[sayKey(store.state.rewards.friends?.[id] || 1)], role: 'encouragement' }, { signal });
       return;
     }
     if (event.target.closest('#lx-home')) ctx.go('home');
