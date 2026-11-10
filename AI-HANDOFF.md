@@ -25,11 +25,11 @@ The user's latest pasted specification and approved plan supersede the earlier d
 
 The assignment below was the brief for that slice. Keep its constraints for later work.
 
-## Voice fix: lone "ง" read as "งอ" (2026-11-10, LIVE, commit 5217aad0)
+## Voice fix: the letter "ง" is read by the male voice (2026-11-10)
 
-The TTS read a lone letter "ง" ("ภาพ ง", "ข ง ก ค") as "เงอะ"/"งืม". `design/voice.py` now sends "งอ" for it (`LETTER_NAMES`); 91 phrases x 2 speeds = 182 clips are re-recorded with
-`npm run voice -- --redo-letters ง` (resumable: rerun `npm run voice`; a missing clip is one not recorded yet). Details and status: docs/VOICE-REVIEW.md (last section).
-All 182 clips are recorded, deployed and verified byte for byte on the live site; `npm test` passes (136). Waiting for the parent to listen to the new "งอ". Needs edge-tts >= 7.3.1.
+Premwadee reads a lone "ง" AND the spelling "งอ" as "งะ" (round 1 of the fix, 5217aad0, changed nothing the parent could hear). The parent listened to samples and chose the male voice
+(th-TH-NiwatNeural) for the whole phrase: 127 phrases that contain "ง" or "งอ" as a standalone word, 254 clips, set in `design/voice.py` (`ALT_VOICE`, `ALT_TOKENS`, `voice_for()`, manifest `altVoice`).
+Re-record with `npm run voice -- --redo-letters ง งอ`. Details and the measurements: docs/VOICE-REVIEW.md (last section). Needs edge-tts >= 7.3.1. Waiting for the parent to listen in the real game.
 
 ## Next AI Assignment
 

@@ -21,6 +21,12 @@ OUT = ROOT / 'public' / 'voice' / 'th'
 STATE = ROOT / 'design' / '.voice-state'
 VOICE = 'th-TH-PremwadeeNeural'
 PITCH = '+10Hz'
+# เสียงผู้ชาย (th-TH-NiwatNeural) สำหรับประโยคที่มีตัวอักษร ง (2026-11-10): เสียง Premwadee อ่าน "ง" และ "งอ" เป็น "งะ" ทั้งคู่
+# (ผู้ปกครองฟังแล้ว; เขียน "ง่อ"/"หงอ" ได้สระถูกแต่วรรณยุกต์ผิด) ส่วน Niwat อ่าน "งอ" ถูก ผู้ปกครองเลือกให้ใช้เสียงผู้ชายทั้งประโยค
+# อัดใหม่หลังเพิ่มรายการ:  npm run voice -- --redo-letters ง งอ
+ALT_VOICE = 'th-TH-NiwatNeural'
+ALT_PITCH = '+0Hz'
+ALT_TOKENS = ['ง', 'งอ']
 # ผู้ปกครองขอให้อ่านช้าลง (2026-09-26): ปกติ -10% -> -20%, ช้าลง -30% -> -35%
 RATES = {'normal': '-20%', 'slow': '-35%'}
 # ผู้ปกครองขอให้เว้นวรรคตอนนานขึ้น (2026-09-27): ช่องว่างระหว่างวลีเงียบแค่ ~0.05 วิ
@@ -40,6 +46,13 @@ THAI_CHARS = 'ก-ฺเ-๎'
 def has_letter(text, letter):
     """ตัวอักษรนั้นอยู่ลำพัง (ไม่ติดกับพยัญชนะ สระ หรือวรรณยุกต์ตัวอื่น) เช่น "ภาพ ง" "ข ง ก ค" แต่ไม่ใช่ "งู" """
     return re.search(rf'(?<![{THAI_CHARS}]){letter}(?![{THAI_CHARS}])', text) is not None
+
+
+def voice_for(text):
+    """(เสียง, ระดับเสียง) ของประโยคนี้: เสียงผู้ชายถ้ามี ง หรือ งอ อยู่ลำพัง ไม่งั้นเสียงหลัก"""
+    if any(has_letter(text, token) for token in ALT_TOKENS):
+        return ALT_VOICE, ALT_PITCH
+    return VOICE, PITCH
 
 
 def letter_names(text):
@@ -119,7 +132,8 @@ async def main():
         # เน็ตสะดุด/บริการจำกัดความถี่ -> ลองใหม่สูงสุด 6 ครั้ง เว้นนานขึ้นเรื่อยๆ; ข้อความที่ TTS ไม่ยอมอ่านเลย -> ตัดออกจาก manifest
         for attempt in range(6):
             try:
-                await edge_tts.Communicate(spoken(text), VOICE, rate=RATES[speed], pitch=PITCH).save(str(path))
+                voice, pitch = voice_for(text)
+                await edge_tts.Communicate(spoken(text), voice, rate=RATES[speed], pitch=pitch).save(str(path))
                 print(' ', speed, h, text[:40], flush=True)
                 if speed in fresh:
                     with open(STATE / f'redone-{speed}.txt', 'a', encoding='utf-8') as f:
@@ -136,6 +150,7 @@ async def main():
         clips.pop(text, None)
     manifest = {
         'voice': VOICE,
+        'altVoice': {'voice': ALT_VOICE, 'pitch': ALT_PITCH, 'tokens': ALT_TOKENS, 'phrases': sum(1 for t in clips if voice_for(t)[0] == ALT_VOICE)},
         'rates': RATES,
         'style': STYLE,
         'reviewStatus': 'ผู้ปกครองต้องฟังตรวจก่อนให้เด็กใช้ (ดู docs/VOICE-REVIEW.md)',
