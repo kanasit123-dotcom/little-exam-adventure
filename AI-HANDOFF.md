@@ -25,6 +25,12 @@ The user's latest pasted specification and approved plan supersede the earlier d
 
 The assignment below was the brief for that slice. Keep its constraints for later work.
 
+## Voice fix: lone "ง" read as "งอ" (2026-11-09, recorded, not committed or deployed)
+
+The TTS read a lone letter "ง" ("ภาพ ง", "ข ง ก ค") as "เงอะ"/"งืม". `design/voice.py` now sends "งอ" for it (`LETTER_NAMES`); 91 phrases x 2 speeds = 182 clips are re-recorded with
+`npm run voice -- --redo-letters ง` (resumable: rerun `npm run voice`; a missing clip is one not recorded yet). Details and status: docs/VOICE-REVIEW.md (last section).
+All 182 clips are recorded and `npm test` passes (136). Waiting for the parent to listen, then commit and deploy on her/his say-so. Needs edge-tts >= 7.3.1.
+
 ## Next AI Assignment
 
 When asked to implement, inspect current code first and develop the full 12-question vertical slice in this repository.

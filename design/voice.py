@@ -13,6 +13,7 @@ import asyncio
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,11 +30,30 @@ STYLE = 'pause-1'
 MATH = {'บวก', 'ลบ', 'เท่ากับ'}
 
 
+# พยัญชนะเดี่ยวที่ TTS อ่านผิดเมื่อมาลำพัง (ผู้ปกครองแจ้ง 2026-11-09: "ภาพ ง" อ่านเป็น "เงอะ"/"งืม" ไม่ใช่ "งอ")
+# -> ส่งชื่อเสียงของตัวอักษรให้ TTS แทน (ข้อความในเกมและชื่อไฟล์ hash ไม่เปลี่ยน)
+# เพิ่มตัวอักษรที่นี่ได้ แล้วอัดใหม่เฉพาะประโยคที่มีตัวนั้น:  npm run voice -- --redo-letters <ตัวอักษร>
+LETTER_NAMES = {'ง': 'งอ'}
+THAI_CHARS = 'ก-ฺเ-๎'
+
+
+def has_letter(text, letter):
+    """ตัวอักษรนั้นอยู่ลำพัง (ไม่ติดกับพยัญชนะ สระ หรือวรรณยุกต์ตัวอื่น) เช่น "ภาพ ง" "ข ง ก ค" แต่ไม่ใช่ "งู" """
+    return re.search(rf'(?<![{THAI_CHARS}]){letter}(?![{THAI_CHARS}])', text) is not None
+
+
+def letter_names(text):
+    for letter, name in LETTER_NAMES.items():
+        text = re.sub(rf'(?<![{THAI_CHARS}]){letter}(?![{THAI_CHARS}])', name, text)
+    return text
+
+
 def spoken(text):
-    """ข้อความที่ส่งให้ TTS: ตัดอีโมจิ/สัญลักษณ์ และเปลี่ยนเครื่องหมายคณิตเป็นคำ"""
+    """ข้อความที่ส่งให้ TTS: ตัดอีโมจิ/สัญลักษณ์ เปลี่ยนเครื่องหมายคณิตเป็นคำ และพยัญชนะเดี่ยวเป็นชื่อเสียง"""
     text = text.replace('−', ' ลบ ').replace('+', ' บวก ').replace('=', ' เท่ากับ ')
     chars = [' ' if (0x1F000 <= ord(c) <= 0x1FFFF or 0x2600 <= ord(c) <= 0x27BF or c in '️·') else c for c in text]
-    return paced(re.sub(r'\s+', ' ', ''.join(chars)).strip())
+    # จังหวะเว้นวรรค (paced) คิดจากตัวอักษรเดี่ยวเดิม จึงเปลี่ยนเป็นชื่อเสียงหลังจากนั้น
+    return letter_names(paced(re.sub(r'\s+', ' ', ''.join(chars)).strip()))
 
 
 def paced(text):
@@ -55,6 +75,14 @@ async def main():
     import edge_tts
     texts = json.loads((ROOT / 'design' / 'voice-texts.json').read_text(encoding='utf-8'))
     clips = {text: hashlib.md5(text.encode('utf-8')).hexdigest()[:12] for text in texts}
+    if '--redo-letters' in sys.argv:
+        # ลบคลิปของประโยคที่มีพยัญชนะเดี่ยวนั้น แล้วให้รอบอัดตามปกติอัดใหม่ (หยุดกลางคันแล้วรันต่อได้: ไฟล์ที่หายคือที่ยังไม่ได้อัด)
+        letters = sys.argv[sys.argv.index('--redo-letters') + 1:]
+        gone = [(text, h) for text, h in clips.items() if any(has_letter(text, c) for c in letters)]
+        for text, h in gone:
+            for speed in RATES:
+                (OUT / speed / f'{h}.mp3').unlink(missing_ok=True)
+        print(f'--redo-letters {" ".join(letters)}: {len(gone)} phrases x {len(RATES)} speeds will be recorded again')
     # เปลี่ยนความเร็ว -> อัดใหม่ทั้งความเร็วนั้น (ไฟล์ตั้งชื่อตามข้อความ ไม่ได้ตามความเร็ว)
     # งานอัดใหม่จดไว้ใน design/.voice-state/ ทีละไฟล์ (ไม่ขึ้น git) จะได้หยุดกลางคันแล้วรันต่อได้
     old_manifest = json.loads((OUT / 'manifest.json').read_text(encoding='utf-8')) if (OUT / 'manifest.json').exists() else {}
@@ -131,4 +159,5 @@ async def main():
     print('done', len(clips), 'phrases')
 
 
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())
